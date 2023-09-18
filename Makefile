@@ -14,6 +14,7 @@ BINPATH = $(shell stack path --local-install-root)/bin/
 BINNAME = glados-exe
 
 all:
+			stack setup --allow-different-user
 			stack build
 			cp $(BINPATH)$(BINNAME) ./$(NAME)
 
