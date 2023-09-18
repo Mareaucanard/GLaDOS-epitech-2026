@@ -16,7 +16,7 @@ jobs:
 
     - name: Permissions bug workaround
       run: |
-        chown -R $(id -un):$(id -gn) ~
+        chown 777 /github/home
 
     - name: compile
       run: |
