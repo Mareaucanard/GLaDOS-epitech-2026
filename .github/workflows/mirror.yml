@@ -1,0 +1,42 @@
+name: Publish to Mirror
+
+on: [push, pull_request]
+
+env:
+  MIRROR_URL: git@github.com:EpitechPromo2026/B-FUN-500-TLS-5-1-glados-matthieu.fraiz.git
+  BINARY: "glados"
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    container: epitechcontent/epitest-docker:latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: compile
+      run: |
+        timeout 2m make
+
+    - name: check_binary
+      run: |
+        if [[ ! -f $BINARY ]]; then
+          echo "::error title=Executable not found::$BINARY"
+        fi
+
+  publish:
+    needs: [check_binary]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' }}
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - uses: pixta-dev/repository-mirroring-action@v1
+      with:
+        target_repo_url:
+          ${{ env.MIRROR_URL }}
+        ssh_private_key:
+          ${{ secrets.KEY_GIT_PUSH }}
