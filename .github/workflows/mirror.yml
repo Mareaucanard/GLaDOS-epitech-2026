@@ -16,6 +16,7 @@ jobs:
 
     - name: Permissions bug workaround
       run: |
+        chown -R $(id -un):$(id -gn) ~
 
     - name: compile
       run: |
