@@ -6,7 +6,6 @@ env:
   MIRROR_URL: git@github.com:EpitechPromo2026/B-FUN-500-TLS-5-1-glados-matthieu.fraiz.git
   BINARY: "glados"
 
-
 jobs:
   compile:
     runs-on: ubuntu-latest
@@ -20,7 +19,8 @@ jobs:
         timeout 2m make
 
     - name: Permissions bug workaround
-    run: "chown -R $(id -un):$(id -gn) ~"
+      run: |
+        chown -R $(id -un):$(id -gn) ~
 
     - name: check_binary
       run: |
