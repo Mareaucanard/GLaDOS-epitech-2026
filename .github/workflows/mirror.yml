@@ -14,13 +14,13 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: compile
-      run: |
-        timeout 2m make
-
     - name: Permissions bug workaround
       run: |
         chown -R $(id -un):$(id -gn) ~
+
+    - name: compile
+      run: |
+        timeout 2m make
 
     - name: check_binary
       run: |
