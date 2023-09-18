@@ -15,8 +15,8 @@ BINNAME = glados-exe
 
 all:
 			stack setup --allow-different-user
-			stack build
-			cp $(BINPATH)$(BINNAME) ./$(NAME)
+			stack build --copy-bins
+			mv $(BINNAME) $(NAME)
 
 default:	all
 
@@ -25,5 +25,8 @@ clean:
 
 fclean:		clean
 			rm -f $(NAME)
+
+tests:
+			stack test
 
 re:			clean all
