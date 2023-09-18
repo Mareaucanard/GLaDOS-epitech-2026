@@ -14,12 +14,9 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Permissions bug workaround
-      run: |
-        chown 777 /github/home
-
     - name: compile
       run: |
+        chown 777 /github/home
         timeout 2m make
 
     - name: check_binary
