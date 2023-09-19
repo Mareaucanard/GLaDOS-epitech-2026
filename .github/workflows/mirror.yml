@@ -56,6 +56,8 @@ jobs:
     permissions: write-all
     if: github.ref == 'refs/heads/main'
     steps:
+      - uses: actions/checkout@v3
+
       - uses: actions/download-artifact@v2
         with:
           name: glados-bin
