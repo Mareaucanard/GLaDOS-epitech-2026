@@ -48,6 +48,7 @@ jobs:
   deploy:
     needs: compile
     runs-on: ubuntu-latest
+    permissions: write-all
     if: github.ref == 'refs/heads/main'
     steps:
       - name: Create Release
