@@ -50,12 +50,14 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
-      - uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          files: glados
-          prerelease: true
-          title: "Development build"
+      - name: Create Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "Release"           \
+            --title "Dev build"                  \
+            --generate-notes                  \
+            --target main                     \
+            "$PWD/glados#GLaDOS-release"
 
 
