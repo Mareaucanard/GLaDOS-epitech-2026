@@ -72,6 +72,6 @@ jobs:
             --title "Dev build"                 \
             --generate-notes                    \
             --target main                       \
-            "$PWD/glados#GLaDOS-release"
+            "$PWD/glados#glados-bin"
 
 
