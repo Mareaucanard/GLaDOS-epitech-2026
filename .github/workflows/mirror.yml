@@ -67,8 +67,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          export DATE=$(date +"%d/%m/%Y %H:%M")
-          gh release create "$DATE build"       \
+          export DATE=$(date +"%d/%m/%Y_%Hh%M")
+          gh release create "$DATE"       \
             --title "Dev build"                 \
             --generate-notes                    \
             --target main                       \
