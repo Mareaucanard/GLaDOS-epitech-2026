@@ -39,6 +39,7 @@ sexprToAST :: SExpr -- ^ The SExpr to transform
   -> Either Ast String -- ^ The return value
 sexprToAST (Integer i) = Left (Value i)
 sexprToAST (Symbol s) = Left (Sym s)
+sexprToAST (Boolan b) = Left (Boolean b)
 sexprToAST (List [sexpr]) = sexprToAST sexpr
 sexprToAST (List (s : xs)) = case sexprToAST s of
   Right msg -> Right msg

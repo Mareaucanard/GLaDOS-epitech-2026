@@ -8,6 +8,7 @@ data SExpr
   = Integer Int -- ^ An integer
   | Symbol String -- ^ A symbol
   | List [SExpr] -- ^ A list of SExpr
+  | Boolan Bool -- ^ A boolean
   deriving (Show -- ^ Makes SExpr printable
     , Read -- ^ Makes SExpr readable
   )
@@ -123,13 +124,25 @@ parseSymbol x
     trimmed = trim x
     nb = count ' ' trimmed
 
+-- |Tries to parse a boolean.
+-- On success, returns the boolean in Left.
+-- On failure, returns an error message on the Right.
+parseBool :: String -- ^ The string to parse
+  -> Either SExpr String -- ^ The return value
+parseBool ['t'] = Left $ Boolan True
+parseBool ['f'] = Left $ Boolan False
+parseBool _ = Right "Boolean not empty or not recognized"
+
 -- |Tries to parse a LISP expression.
 -- Left is the parsed SExpr.
 -- Right is an error.
 parseString :: String -- ^ The string to parse
   -> Either SExpr String -- ^ The return value
+parseString :: String -> Either SExpr String
 parseString (' ' : xs) = parseString xs
 parseString ('(' : xs) = parseList ('(' : xs)
+parseString ('#' : xs) = parseBool (trim xs)
+parseString ('\n' : xs) = parseString xs
 parseString (x : xs) = if isNumber x then parseNumber (x : xs) else parseSymbol (x : xs)
 parseString [] = Right "Can't evaluate empty string"
 
