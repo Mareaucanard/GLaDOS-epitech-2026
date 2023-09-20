@@ -101,9 +101,9 @@ parseBool _ = Right "Boolean not empty or not recognized"
 
 parseString :: String -> Either SExpr String
 parseString (' ' : xs) = parseString xs
+parseString ('\n' : xs) = parseString xs
 parseString ('(' : xs) = parseList ('(' : xs)
 parseString ('#' : xs) = parseBool (trim xs)
-parseString ('\n' : xs) = parseString xs
 parseString (x : xs) = if isNumber x then parseNumber (x : xs) else parseSymbol (x : xs)
 parseString [] = Right "Can't evaluate empty string"
 
@@ -111,6 +111,8 @@ splitArgsLogic :: String -> Int -> String -> [String] -> [String]
 splitArgsLogic [] _ l t = l : t
 splitArgsLogic (' ' : xs) 0 "" t = splitArgsLogic xs 0 "" t
 splitArgsLogic (' ' : xs) 0 l t = splitArgsLogic xs 0 "" (l : t)
+splitArgsLogic ('\n' : xs) 0 "" t = splitArgsLogic xs 0 "" t
+splitArgsLogic ('\n' : xs) 0 l t = splitArgsLogic xs 0 "" (l : t)
 splitArgsLogic ('(' : xs) 0 l t = splitArgsLogic xs 1 "(" (l : t)
 splitArgsLogic (')' : xs) 1 l t = splitArgsLogic xs 0 "" ((')' : l) : t)
 splitArgsLogic ('(' : xs) n l t = splitArgsLogic xs (n + 1) ('(' : l) t
