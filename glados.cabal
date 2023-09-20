@@ -29,6 +29,7 @@ library
       DefaultSymbol
       Example
       Lib
+      Interpreter
   other-modules:
       Paths_glados
   hs-source-dirs:
