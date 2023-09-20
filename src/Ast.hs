@@ -30,6 +30,7 @@ checkOperands = myMaybeMap sexprToAST
 sexprToAST :: SExpr -> Either Ast String
 sexprToAST (Integer i) = Left (Value i)
 sexprToAST (Symbol s) = Left (Sym s)
+sexprToAST (Boolan b) = Left (Boolean b)
 sexprToAST (List [sexpr]) = sexprToAST sexpr
 sexprToAST (List (s : xs)) = case sexprToAST s of
   Right msg -> Right msg
