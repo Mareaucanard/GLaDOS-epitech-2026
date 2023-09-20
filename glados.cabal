@@ -27,6 +27,7 @@ library
   exposed-modules:
       Ast
       Lib
+      Interpreter
   other-modules:
       Paths_glados
   hs-source-dirs:
