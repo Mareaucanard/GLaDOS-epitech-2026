@@ -1,61 +1,82 @@
 module DefaultSymbol (defaultSymbols) where
 
-import Types (Ast (..), VarMap)
+import Ast (evalAst, mapEvalCalls)
 import qualified Data.Map.Lazy as Map
+import Text.Read (Lexeme (String))
+import Types (Ast (..), VarMap)
+
+evalAstNoVars :: Ast -> VarMap -> Either Ast String
+evalAstNoVars ast m = case evalAst ast m of
+  Right msg -> Right msg
+  Left (val, _) -> Left val
+
+twoOpFunc :: [Ast] -> VarMap -> String -> (Ast -> Ast -> Either Ast String) -> Either Ast String
+twoOpFunc [ast1, ast2] m name f = case mapEvalCalls [ast1, ast2] m of
+  Right msg -> Right msg
+  Left ([a, b], _) -> f a b
+  _ -> Right $ "Invalid use of " ++ name ++ " operation"
+twoOpFunc _ _ name _ = Right $ "Invalid use of " ++ name ++ " operation"
+
+basicOp :: (Int -> Int -> Int) -> (Ast -> Ast -> Either Ast String)
+basicOp f (Value a) (Value b) = Left $ Value (f a b)
+basicOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
+
+boolOp :: (Int -> Int -> Bool) -> (Ast -> Ast -> Either Ast String)
+boolOp f (Value a) (Value b) = Left $ Boolean (f a b)
+boolOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
 
 addAst :: [Ast] -> VarMap -> Either Ast String
-addAst [Value a, Value b] _ = Left (Value (a + b))
-addAst _ _ = Right "Invalid use of add operation"
+addAst args m = twoOpFunc args m "add" (basicOp (+))
 
 subAst :: [Ast] -> VarMap -> Either Ast String
-subAst [Value a, Value b] _ = Left (Value (a - b))
-subAst _ _ = Right "Invalid use of sub operation"
+subAst args m = twoOpFunc args m "sub" (basicOp (-))
 
 mulAst :: [Ast] -> VarMap -> Either Ast String
-mulAst [Value a, Value b] _ = Left (Value (a * b))
-mulAst _ _ = Right "Invalid use of times operation"
+mulAst args m = twoOpFunc args m "times" (basicOp (*))
+
+divLogic :: Ast -> Ast -> Either Ast String
+divLogic (Value _) (Value 0) = Right "Division by zero"
+divLogic (Value a) (Value b) = Left (Value (a `quot` b))
+divLogic _ _ = Right "Invalid use of div operation"
 
 divAst :: [Ast] -> VarMap -> Either Ast String
-divAst [Value _, Value 0] _ = Right "Division by zero"
-divAst [Value a, Value b] _ = Left (Value (a `quot` b))
-divAst _ _ = Right "Invalid use of div operation"
+divAst args m = twoOpFunc args m "div" divLogic
+
+modLogic :: Ast -> Ast -> Either Ast String
+modLogic (Value _) (Value 0) = Right "Module by zero"
+modLogic (Value a) (Value b) = Left (Value (a `mod` b))
+modLogic _ _ = Right "Invalid use of mod operation"
 
 modAst :: [Ast] -> VarMap -> Either Ast String
-modAst [Value _, Value 0] _ = Right "Module by zero"
-modAst [Value a, Value b] _ = Left (Value (a `mod` b))
-modAst _ _ = Right "Invalid use of mod operation"
+modAst args m = twoOpFunc args m "mod" modLogic
 
 powAst :: [Ast] -> VarMap -> Either Ast String
-powAst [Value a, Value b] _ = Left (Value (a ^ b))
-powAst _ _ = Right "Invalid use of power operation"
+powAst args m = twoOpFunc args m "power" (basicOp (^))
 
 ifAst :: [Ast] -> VarMap -> Either Ast String
-ifAst [Boolean b, x, y] _ = Left (if b then x else y)
-ifAst _ _ = Right "Invalid use of if condition"
+ifAst [cond, x, y] m = case evalAstNoVars cond m of
+  Right err -> Right err
+  Left (Boolean bool) -> if bool then evalAstNoVars x m else evalAstNoVars y m
+  Left _ -> Right "If condition can only evaluate boolean values"
+ifAst s _ = Right $ "Invalid use of if condition" ++ show s
 
 equalAst :: [Ast] -> VarMap -> Either Ast String
-equalAst [Value a, Value b] _ = Left (Boolean (a == b))
-equalAst _ _ = Right "Invalid use of equal operation"
+equalAst args m = twoOpFunc args m "equal" (boolOp (==))
 
 diffAst :: [Ast] -> VarMap -> Either Ast String
-diffAst [Value a, Value b] _ = Left (Boolean (a /= b))
-diffAst _ _ = Right "Invalid use of different operation"
+diffAst args m = twoOpFunc args m "equal" (boolOp (/=))
 
 infAst :: [Ast] -> VarMap -> Either Ast String
-infAst [Value a, Value b] _ = Left (Boolean (a < b))
-infAst _ _ = Right "Invalid use of inferior operation"
+infAst args m = twoOpFunc args m "equal" (boolOp (<))
 
 infEqAst :: [Ast] -> VarMap -> Either Ast String
-infEqAst [Value a, Value b] _ = Left (Boolean (a <= b))
-infEqAst _ _ = Right "Invalid use of inferior or equal operation"
+infEqAst args m = twoOpFunc args m "equal" (boolOp (<=))
 
 supAst :: [Ast] -> VarMap -> Either Ast String
-supAst [Value a, Value b] _ = Left (Boolean (a > b))
-supAst _ _ = Right "Invalid use of superior operation"
+supAst args m = twoOpFunc args m "equal" (boolOp (>))
 
 supEqAst :: [Ast] -> VarMap -> Either Ast String
-supEqAst [Value a, Value b] _ = Left (Boolean (a >= b))
-supEqAst _ _ = Right "Invalid use of superior or equal operation"
+supEqAst args m = twoOpFunc args m "equal" (boolOp (<=))
 
 defaultSymbols :: VarMap
 defaultSymbols =

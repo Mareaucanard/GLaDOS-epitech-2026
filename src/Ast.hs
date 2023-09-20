@@ -1,4 +1,4 @@
-module Ast (sexprToAST, evalAst, VarMap) where
+module Ast (sexprToAST, evalAst, VarMap, mapEvalCalls) where
 
 import qualified Data.Map.Lazy as Map
 import Lib (myMaybeMap)
@@ -84,9 +84,7 @@ evalCall (Sym "define") arg m = case defineSymbol arg m of
   Left (s, v) -> Left (None, Map.insert s v m)
 evalCall o l m = case evalAst o m of
   Right msg -> Right msg
-  Left (eo, em) -> case mapEvalCalls l em of
-    Right err -> Right err
-    Left (el, em2) -> applyOp eo el em2
+  Left (eo, em) -> applyOp eo l em
 
 {--
   Tries to read a variable
@@ -124,26 +122,33 @@ evalAst (Boolean b) m = Left (Boolean b, m)
     evalLambda [ArgName1, ArgName2, ...] Expression ArgList
 --}
 evalLambda :: [String] -> Ast -> [Ast] -> VarMap -> Either Ast String
-evalLambda argsName expr args vars
-  | length argsName /= length args = Right "Incorrect number of arguments"
-  | otherwise = case evalAst expr (insertLambdaVars argsName args vars) of
-      Right message -> Right message
-      Left (retVal, _) -> Left retVal
+evalLambda argsName expr args vars = case insertLambdaVars argsName args vars of
+  Right err1 -> Right err1
+  Left newVars -> case evalAst expr newVars of
+      Right err2 -> Right err2
+      Left (newExpr, _) -> case evalAst newExpr newVars of
+        Right message -> Right message
+        Left (retVal, _) -> Left retVal
 
 {--
     Inserts a new element in a map
 --}
-insertLambda :: String -> Ast -> VarMap -> VarMap
-insertLambda = Map.insert
+insertLambda :: String -> Ast -> Either VarMap String -> Either VarMap String
+insertLambda _ _ (Right err) = Right err
+insertLambda key val (Left m) = Left $ Map.insert key val m
 
 {--
     Inserts multiple new elements in a map
 --}
-insertLambdaVars :: [String] -> [Ast] -> VarMap -> VarMap
-insertLambdaVars (name : names) (var : vars) vmap = insertLambda name var nmap
+insertLambdaVars :: [String] -> [Ast] -> VarMap -> Either VarMap String
+insertLambdaVars (name : names) (var : vars) vmap = case evalAst var vmap of
+  Right msg -> Right msg
+  Left (evaledVar, _) -> insertLambda name evaledVar nmap
   where
     nmap = insertLambdaVars names vars vmap
-insertLambdaVars _ _ m = m
+insertLambdaVars [] [] m = Left m
+insertLambdaVars [] _ _ = Right "Not enough arguments"
+insertLambdaVars _ [] _ = Right "Too many arguments"
 
 {--
     createLambda Name [ArgName1, ArgName2, ..., ArgNameN] Expression
