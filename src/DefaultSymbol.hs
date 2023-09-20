@@ -58,6 +58,7 @@ modAst args m = twoOpFunc args m "mod" modLogic
 powAst :: [Ast] -> VarMap -> Either Ast String
 powAst args m = twoOpFunc args m "power" (basicOp (^))
 
+-- |Default symbols.
 ifAst :: [Ast] -> VarMap -> Either Ast String
 ifAst [cond, x, y] m = case evalAstNoVars cond m of
   Right err -> Right err
@@ -83,7 +84,6 @@ supAst args m = twoOpFunc args m "equal" (boolOp (>))
 supEqAst :: [Ast] -> VarMap -> Either Ast String
 supEqAst args m = twoOpFunc args m "equal" (boolOp (<=))
 
--- |Default symbols.
 defaultSymbols :: VarMap
 defaultSymbols =
   Map.fromList

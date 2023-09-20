@@ -33,6 +33,7 @@ sexprToAST :: SExpr -- ^ The SExpr to transform
 sexprToAST (Integer i) = Left (Value i)
 sexprToAST (Boolan b) = Left (Boolean b)
 sexprToAST (Symbol s) = Left (Sym s)
+sexprToAST (Boolan b) = Left (Boolean b)
 sexprToAST (List (Symbol "lambda" : xs)) = handleLambda xs
 sexprToAST (List [sexpr]) = sexprToAST sexpr
 sexprToAST (List (s : xs)) = case sexprToAST s of
