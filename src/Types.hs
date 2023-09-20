@@ -24,7 +24,7 @@ data Ast
 -- |Makes Ast printable.
 instance Show Ast where
   show :: Ast -> String -- ^ The return value
-  show (Lambda name _) = "Lambda " ++ show name
+  show (Lambda _) = "Lambda "
   show (Value i) = "Value " ++ show i
   show (Sym s) = "Symbol " ++ show s
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
