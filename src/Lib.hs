@@ -1,32 +1,20 @@
-module Lib (SExpr (..), getSymbol, getInteger, getList, printTree, parseString, myMaybeMap) where
+module Lib (printTree, parseString, myMaybeMap) where
 
 import Data.Char (isNumber, isSpace, toUpper)
 import Data.List (dropWhileEnd)
 import Text.Read (readMaybe)
+import Types (SExpr (..))
 
-data SExpr
-  = Integer Int
-  | Symbol String
-  | List [SExpr]
-  | Boolan Bool
-  deriving (Show, Read)
-
-getSymbol :: SExpr -> Maybe String
-getSymbol (Symbol s) = Just s
-getSymbol _ = Nothing
-
-getInteger :: SExpr -> Maybe Int
-getInteger (Integer i) = Just i
-getInteger _ = Nothing
-
-getList :: SExpr -> Maybe [SExpr]
-getList (List l) = Just l
-getList _ = Nothing
-
+{--
+  print Items in lists for printTree
+--}
 handleListItem :: SExpr -> String
 handleListItem (List l) = "(" ++ actualPrintTree (List l) ++ ")"
 handleListItem e = actualPrintTree e
 
+{--
+  handle printTree of lists
+--}
 handleList :: [SExpr] -> Int -> String
 handleList [] 0 = "an empty list"
 handleList (x : xs) 0 = "a list with " ++ handleListItem x ++ handleList xs 1
@@ -34,26 +22,46 @@ handleList [x] _ = " and " ++ handleListItem x
 handleList (x : xs) n = ", " ++ handleListItem x ++ handleList xs (n + 1)
 handleList [] _ = ""
 
+{--
+  Logic behind print tree
+--}
 actualPrintTree :: SExpr -> String
 actualPrintTree (Integer i) = "an integer " ++ show i
 actualPrintTree (Symbol s) = "a symbol " ++ show s
 actualPrintTree (List l) = handleList l 0
+actualPrintTree (Boolan b) = "a boolean " ++ show b
 
+{--
+  prints a Tree in a very nice sentence (is there for capitalization)
+--}
 printTree :: SExpr -> String
 printTree tree = case actualPrintTree tree of
   [] -> []
   (x : xs) -> toUpper x : xs
 
+{--
+  Tries to add to a either monad
+  if there is an error, returns the first error to come up
+  otherwise, appends to the list
+--}
 addMaybe :: a -> Either [a] b -> Either [a] b
 addMaybe _ (Right msg) = Right msg
 addMaybe x (Left xs) = Left (x : xs)
 
+{--
+  Check if a string only contains spaces
+--}
 isEmpty :: String -> Bool
 isEmpty [] = True
 isEmpty (x : xs)
   | x == ' ' = isEmpty xs
   | otherwise = False
 
+{--
+  Remove the first and last parentheses from a string
+  Left is the correct string
+  Right is an error message (unmatched parentheses or stuff after parentheses (space don't count))
+--}
 stripParenthesis :: String -> Int -> Either String String
 stripParenthesis ('(' : xs) 0 = stripParenthesis xs 1
 stripParenthesis (')' : xs) 1 = if isEmpty xs then Left "" else Right "Something is after a parenthesis"
@@ -62,6 +70,11 @@ stripParenthesis (')' : xs) n = addMaybe ')' (stripParenthesis xs (n - 1))
 stripParenthesis (x : xs) n = addMaybe x (stripParenthesis xs n)
 stripParenthesis [] _ = Right "Unmatched parenthesis"
 
+{--
+  Tries to map with a load of either monads
+  if any call fails, returns the first error
+  otherwise returns the map return
+--}
 myMaybeMap :: (a -> Either b c) -> [a] -> Either [b] c
 myMaybeMap _ [] = Left []
 myMaybeMap f (x : xs) = case f x of
@@ -80,12 +93,23 @@ parseNumber x = case readMaybe x of
   Nothing -> Right $ "Could not read integer " ++ show x
   Just r -> Left (Integer r)
 
+{--
+  Removes leading and trailing spaces
+--}
 trim :: [Char] -> String
 trim = dropWhileEnd isSpace . dropWhile isSpace
 
+{--
+  Counts the number of item in list
+--}
 count :: (Eq a) => a -> [a] -> Int
 count x = length . filter (x ==)
 
+{--
+  Tries to parse a symbol
+  On success, returns the symbol in Left
+  On failure, returns an error message on the Right
+--}
 parseSymbol :: String -> Either SExpr String
 parseSymbol x
   | nb == 0 = Left $ Symbol trimmed
@@ -99,6 +123,11 @@ parseBool ['t'] = Left $ Boolan True
 parseBool ['f'] = Left $ Boolan False
 parseBool _ = Right "Boolean not empty or not recognized"
 
+{--
+  Tries to parse a LISP expression
+  Left is the parsed SExpr
+  Right is an error
+--}
 parseString :: String -> Either SExpr String
 parseString (' ' : xs) = parseString xs
 parseString ('\n' : xs) = parseString xs
@@ -107,6 +136,9 @@ parseString ('#' : xs) = parseBool (trim xs)
 parseString (x : xs) = if isNumber x then parseNumber (x : xs) else parseSymbol (x : xs)
 parseString [] = Right "Can't evaluate empty string"
 
+{--
+  Split args magic
+--}
 splitArgsLogic :: String -> Int -> String -> [String] -> [String]
 splitArgsLogic [] _ l t = l : t
 splitArgsLogic (' ' : xs) 0 "" t = splitArgsLogic xs 0 "" t
@@ -119,5 +151,10 @@ splitArgsLogic ('(' : xs) n l t = splitArgsLogic xs (n + 1) ('(' : l) t
 splitArgsLogic (')' : xs) n l t = splitArgsLogic xs (n - 1) (')' : l) t
 splitArgsLogic (x : xs) n l t = splitArgsLogic xs n (x : l) t
 
+{--
+  Split args and keeps parentheses
+  so like "(1 (2 3 4) 5)" => ["1", "(2 3 4)", "5"]
+  never errors (parent should check for bad parenthesis)
+--}
 splitArgs :: String -> [String]
 splitArgs l = reverse (map reverse (filter (not . isEmpty) (splitArgsLogic l 0 "" [])))
