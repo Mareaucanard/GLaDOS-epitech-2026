@@ -3,6 +3,7 @@ module Main (main) where
 import Ast
 import Data.Char (toLower)
 import Lib (parseString)
+import DefaultSymbol (defaultSymbols)
 
 processInput :: IO String
 processInput = do

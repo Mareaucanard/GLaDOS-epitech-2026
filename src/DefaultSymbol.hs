@@ -1,6 +1,6 @@
 module DefaultSymbol (defaultSymbols) where
 
-import Ast (Ast (..), VarMap)
+import Types (Ast (..), VarMap)
 import qualified Data.Map.Lazy as Map
 
 addAst :: [Ast] -> VarMap -> Either Ast String
@@ -32,10 +32,10 @@ powAst _ _ = Right "Invalid use of power operation"
 defaultSymbols :: VarMap
 defaultSymbols =
   Map.fromList
-    [ ("+", Lambda "+" addAst),
-      ("-", Lambda "-" subAst),
-      ("*", Lambda "*" mulAst),
-      ("/", Lambda "/" divAst),
-      ("%", Lambda "%" modAst),
-      ("^", Lambda "^" powAst)
+    [ ("+", Lambda addAst),
+      ("-", Lambda subAst),
+      ("*", Lambda mulAst),
+      ("/", Lambda divAst),
+      ("%", Lambda modAst),
+      ("^", Lambda powAst)
     ]

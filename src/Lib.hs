@@ -1,14 +1,9 @@
-module Lib (SExpr (..), printTree, parseString, myMaybeMap) where
+module Lib (printTree, parseString, myMaybeMap) where
 
 import Data.Char (isNumber, isSpace, toUpper)
 import Data.List (dropWhileEnd)
 import Text.Read (readMaybe)
-
-data SExpr
-  = Integer Int
-  | Symbol String
-  | List [SExpr]
-  deriving (Show, Read)
+import Types (SExpr (..))
 
 {--
   print Items in lists for printTree
