@@ -27,6 +27,7 @@ library
   exposed-modules:
       Ast
       DefaultSymbol
+      Example
       Lib
   other-modules:
       Paths_glados

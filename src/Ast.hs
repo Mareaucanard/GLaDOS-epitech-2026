@@ -12,12 +12,12 @@ data Ast
   | Sym String
   | Call Ast [Ast]
   | Boolean Bool
-  | Lambda ([Ast] -> Either Ast String)
+  | Lambda String ([Ast] -> VarMap -> Either Ast String)
   | None
 
 instance Show Ast where
   show :: Ast -> String
-  show (Lambda _) = "Lambda"
+  show (Lambda name _) = "Lambda " ++ show name
   show (Value i) = "Value " ++ show i
   show (Sym s) = "Symbol " ++ show s
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
@@ -54,8 +54,8 @@ applyOp (Value v) _ _ = Right $ "Can't apply on value " ++ show v
 applyOp (Sym s) _ _ = Right $ "Wrong use of symbol " ++ s
 applyOp (Call o l) args m = Left (Call (Call o l) args, m)
 applyOp None _ _ = Right "Can't apply on an empty function"
-applyOp (Lambda l) args m = case l args of
-  Right msg -> Right msg
+applyOp (Lambda n l) args m = case l args m of
+  Right msg -> Right $ n ++ ": " ++ msg
   Left v -> evalAst v m
 applyOp (Boolean _) _ _ = Right "Can't apply on boolean"
 
@@ -118,6 +118,6 @@ evalAst :: Ast -> VarMap -> Either (Ast, VarMap) String
 evalAst (Value i) m = Left (Value i, m)
 evalAst (Sym s) m = tryReadVar s m
 evalAst (Call o l) m = evalCall o l m
-evalAst (Lambda x) m = Left (Lambda x, m)
+evalAst (Lambda n x) m = Left (Lambda n x, m)
 evalAst None m = Left (None, m)
 evalAst (Boolean b) m = Left (Boolean b, m)
