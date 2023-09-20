@@ -29,6 +29,7 @@ actualPrintTree :: SExpr -> String
 actualPrintTree (Integer i) = "an integer " ++ show i
 actualPrintTree (Symbol s) = "a symbol " ++ show s
 actualPrintTree (List l) = handleList l 0
+actualPrintTree (Boolan b) = "a boolean " ++ show b
 
 {--
   prints a Tree in a very nice sentence (is there for capitalization)
@@ -117,6 +118,11 @@ parseSymbol x
     trimmed = trim x
     nb = count ' ' trimmed
 
+parseBool :: String -> Either SExpr String
+parseBool ['t'] = Left $ Boolan True
+parseBool ['f'] = Left $ Boolan False
+parseBool _ = Right "Boolean not empty or not recognized"
+
 {--
   Tries to parse a LISP expression
   Left is the parsed SExpr
@@ -125,6 +131,8 @@ parseSymbol x
 parseString :: String -> Either SExpr String
 parseString (' ' : xs) = parseString xs
 parseString ('(' : xs) = parseList ('(' : xs)
+parseString ('#' : xs) = parseBool (trim xs)
+parseString ('\n' : xs) = parseString xs
 parseString (x : xs) = if isNumber x then parseNumber (x : xs) else parseSymbol (x : xs)
 parseString [] = Right "Can't evaluate empty string"
 

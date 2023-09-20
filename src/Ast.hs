@@ -34,6 +34,7 @@ handleLambda _ = Right "Invalid number of arguments for lambda"
 sexprToAST :: SExpr -> Either Ast String
 sexprToAST (Integer i) = Left (Value i)
 sexprToAST (Symbol s) = Left (Sym s)
+sexprToAST (Boolan b) = Left (Boolean b)
 sexprToAST (List (Symbol "lambda" : xs)) = handleLambda xs
 sexprToAST (List [sexpr]) = sexprToAST sexpr
 sexprToAST (List (s : xs)) = case sexprToAST s of
