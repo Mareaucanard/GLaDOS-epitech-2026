@@ -26,7 +26,9 @@ source-repository head
 library
   exposed-modules:
       Ast
+      DefaultSymbol
       Lib
+      Types
   other-modules:
       Paths_glados
   hs-source-dirs:
