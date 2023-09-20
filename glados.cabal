@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Ast
+      DefaultSymbol
       Lambda
       Lib
   other-modules:
