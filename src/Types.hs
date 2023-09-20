@@ -9,6 +9,7 @@ data SExpr
   = Integer Int
   | Symbol String
   | List [SExpr]
+  | Boolan Bool
   deriving (Show, Read)
 
 data Ast
