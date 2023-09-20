@@ -1,3 +1,10 @@
+{--
+-- EPITECH PROJECT, 2023
+-- glados
+-- File description:
+-- Ast
+--}
+
 module Ast (sexprToAST, evalAst, VarMap, mapEvalCalls) where
 
 import qualified Data.Map.Lazy as Map

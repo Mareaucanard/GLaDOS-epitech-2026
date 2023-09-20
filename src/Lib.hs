@@ -1,3 +1,10 @@
+{--
+-- EPITECH PROJECT, 2023
+-- glados
+-- File description:
+-- Lib
+--}
+
 module Lib (printTree, parseString, myMaybeMap) where
 
 import Data.Char (isNumber, isSpace, toUpper)
@@ -50,9 +57,8 @@ addMaybe x (Left xs) = Left (x : xs)
 isEmpty :: String -- ^ The string to check
   -> Bool -- ^ The return value
 isEmpty [] = True
-isEmpty (x : xs)
-  | x == ' ' = isEmpty xs
-  | otherwise = False
+isEmpty (' ': xs) = isEmpty xs
+isEmpty _ = False
 
 -- |Remove the first and last parentheses from a string.
 -- Left is the correct string.
@@ -61,7 +67,10 @@ stripParenthesis :: String -- ^ The string to strip
   -> Int -- ^ The number of parentheses to strip
   -> Either String String -- ^ The return value
 stripParenthesis ('(' : xs) 0 = stripParenthesis xs 1
-stripParenthesis (')' : xs) 1 = if isEmpty xs then Left "" else Right "Something is after a parenthesis"
+stripParenthesis (')' : xs) 1 =
+  if isEmpty xs
+    then Left ""
+    else Right "Something is after a parenthesis"
 stripParenthesis ('(' : xs) n = addMaybe '(' (stripParenthesis xs (n + 1))
 stripParenthesis (')' : xs) n = addMaybe ')' (stripParenthesis xs (n - 1))
 stripParenthesis (x : xs) n = addMaybe x (stripParenthesis xs n)
@@ -135,7 +144,10 @@ parseString (' ' : xs) = parseString xs
 parseString ('\n' : xs) = parseString xs
 parseString ('(' : xs) = parseList ('(' : xs)
 parseString ('#' : xs) = parseBool (trim xs)
-parseString (x : xs) = if isNumber x then parseNumber (x : xs) else parseSymbol (x : xs)
+parseString (x : xs) =
+  if isNumber x
+    then parseNumber (x : xs)
+    else parseSymbol (x : xs)
 parseString [] = Right "Can't evaluate empty string"
 
 -- |Splits args magic.
@@ -160,4 +172,6 @@ splitArgsLogic (x : xs) n l t = splitArgsLogic xs n (x : l) t
 -- Never exepts (parent should check for bad parenthesis)
 splitArgs :: String -- ^ The string to split
   -> [String] -- ^ The return value
-splitArgs l = reverse (map reverse (filter (not . isEmpty) (splitArgsLogic l 0 "" [])))
+splitArgs l = reverse (
+  map reverse (filter (not . isEmpty) (splitArgsLogic l 0 "" []))
+  )

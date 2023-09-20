@@ -1,3 +1,10 @@
+{--
+-- EPITECH PROJECT, 2023
+-- glados
+-- File description:
+-- Types
+--}
+
 {-# LANGUAGE InstanceSigs #-}
 module Types (VarMap, Ast (..), SExpr(..)) where
 

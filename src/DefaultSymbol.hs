@@ -1,3 +1,10 @@
+{--
+-- EPITECH PROJECT, 2023
+-- glados
+-- File description:
+-- DefaultSymbol
+--}
+
 module DefaultSymbol (defaultSymbols) where
 
 import Ast (evalAst, mapEvalCalls)
