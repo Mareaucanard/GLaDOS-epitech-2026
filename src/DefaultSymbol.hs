@@ -29,6 +29,10 @@ powAst :: [Ast] -> VarMap -> Either Ast String
 powAst [Value a, Value b] _ = Left (Value (a ^ b))
 powAst _ _ = Right "Invalid use of power operation"
 
+ifAst :: [Ast] -> VarMap -> Either Ast String
+ifAst [Boolean b, x, y] _ = Left (if b then x else y)
+ifAst _ _ = Right "Invalid use of if condition"
+
 defaultSymbols :: VarMap
 defaultSymbols =
   Map.fromList
@@ -37,5 +41,6 @@ defaultSymbols =
       ("*", Lambda mulAst),
       ("/", Lambda divAst),
       ("%", Lambda modAst),
-      ("^", Lambda powAst)
+      ("^", Lambda powAst),
+      ("if", Lambda ifAst)
     ]
