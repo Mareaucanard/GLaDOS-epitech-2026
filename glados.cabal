@@ -27,7 +27,7 @@ library
   exposed-modules:
       Ast
       DefaultSymbol
-      Example
+      Lambda
       Lib
       Interpreter
   other-modules:
