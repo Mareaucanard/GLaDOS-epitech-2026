@@ -18,7 +18,7 @@ data Ast
   | Sym String -- ^ A symbol
   | Call Ast [Ast] -- ^ A call
   | Boolean Bool -- ^ A boolean
-  | Lambda String ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
+  | Lambda ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
   | None -- ^ None
 
 -- |Makes Ast printable.

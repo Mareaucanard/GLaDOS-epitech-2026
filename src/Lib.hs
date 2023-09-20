@@ -27,6 +27,7 @@ actualPrintTree :: SExpr -- ^ The tree to print
 actualPrintTree (Integer i) = "an integer " ++ show i
 actualPrintTree (Symbol s) = "a symbol " ++ show s
 actualPrintTree (List l) = handleList l 0
+actualPrintTree (Boolan b) = "a boolean " ++ show b
 
 
 -- |Prints a Tree in a very nice sentence (is there for capitalization).
@@ -130,7 +131,6 @@ parseBool _ = Right "Boolean not empty or not recognized"
 -- Right is an error.
 parseString :: String -- ^ The string to parse
   -> Either SExpr String -- ^ The return value
-parseString :: String -> Either SExpr String
 parseString (' ' : xs) = parseString xs
 parseString ('\n' : xs) = parseString xs
 parseString ('(' : xs) = parseList ('(' : xs)

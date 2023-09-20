@@ -36,6 +36,34 @@ powAst [Value a, Value b] _ = Left (Value (a ^ b))
 powAst _ _ = Right "Invalid use of power operation"
 
 -- |Default symbols.
+ifAst :: [Ast] -> VarMap -> Either Ast String
+ifAst [Boolean b, x, y] _ = Left (if b then x else y)
+ifAst _ _ = Right "Invalid use of if condition"
+
+equalAst :: [Ast] -> VarMap -> Either Ast String
+equalAst [Value a, Value b] _ = Left (Boolean (a == b))
+equalAst _ _ = Right "Invalid use of equal operation"
+
+diffAst :: [Ast] -> VarMap -> Either Ast String
+diffAst [Value a, Value b] _ = Left (Boolean (a /= b))
+diffAst _ _ = Right "Invalid use of different operation"
+
+infAst :: [Ast] -> VarMap -> Either Ast String
+infAst [Value a, Value b] _ = Left (Boolean (a < b))
+infAst _ _ = Right "Invalid use of inferior operation"
+
+infEqAst :: [Ast] -> VarMap -> Either Ast String
+infEqAst [Value a, Value b] _ = Left (Boolean (a <= b))
+infEqAst _ _ = Right "Invalid use of inferior or equal operation"
+
+supAst :: [Ast] -> VarMap -> Either Ast String
+supAst [Value a, Value b] _ = Left (Boolean (a > b))
+supAst _ _ = Right "Invalid use of superior operation"
+
+supEqAst :: [Ast] -> VarMap -> Either Ast String
+supEqAst [Value a, Value b] _ = Left (Boolean (a >= b))
+supEqAst _ _ = Right "Invalid use of superior or equal operation"
+
 defaultSymbols :: VarMap
 defaultSymbols =
   Map.fromList
@@ -44,5 +72,15 @@ defaultSymbols =
       ("*", Lambda mulAst),
       ("/", Lambda divAst),
       ("%", Lambda modAst),
-      ("^", Lambda powAst)
+      ("^", Lambda powAst),
+      ("if", Lambda ifAst),
+      ("==", Lambda equalAst),
+      ("eq?", Lambda equalAst),
+      ("!=", Lambda diffAst),
+      ("/=", Lambda diffAst),
+      ("=/", Lambda diffAst),
+      ("<", Lambda infAst),
+      ("<=", Lambda infEqAst),
+      (">", Lambda supAst),
+      (">=", Lambda supEqAst)
     ]
