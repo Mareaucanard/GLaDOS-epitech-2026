@@ -27,8 +27,8 @@ library
   exposed-modules:
       Ast
       DefaultSymbol
-      Lib
       Interpreter
+      Lib
       Types
   other-modules:
       Paths_glados
