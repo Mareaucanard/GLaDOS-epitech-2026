@@ -27,6 +27,7 @@ library
   exposed-modules:
       Ast
       DefaultSymbol
+      Interpreter
       Lib
       Types
   other-modules:
