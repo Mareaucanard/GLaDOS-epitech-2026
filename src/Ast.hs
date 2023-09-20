@@ -1,36 +1,29 @@
-{-# LANGUAGE InstanceSigs #-}
-
-module Ast (Ast (..), sexprToAST, evalAst, VarMap) where
+module Ast (sexprToAST, evalAst, VarMap) where
 
 import qualified Data.Map.Lazy as Map
-import Lib (SExpr (..), myMaybeMap)
-
-type VarMap = Map.Map String Ast
-
--- |An AST
-data Ast
-  = Value Int -- ^ An integer
-  | Sym String -- ^ A symbol
-  | Call Ast [Ast] -- ^ A call
-  | Boolean Bool -- ^ A boolean
-  | Lambda String ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
-  | None -- ^ None
-
--- |Makes Ast printable.
-instance Show Ast where
-  show :: Ast -> String -- ^ The return value
-  show (Lambda name _) = "Lambda " ++ show name
-  show (Value i) = "Value " ++ show i
-  show (Sym s) = "Symbol " ++ show s
-  show (Call a b) = "Call " ++ show a ++ " " ++ show b
-  show (Boolean b) = "Boolean " ++ show b
-  show None = "None"
+import Lib (myMaybeMap)
+import Types (Ast (..), SExpr (..), VarMap)
 
 -- |Checks list of SExpr.
 checkOperands :: [SExpr] -- ^ The list of SExpr to check
   -> Either [Ast] String -- ^ The return value
 checkOperands = myMaybeMap sexprToAST
 
+extractSymbols :: [SExpr] -> Either [String] String
+extractSymbols (Symbol x : xs) = case extractSymbols xs of
+  Right err -> Right err
+  Left list -> Left (x : list)
+extractSymbols [] = Left []
+extractSymbols _ = Right "Can't extract (not a symbol)"
+
+handleLambda :: [SExpr] -> Either Ast String
+handleLambda [List argNames, expr] =
+  case extractSymbols argNames of
+    Right _ -> Right "Lambda first argument must be only symbols"
+    Left strings -> case sexprToAST expr of
+      Right err -> Right err
+      Left ast -> Left $ createLambda strings ast
+handleLambda _ = Right "Invalid number of arguments for lambda"
 
 -- |Transforms a SExpr into an Ast.
 -- On error, returns a string on the right explaining an error.
@@ -39,7 +32,7 @@ sexprToAST :: SExpr -- ^ The SExpr to transform
   -> Either Ast String -- ^ The return value
 sexprToAST (Integer i) = Left (Value i)
 sexprToAST (Symbol s) = Left (Sym s)
-sexprToAST (Boolan b) = Left (Boolean b)
+sexprToAST (List (Symbol "lambda" : xs)) = handleLambda xs
 sexprToAST (List [sexpr]) = sexprToAST sexpr
 sexprToAST (List (s : xs)) = case sexprToAST s of
   Right msg -> Right msg
@@ -57,8 +50,8 @@ applyOp (Value v) _ _ = Right $ "Can't apply on value " ++ show v
 applyOp (Sym s) _ _ = Right $ "Wrong use of symbol " ++ s
 applyOp (Call o l) args m = Left (Call (Call o l) args, m)
 applyOp None _ _ = Right "Can't apply on an empty function"
-applyOp (Lambda n l) args m = case l args m of
-  Right msg -> Right $ n ++ ": " ++ msg
+applyOp (Lambda l) args m = case l args m of
+  Right msg -> Right msg
   Left v -> evalAst v m
 applyOp (Boolean _) _ _ = Right "Can't apply on boolean"
 
@@ -123,6 +116,37 @@ evalAst :: Ast -- ^ The Ast to evaluate
 evalAst (Value i) m = Left (Value i, m)
 evalAst (Sym s) m = tryReadVar s m
 evalAst (Call o l) m = evalCall o l m
-evalAst (Lambda n x) m = Left (Lambda n x, m)
+evalAst (Lambda x) m = Left (Lambda x, m)
 evalAst None m = Left (None, m)
 evalAst (Boolean b) m = Left (Boolean b, m)
+
+{--
+    evalLambda [ArgName1, ArgName2, ...] Expression ArgList
+--}
+evalLambda :: [String] -> Ast -> [Ast] -> VarMap -> Either Ast String
+evalLambda argsName expr args vars
+  | length argsName /= length args = Right "Incorrect number of arguments"
+  | otherwise = case evalAst expr (insertLambdaVars argsName args vars) of
+      Right message -> Right message
+      Left (retVal, _) -> Left retVal
+
+{--
+    Inserts a new element in a map
+--}
+insertLambda :: String -> Ast -> VarMap -> VarMap
+insertLambda = Map.insert
+
+{--
+    Inserts multiple new elements in a map
+--}
+insertLambdaVars :: [String] -> [Ast] -> VarMap -> VarMap
+insertLambdaVars (name : names) (var : vars) vmap = insertLambda name var nmap
+  where
+    nmap = insertLambdaVars names vars vmap
+insertLambdaVars _ _ m = m
+
+{--
+    createLambda Name [ArgName1, ArgName2, ..., ArgNameN] Expression
+--}
+createLambda :: [String] -> Ast -> Ast
+createLambda args ast = Lambda (evalLambda args ast)

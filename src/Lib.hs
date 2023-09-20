@@ -1,17 +1,9 @@
-module Lib (SExpr (..), printTree, parseString, myMaybeMap) where
+module Lib (printTree, parseString, myMaybeMap) where
 
 import Data.Char (isNumber, isSpace, toUpper)
 import Data.List (dropWhileEnd)
 import Text.Read (readMaybe)
-
-data SExpr
-  = Integer Int -- ^ An integer
-  | Symbol String -- ^ A symbol
-  | List [SExpr] -- ^ A list of SExpr
-  | Boolan Bool -- ^ A boolean
-  deriving (Show -- ^ Makes SExpr printable
-    , Read -- ^ Makes SExpr readable
-  )
+import Types (SExpr (..))
 
 -- |Prints Items in lists for printTree.
 handleListItem :: SExpr -- ^ The item to print
