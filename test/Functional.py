@@ -22,7 +22,11 @@ class TestFile:
             self.timed_out = True
             return
         self.actual = res.stdout.decode("utf-8")
+        if (self.actual[-1] == '\n'):
+            self.actual = self.actual[:-1]
         self.error_channel = res.stderr.decode("utf-8")
+        if self.error_channel[-1] == '\n':
+            self.error_channel = self.error_channel[:-1]
         self.exit_code = res.returncode
 
     def checkResult(self) -> bool:
@@ -63,6 +67,8 @@ fileList = [
     TestFile("error/unknown_var.txt", expected_code=84, expected_error="Error: Symbol 'foo' is not defined"),
     TestFile("error/missing.txt", expected_code=84, expected_error="Error: Symbol can not contain spaces"),
     TestFile("error/unmatched.txt", expected_code=84, expected_error="Error: Unmatched parenthesis"),
+    TestFile("error/file_not_real.txt", expected_code=84, expected_error="Couldn't open file"),
+    TestFile("error/no_perms.txt", expected_code=84, expected_error="Can't open file"),
 ]
 
 def main():
