@@ -16,14 +16,18 @@ checkOperands :: [SExpr] -- ^ The list of SExpr to check
   -> Either [Ast] String -- ^ The return value
 checkOperands = myMaybeMap sexprToAST
 
-extractSymbols :: [SExpr] -> Either [String] String
+-- |Extracts symbols from a list of SExpr.
+extractSymbols :: [SExpr] -- ^ The list of SExpr to extract
+  -> Either [String] String -- ^ The return value
 extractSymbols (Symbol x : xs) = case extractSymbols xs of
   Right err -> Right err
   Left list -> Left (x : list)
 extractSymbols [] = Left []
 extractSymbols _ = Right "Can't extract (not a symbol)"
 
-handleLambda :: [SExpr] -> Either Ast String
+-- |Handles lambdas.
+handleLambda :: [SExpr] -- ^ The list of SExpr to handle
+  -> Either Ast String -- ^ The return value
 handleLambda [List argNames, expr] =
   case extractSymbols argNames of
     Right _ -> Right "Lambda first argument must be only symbols"
@@ -95,6 +99,8 @@ evalCall o l m = case evalAst o m of
 
 
 -- |Tries to read a variable.
+-- On error returns a Right string with a description of the error.
+-- On success returns on the left a tuple with the evaluated expression and new map.
 tryReadVar :: String -- ^ The key to read
   -> VarMap -- ^ The map of variables
   -> Either (Ast, VarMap) String -- ^ The return value
@@ -103,6 +109,8 @@ tryReadVar key m = case Map.lookup key m of
   Just v -> Left (v, m)
 
 -- |Handles the special keyword define.
+-- On error returns a Right string with a description of the error.
+-- On success returns on the left a tuple with the evaluated expression and new map.
 defineSymbol :: [Ast] -- ^ The arguments
   -> VarMap -- ^ The map of variables
   -> Either (String, Ast) String -- ^ The return value
@@ -126,10 +134,14 @@ evalAst (Lambda x) m = Left (Lambda x, m)
 evalAst None m = Left (None, m)
 evalAst (Boolean b) m = Left (Boolean b, m)
 
-{--
-    evalLambda [ArgName1, ArgName2, ...] Expression ArgList
---}
-evalLambda :: [String] -> Ast -> [Ast] -> VarMap -> Either Ast String
+-- |Evaluates a lambda.
+-- On error returns a Right string with a description of the error.
+-- On success returns on the left the evaluated expression.
+evalLambda :: [String] -- ^ The list of arguments names
+  -> Ast -- ^ The expression to evaluate
+  -> [Ast] -- ^ The arguments
+  -> VarMap -- ^ The map of variables
+  -> Either Ast String -- ^ The return value
 evalLambda argsName expr args vars = case insertLambdaVars argsName args vars of
   Right err1 -> Right err1
   Left newVars -> case evalAst expr newVars of
@@ -138,17 +150,19 @@ evalLambda argsName expr args vars = case insertLambdaVars argsName args vars of
         Right message -> Right message
         Left (retVal, _) -> Left retVal
 
-{--
-    Inserts a new element in a map
---}
-insertLambda :: String -> Ast -> Either VarMap String -> Either VarMap String
+-- |Inserts a new element in a map
+insertLambda :: String -- ^ The key to insert
+  -> Ast -- ^ The value to insert
+  -> Either VarMap String -- ^ The either map to insert to
+  -> Either VarMap String -- ^ The return value
 insertLambda _ _ (Right err) = Right err
 insertLambda key val (Left m) = Left $ Map.insert key val m
 
-{--
-    Inserts multiple new elements in a map
---}
-insertLambdaVars :: [String] -> [Ast] -> VarMap -> Either VarMap String
+-- |Inserts a list of variables in a map
+insertLambdaVars :: [String] -- ^ The list of keys to insert
+  -> [Ast] -- ^ The list of values to insert
+  -> VarMap -- ^ The map to insert to
+  -> Either VarMap String -- ^ The return value
 insertLambdaVars (name : names) (var : vars) vmap = case evalAst var vmap of
   Right msg -> Right msg
   Left (evaledVar, _) -> insertLambda name evaledVar nmap
@@ -158,8 +172,8 @@ insertLambdaVars [] [] m = Left m
 insertLambdaVars [] _ _ = Right "Not enough arguments"
 insertLambdaVars _ [] _ = Right "Too many arguments"
 
-{--
-    createLambda Name [ArgName1, ArgName2, ..., ArgNameN] Expression
---}
-createLambda :: [String] -> Ast -> Ast
+-- |Creates a lambda.
+createLambda :: [String] -- ^ The list of arguments names
+  -> Ast -- ^ The expression to evaluate
+  -> Ast -- ^ The return value
 createLambda args ast = Lambda (evalLambda args ast)
