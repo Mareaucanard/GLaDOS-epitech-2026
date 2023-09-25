@@ -36,7 +36,7 @@ class TestFile:
             s = f"File {self.filename}: KO"
             if self.exit_code != self.exit_code:
                 s = s + f"\nExpected exit code {self.exit_code} but got {self.expected_code}"
-            if self.actual != self.actual:
+            if self.actual != self.expected_output:
                 s = s + f"\nExpected output:\n'{self.expected_output}'\nBut got:\n'{self.actual}'"
             if self.error_channel != self.expected_error:
                 s = s + f"\nExpected error:\n'{self.expected_error}'\nBut got\n'{self.error_channel}'"
@@ -50,8 +50,19 @@ fileList = [
     TestFile("okay/factorial.txt", expected_output="120"),
     TestFile("okay/foo.txt", expected_output="42"),
     TestFile("okay/lazy_vars.txt", expected_output="1"),
+    TestFile("okay/var_attribution.txt", expected_output=""),
 
-    TestFile("error/div-zero.txt", expected_code=84, expected_error="Error: Division by zero")
+    TestFile("okay/basic_operations/add.txt", expected_output="5"),
+    TestFile("okay/basic_operations/sub.txt", expected_output="-1"),
+    TestFile("okay/basic_operations/mul.txt", expected_output="6"),
+    TestFile("okay/basic_operations/div.txt", expected_output="0"),
+    TestFile("okay/basic_operations/mod.txt", expected_output="2"),
+    TestFile("okay/basic_operations/pow.txt", expected_output="8"),
+
+    TestFile("error/div-zero.txt", expected_code=84, expected_error="Error: Division by zero"),
+    TestFile("error/unknown_var.txt", expected_code=84, expected_error="Error: Symbol 'foo' is not defined"),
+    TestFile("error/missing.txt", expected_code=84, expected_error="Error: Symbol can not contain spaces"),
+    TestFile("error/unmatched.txt", expected_code=84, expected_error="Error: Unmatched parenthesis"),
 ]
 
 def main():
