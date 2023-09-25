@@ -15,7 +15,7 @@ BINNAME = glados-exe
 
 all:
 			stack setup --allow-different-user
-			stack build --copy-bins
+			stack build --copy-bins --allow-different-user
 			mv $(BINNAME) $(NAME)
 
 default:	all
