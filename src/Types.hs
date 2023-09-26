@@ -26,12 +26,14 @@ data Ast
   | Call Ast [Ast] -- ^ A call
   | Boolean Bool -- ^ A boolean
   | Lambda ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
+  | Tab [Ast] -- ^ A list of Ast
   | None -- ^ None
 
 -- |Makes Ast printable.
 instance Show Ast where
   show :: Ast -> String -- ^ The return value
   show (Lambda _) = "Lambda"
+  show (Tab t) = "Tab" ++ show t
   show (Value i) = "Value " ++ show i
   show (Sym s) = "Symbol " ++ show s
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
