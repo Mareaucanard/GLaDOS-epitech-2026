@@ -36,7 +36,7 @@ cd GLaDOS-epitech-2026
 make
 ```
 That's it!
-You can now run the program with `./GLaDOS`
+You can now run the program with `./glados`
 
 ## On Windows:
 // Todo //
