@@ -10,6 +10,7 @@ module DefaultSymbol (defaultSymbols) where
 import Ast (evalAst, mapEvalCalls)
 import Types (Ast (..), VarMap)
 import qualified Data.Map.Lazy as Map
+import Data.Bits
 
 evalAstNoVars :: Ast -- ^ The first Ast
   -> VarMap -- ^ The map of variables
@@ -38,21 +39,28 @@ twoOpFunc _ _ name _ = Right $ "Invalid use of " ++ name ++ " operation"
 basicOp :: (Int -> Int -> Int) -- ^ The function to apply
   -> (Ast -> Ast -> Either Ast String) -- ^ The return value
 basicOp f (Value a) (Value b) = Left $ Value (f a b)
-basicOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
+basicOp _ v1 v2 = Right $ "Invalid operation " ++ show v1 ++ " " ++ show v2
 
 -- |Boolean operation.
 -- If the two Ast are not of type Value, returns an error.
 -- If the two Ast are of type Value, returns the result of the function f.
 boolOp :: (Int -> Int -> Bool) -> (Ast -> Ast -> Either Ast String)
 boolOp f (Value a) (Value b) = Left $ Boolean (f a b)
-boolOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
+boolOp _ v1 v2 = Right $ "Invalid operation " ++ show v1 ++ " " ++ show v2
 
 -- |Boolean logic operation.
 -- If the two Ast are not of type Boolean, returns an error.
 -- If the two Ast are of type Boolean, returns the result of the function f.
 logOp :: (Bool -> Bool -> Bool) -> (Ast -> Ast -> Either Ast String)
 logOp f (Boolean a) (Boolean b) = Left $ Boolean (f a b)
-logOp _ b1 b2 = Right $ "Invalid operation" ++ show b1 ++ show b2
+logOp _ b1 b2 = Right $ "Invalid operation " ++ show b1 ++ " " ++ show b2
+
+-- |Bitwise boolean operation.
+-- If the two Ast are not of type Value, returns an error.
+-- If the two Ast are of type Value, returns the result of the function f.
+binBoolOp :: (Int -> Int -> Int) -> (Ast -> Ast -> Either Ast String)
+binBoolOp f (Value a) (Value b) = Left $ Value (f a b)
+binBoolOp _ v1 v2 = Right $ "Invalid operation " ++ show v1 ++ " " ++ show v2
 
 -- |Addition operation.
 addAst :: [Ast] -> VarMap -> Either Ast String
@@ -138,6 +146,26 @@ notAst [ast1] m = case mapEvalCalls [ast1] m of
   _ -> Right "Invalid use of not operation"
 notAst _ _ = Right "Invalid use of not operation"
 
+-- |bitwise and operator
+binAndAst :: [Ast] -> VarMap -> Either Ast String
+binAndAst args m = twoOpFunc args m "&" (binBoolOp (.&.))
+
+-- |bitwise or operator
+binOrAst :: [Ast] -> VarMap -> Either Ast String
+binOrAst args m = twoOpFunc args m "&" (binBoolOp (.|.))
+
+-- |bitwise not operator
+binNotAst :: [Ast] -> VarMap -> Either Ast String
+binNotAst [ast1] m = case mapEvalCalls [ast1] m of
+  Right msg -> Right msg
+  Left ([Value a], _) -> Left (Value (complement a))
+  _ -> Right "Invalid use of not operation"
+binNotAst _ _ = Right "Invalid use of not operation"
+
+-- |bitwise xor operator
+binXorAst :: [Ast] -> VarMap -> Either Ast String
+binXorAst args m = twoOpFunc args m "&" (binBoolOp xor)
+
 -- |Default symbols.
 defaultSymbols :: VarMap
 defaultSymbols =
@@ -147,7 +175,7 @@ defaultSymbols =
       ("*", Lambda mulAst),
       ("div", Lambda divAst),
       ("mod", Lambda modAst),
-      ("^", Lambda powAst),
+      ("**", Lambda powAst),
       ("if", Lambda ifAst),
       ("==", Lambda equalAst),
       ("eq?", Lambda equalAst),
@@ -160,5 +188,9 @@ defaultSymbols =
       (">=", Lambda supEqAst),
       ("and", Lambda andAst),
       ("or", Lambda orAst),
-      ("not", Lambda notAst)
+      ("not", Lambda notAst),
+      ("&", Lambda binAndAst),
+      ("|", Lambda binOrAst),
+      ("^", Lambda binXorAst),
+      ("~", Lambda binNotAst)
     ]
