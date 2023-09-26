@@ -97,23 +97,23 @@ equalAst args m = twoOpFunc args m "equal" (boolOp (==))
 
 -- |Different bool operator.
 diffAst :: [Ast] -> VarMap -> Either Ast String
-diffAst args m = twoOpFunc args m "equal" (boolOp (/=))
+diffAst args m = twoOpFunc args m "unequal" (boolOp (/=))
 
 -- |Inferior bool operator.
 infAst :: [Ast] -> VarMap -> Either Ast String
-infAst args m = twoOpFunc args m "equal" (boolOp (<))
+infAst args m = twoOpFunc args m "smaller than" (boolOp (<))
 
 -- |Inferior or equal bool operator.
 infEqAst :: [Ast] -> VarMap -> Either Ast String
-infEqAst args m = twoOpFunc args m "equal" (boolOp (<=))
+infEqAst args m = twoOpFunc args m "smaller or equal to" (boolOp (<=))
 
 -- |Superior bool operator.
 supAst :: [Ast] -> VarMap -> Either Ast String
-supAst args m = twoOpFunc args m "equal" (boolOp (>))
+supAst args m = twoOpFunc args m "larger than" (boolOp (>))
 
 -- |Superior or equal bool operator.
 supEqAst :: [Ast] -> VarMap -> Either Ast String
-supEqAst args m = twoOpFunc args m "equal" (boolOp (<=))
+supEqAst args m = twoOpFunc args m "larger or equal to" (boolOp (>=))
 
 -- |Default symbols.
 defaultSymbols :: VarMap
@@ -122,8 +122,8 @@ defaultSymbols =
     [ ("+", Lambda addAst),
       ("-", Lambda subAst),
       ("*", Lambda mulAst),
-      ("/", Lambda divAst),
-      ("%", Lambda modAst),
+      ("div", Lambda divAst),
+      ("mod", Lambda modAst),
       ("^", Lambda powAst),
       ("if", Lambda ifAst),
       ("==", Lambda equalAst),
