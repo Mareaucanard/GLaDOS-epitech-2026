@@ -1,0 +1,22 @@
+(define insert_in_sorted (lambda (l k) (
+    if (isempty l) (list k) (
+        if (>= (car l) k) (cons k l) (cons (car l) (insert_in_sorted (cdr l) k))
+    )
+)))
+4
+(define sort_logic (lambda (l) (
+    if (isempty l) (list) (insert_in_sorted (sort_logic) (car l))
+)))
+5
+(define sort (lambda (l) (
+    if
+        (isempty l)
+        (list)
+        (insert_in_sorted (sort (cdr l)) (car l))
+)))
+(sort (list 1 2 3 4))
+(sort (list 4 3 2 1))
+(sort (list))
+(sort (list 1 1 1 1 1 1))
+(sort (list 2))
+(sort (list (rand) (rand) (rand)))

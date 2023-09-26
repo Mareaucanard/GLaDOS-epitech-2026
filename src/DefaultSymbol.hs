@@ -94,14 +94,13 @@ supAst :: [Ast] -> VarMap -> Either Ast String
 supAst args m = twoOpFunc args m "greater than" (boolOp (>))
 
 supEqAst :: [Ast] -> VarMap -> Either Ast String
-supEqAst args m = twoOpFunc args m "greater or equal than than" (boolOp (<=))
+supEqAst args m = twoOpFunc args m "greater or equal than than" (boolOp (>=))
 
 list :: [Ast] -> VarMap -> Either Ast String
 list [] _ = Left (Tab [])
 list (x:xs) m = case evalAst x m of
-  Right msg1     -> Right msg1
-  Left (None, _) -> Right "Invalid use of define expression"
-  Left (val, _)  -> case list xs m of
+  Right msg1    -> Right msg1
+  Left (val, _) -> case list xs m of
     Right msg2 -> Right msg2
     Left (Tab valTail) -> Left (Tab (val:valTail))
     Left _ -> Right "Unknown error in list function"
@@ -126,6 +125,16 @@ cdr [arg] m = case evalAst arg m of
 cdr l _ = Right
   $ "Invalid argument count for cdr, expected 1 but got " ++ show (length l)
 
+cons :: [Ast] -> VarMap -> Either Ast String
+cons [arg1, arg2] m = case evalAst arg1 m of
+  Right msg1   -> Right msg1
+  Left (v1, _) -> case evalAst arg2 m of
+    Right msg2        -> Right msg2
+    Left (Tab lst, _) -> Left (Tab (v1:lst))
+    Left (v2, _)      -> Left (Tab [v1, v2])
+cons l _ = Right
+  $ "Invalid argument count for cdr, expected 1 but got " ++ show (length l)
+
 isEmpty :: [Ast] -> VarMap -> Either Ast String
 isEmpty [arg] m = case evalAst arg m of
   Right msg        -> Right msg
@@ -133,7 +142,9 @@ isEmpty [arg] m = case evalAst arg m of
   Left (Tab _, _)  -> Left (Boolean False)
   Left (v, _)
     -> Right $ "Invalid use of isEmpty, only works on lists but got" ++ show v
-isEmpty l _ = Right $ "Invalid argument count for isEmpty, expected 1 but got " ++ show (length l)
+isEmpty l _ = Right
+  $ "Invalid argument count for isEmpty, expected 1 but got "
+  ++ show (length l)
 
 defaultSymbols :: VarMap
 defaultSymbols = Map.fromList
@@ -156,4 +167,8 @@ defaultSymbols = Map.fromList
   , ("list", Lambda list)
   , ("car", Lambda car)
   , ("cdr", Lambda cdr)
-  , ("isempty", Lambda isEmpty)]
+  , ("cons", Lambda cons)
+  , ("isempty", Lambda isEmpty)
+  , ("empty", Tab [])
+  , ("nil", None)
+  , ("seed", Value 7)]
