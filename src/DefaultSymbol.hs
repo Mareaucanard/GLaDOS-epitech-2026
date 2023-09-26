@@ -26,7 +26,7 @@ twoOpFunc :: [Ast] -- ^ The list of Ast
   -> String -- ^ The name of the operation
   -> (Ast -> Ast -> Either Ast String) -- ^ The function to apply
   -> Either Ast String -- ^ The return value
-twoOpFunc [ast1, ast2] m name f = case mapEvalCalls [ast1, ast2] m of
+twoOpFunc [ast1, ast2] m name f = case mapEalCalls [ast1, ast2] m of
   Right msg -> Right msg
   Left ([a, b], _) -> f a b
   _ -> Right $ "Invalid use of " ++ name ++ " operation"
@@ -46,6 +46,10 @@ basicOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
 boolOp :: (Int -> Int -> Bool) -> (Ast -> Ast -> Either Ast String)
 boolOp f (Value a) (Value b) = Left $ Boolean (f a b)
 boolOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
+
+logOp :: (Bool -> Bool -> Bool) -> (Ast -> Ast -> Either Ast String)
+logOp f (Boolean a) (Boolean b) = Left $ Boolean (f a b)
+logOp _ b1 b2 = Right $ "Invalid operation" ++ show b1 ++ show b2
 
 -- |Addition operation.
 addAst :: [Ast] -> VarMap -> Either Ast String
@@ -115,6 +119,18 @@ supAst args m = twoOpFunc args m "larger than" (boolOp (>))
 supEqAst :: [Ast] -> VarMap -> Either Ast String
 supEqAst args m = twoOpFunc args m "larger or equal to" (boolOp (>=))
 
+-- |And bool operator
+andAst :: [Ast] -> VarMap -> Either Ast String
+andAst args m = twoOpFunc args m "and" (logOp(&&))
+
+-- |Or bool operator
+orAst :: [Ast] -> VarMap -> Either Ast String
+orAst args m = twoOpFunc args m "or" (logOp(||))
+
+-- |Not bool operator
+-- notAst :: [Ast] -> VarMap -> Either Ast String
+-- notAst args m = twoOpFunc args m "not" (logOp(||))
+
 -- |Default symbols.
 defaultSymbols :: VarMap
 defaultSymbols =
@@ -134,5 +150,8 @@ defaultSymbols =
       ("<", Lambda infAst),
       ("<=", Lambda infEqAst),
       (">", Lambda supAst),
-      (">=", Lambda supEqAst)
+      (">=", Lambda supEqAst),
+      ("and", Lambda andAst),
+      ("or", Lambda orAst)
+      --("not", Lambda notAst)
     ]
