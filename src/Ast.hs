@@ -55,6 +55,7 @@ applyOp :: Ast -- ^ The operator
   -> VarMap -- ^ The map of variables
   -> Either (Ast, VarMap) String -- ^ The return value
 applyOp (Value v) _ _ = Right $ "Can't apply on value " ++ show v
+applyOp (Tab t) _ _ = Right $ "Can't apply on tab " ++ show t
 applyOp (Sym s) _ _ = Right $ "Wrong use of symbol " ++ s
 applyOp (Call o l) args m = Left (Call (Call o l) args, m)
 applyOp None _ _ = Right "Can't apply on an empty function"
@@ -125,6 +126,7 @@ evalAst (Call o l) m = evalCall o l m
 evalAst (Lambda x) m = Left (Lambda x, m)
 evalAst None m = Left (None, m)
 evalAst (Boolean b) m = Left (Boolean b, m)
+evalAst (Tab t) m = Left (Tab t, m)
 
 {--
     evalLambda [ArgName1, ArgName2, ...] Expression ArgList
