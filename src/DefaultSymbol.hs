@@ -166,6 +166,14 @@ binNotAst _ _ = Right "Invalid use of not operation"
 binXorAst :: [Ast] -> VarMap -> Either Ast String
 binXorAst args m = twoOpFunc args m "&" (binBoolOp xor)
 
+-- |bitwise lshift operator
+binLshiftAst :: [Ast] -> VarMap -> Either Ast String
+binLshiftAst args m = twoOpFunc args m "<<" (binBoolOp shift)
+
+-- |bitwise rshift operator
+binRshiftAst :: [Ast] -> VarMap -> Either Ast String
+binRshiftAst args m = twoOpFunc args m "<<" (binBoolOp shiftR)
+
 -- |Default symbols.
 defaultSymbols :: VarMap
 defaultSymbols =
@@ -192,5 +200,7 @@ defaultSymbols =
       ("&", Lambda binAndAst),
       ("|", Lambda binOrAst),
       ("^", Lambda binXorAst),
-      ("~", Lambda binNotAst)
+      ("~", Lambda binNotAst),
+      ("<<", Lambda binLshiftAst),
+      (">>", Lambda binRshiftAst)
     ]
