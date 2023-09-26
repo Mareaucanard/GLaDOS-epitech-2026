@@ -25,8 +25,12 @@ clean:
 
 fclean:		clean
 			rm -f $(NAME)
+			rm -drf ./doc
 
 tests:
 			stack test
 
 re:			clean all
+
+doc:	clean
+			haddock ./src/* --html -o ./doc
