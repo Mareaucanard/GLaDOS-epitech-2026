@@ -3,11 +3,6 @@
         if (>= (car l) k) (cons k l) (cons (car l) (insert_in_sorted (cdr l) k))
     )
 )))
-4
-(define sort_logic (lambda (l) (
-    if (isempty l) (list) (insert_in_sorted (sort_logic) (car l))
-)))
-5
 (define sort (lambda (l) (
     if
         (isempty l)
@@ -19,4 +14,3 @@
 (sort (list))
 (sort (list 1 1 1 1 1 1))
 (sort (list 2))
-(sort (list (rand) (rand) (rand)))
