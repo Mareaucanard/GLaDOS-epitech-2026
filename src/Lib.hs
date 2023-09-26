@@ -1,9 +1,10 @@
-{--
--- EPITECH PROJECT, 2023
+-- |
+-- = EPITECH PROJECT, 2023
 -- glados
--- File description:
+--
+-- = File description:
 -- Lib
---}
+
 
 module Lib (printTree, parseString, myMaybeMap) where
 
