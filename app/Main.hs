@@ -5,6 +5,9 @@ import Data.Char (toLower)
 import Lib (parseString)
 import Interpreter (parseLine)
 import DefaultSymbol (defaultSymbols)
+import System.Random
+import Types (Ast(..))
+import qualified Data.Map.Lazy as Map
 
 processInput :: IO String
 processInput = do
@@ -31,4 +34,5 @@ loop m = do
 main :: IO ()
 main = do
   putStrLn "Welcome to the LISP interpreter"
-  loop defaultSymbols
+  seed <- randomIO :: IO Int
+  loop (Map.insert "seed" (Value seed) defaultSymbols)
