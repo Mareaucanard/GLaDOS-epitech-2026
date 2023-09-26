@@ -26,7 +26,7 @@ twoOpFunc :: [Ast] -- ^ The list of Ast
   -> String -- ^ The name of the operation
   -> (Ast -> Ast -> Either Ast String) -- ^ The function to apply
   -> Either Ast String -- ^ The return value
-twoOpFunc [ast1, ast2] m name f = case mapEalCalls [ast1, ast2] m of
+twoOpFunc [ast1, ast2] m name f = case mapEvalCalls [ast1, ast2] m of
   Right msg -> Right msg
   Left ([a, b], _) -> f a b
   _ -> Right $ "Invalid use of " ++ name ++ " operation"
@@ -47,6 +47,9 @@ boolOp :: (Int -> Int -> Bool) -> (Ast -> Ast -> Either Ast String)
 boolOp f (Value a) (Value b) = Left $ Boolean (f a b)
 boolOp _ v1 v2 = Right $ "Invalid operation" ++ show v1 ++ show v2
 
+-- |Boolean logic operation.
+-- If the two Ast are not of type Boolean, returns an error.
+-- If the two Ast are of type Boolean, returns the result of the function f.
 logOp :: (Bool -> Bool -> Bool) -> (Ast -> Ast -> Either Ast String)
 logOp f (Boolean a) (Boolean b) = Left $ Boolean (f a b)
 logOp _ b1 b2 = Right $ "Invalid operation" ++ show b1 ++ show b2
@@ -128,8 +131,12 @@ orAst :: [Ast] -> VarMap -> Either Ast String
 orAst args m = twoOpFunc args m "or" (logOp(||))
 
 -- |Not bool operator
--- notAst :: [Ast] -> VarMap -> Either Ast String
--- notAst args m = twoOpFunc args m "not" (logOp(||))
+notAst :: [Ast] -> VarMap -> Either Ast String
+notAst [ast1] m = case mapEvalCalls [ast1] m of
+  Right msg -> Right msg
+  Left ([Boolean a], _) -> Left (Boolean (not a))
+  _ -> Right "Invalid use of not operation"
+notAst _ _ = Right "Invalid use of not operation"
 
 -- |Default symbols.
 defaultSymbols :: VarMap
@@ -152,6 +159,6 @@ defaultSymbols =
       (">", Lambda supAst),
       (">=", Lambda supEqAst),
       ("and", Lambda andAst),
-      ("or", Lambda orAst)
-      --("not", Lambda notAst)
+      ("or", Lambda orAst),
+      ("not", Lambda notAst)
     ]
