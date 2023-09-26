@@ -11,14 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     container: epitechcontent/epitest-docker:latest
 
-    cache:
-      key: "ALL"
-      paths:
-        - ".stack-work/"
-        - ".stack/"
-
     steps:
     - uses: actions/checkout@v3
+    - uses: freckle/stack-cache-action@v2
 
     - name: Permissions bug workaround
       run: |
@@ -42,7 +37,7 @@ jobs:
   publish:
     needs: compile
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' and !env.ACT  }}
+    if: ${{ github.event_name == 'push' && !env.ACT  }}
 
     steps:
     - uses: actions/checkout@v3
