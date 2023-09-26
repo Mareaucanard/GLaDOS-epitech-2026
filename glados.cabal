@@ -38,6 +38,7 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
+    , random
   default-language: Haskell2010
 
 executable glados-exe
@@ -51,6 +52,7 @@ executable glados-exe
       base >=4.7 && <5
     , containers
     , glados
+    , random
   default-language: Haskell2010
 
 test-suite glados-test
@@ -65,4 +67,5 @@ test-suite glados-test
       base >=4.7 && <5
     , containers
     , glados
+    , random
   default-language: Haskell2010

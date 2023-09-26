@@ -20,7 +20,7 @@ jobs:
 
     - name: compile
       run: |
-        timeout 2m make
+        timeout 5m make
 
     - name: check_binary
       run: |
