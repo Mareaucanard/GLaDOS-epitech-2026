@@ -28,6 +28,17 @@ data Ast
   | Lambda ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
   | None -- ^ None
 
+-- Manually implement Eq for Ast
+instance Eq Ast where
+  (Value x) == (Value y) = x == y
+  (Sym x) == (Sym y) = x == y
+  (Call a1 args1) == (Call a2 args2) = a1 == a2 && args1 == args2
+  (Boolean x) == (Boolean y) = x == y
+  -- Decide how to compare Lambda values here (e.g., consider them equal if they have the same function signature)
+  (Lambda _) == (Lambda _) = True
+  None == None = True
+  _ == _ = False
+
 -- |Makes Ast printable.
 instance Show Ast where
   show :: Ast -> String -- ^ The return value

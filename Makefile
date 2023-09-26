@@ -27,6 +27,6 @@ fclean:		clean
 			rm -f $(NAME)
 
 tests:
-			stack test
+			stack test --coverage
 
 re:			clean all
