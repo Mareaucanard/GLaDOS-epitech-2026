@@ -41,7 +41,5 @@ instance Show Ast where
   show None = "None"
 
 -- Changer le code pour clean l'output
--- Lambda (n)
 -- (define x (lambda (n) n))
--- enlever "lisp inter" si un fichier
 -- gerer le ctrl + D

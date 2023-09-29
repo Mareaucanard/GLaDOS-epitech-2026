@@ -6,6 +6,8 @@
 --}
 
 module Interpreter (parseLine) where
+import System.IO
+
 
 countParenthesis :: String -> Int -> Int
 countParenthesis [] n = n
@@ -24,4 +26,8 @@ parseLineLogic n line =
   where nbPar = countParenthesis line n
 
 parseLine :: Int -> IO String
-parseLine n = getLine >>= (\line -> parseLineLogic n line)
+parseLine n = do
+  isClosed <- isEOF
+  if isClosed 
+    then  putStrLn "" >> return "quit"
+    else getLine >>= (\line -> parseLineLogic n line)
