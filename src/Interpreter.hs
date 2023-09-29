@@ -5,9 +5,8 @@
 -- Interpreter
 --}
 
-module Interpreter (parseLine) where
+module Interpreter (parseLine, parseLineFromFile) where
 import System.IO
-
 
 countParenthesis :: String -> Int -> Int
 countParenthesis [] n = n
@@ -24,6 +23,13 @@ parseLineLogic n line =
     then return line
     else concatStringIOString line (parseLine nbPar)
   where nbPar = countParenthesis line n
+
+parseLineFromFile :: Int -> Handle -> IO String
+parseLineFromFile n file = do
+  isClosed <- hIsEOF file
+  if isClosed 
+    then return "quit"
+    else hGetLine file >>= (\line -> parseLineLogic n line)
 
 parseLine :: Int -> IO String
 parseLine n = do
