@@ -32,10 +32,16 @@ data Ast
 -- |Makes Ast printable.
 instance Show Ast where
   show :: Ast -> String -- ^ The return value
-  show (Lambda _) = "Lambda"
+  show (Lambda _) = "#<procedure>"
   show (Tab t) = "Tab" ++ show t
   show (Value i) = "Value " ++ show i
   show (Sym s) = "Symbol " ++ show s
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
   show (Boolean b) = "Boolean " ++ show b
   show None = "None"
+
+-- Changer le code pour clean l'output
+-- Lambda (n)
+-- (define x (lambda (n) n))
+-- enlever "lisp inter" si un fichier
+-- gerer le ctrl + D
