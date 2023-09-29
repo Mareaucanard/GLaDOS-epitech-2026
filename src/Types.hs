@@ -32,10 +32,11 @@ data Ast
 -- |Makes Ast printable.
 instance Show Ast where
   show :: Ast -> String -- ^ The return value
-  show (Lambda _) = "Lambda"
-  show (Tab t) = "Tab" ++ show t
-  show (Value i) = "Value " ++ show i
+  show (Lambda _) = "#<procedure>"
+  show (Tab t) = show t
+  show (Value i) = show i
   show (Sym s) = "Symbol " ++ show s
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
-  show (Boolean b) = "Boolean " ++ show b
+  show (Boolean True) = "#t"
+  show (Boolean False) = "#f"
   show None = "None"
