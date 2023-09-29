@@ -39,7 +39,3 @@ instance Show Ast where
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
   show (Boolean b) = "Boolean " ++ show b
   show None = "None"
-
--- Changer le code pour clean l'output
--- (define x (lambda (n) n))
--- gerer le ctrl + D
