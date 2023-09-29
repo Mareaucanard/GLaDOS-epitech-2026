@@ -26,7 +26,7 @@ handleLine line m = case parseString line of
   Left sexpr -> case sexprToAST sexpr of
     Right msg -> putStrLn msg
     Left ast -> case evalAst ast m of
-      Right err -> putStrLn err
+      Right err -> hPutStrLn stderr ("** ERROR ** : " ++ err)
       Left (result, newVars) -> cleanPrintOutput result >> loop newVars
 
 -- This is our main loop, it handles when to exit
