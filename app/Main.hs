@@ -22,11 +22,11 @@ cleanPrintOutput ast = print ast
 
 handleLine :: String -> VarMap -> IO ()
 handleLine line m = case parseString line of
-  Right x -> putStrLn x
+  Right err1 -> hPutStrLn stderr ("** ERROR ** : " ++ err1)
   Left sexpr -> case sexprToAST sexpr of
-    Right msg -> putStrLn msg
+    Right err2 -> hPutStrLn stderr ("** ERROR ** : " ++ err2)
     Left ast -> case evalAst ast m of
-      Right err -> hPutStrLn stderr ("** ERROR ** : " ++ err)
+      Right err3 -> hPutStrLn stderr ("** ERROR ** : " ++ err3)
       Left (result, newVars) -> cleanPrintOutput result >> loop newVars
 
 -- This is our main loop, it handles when to exit
