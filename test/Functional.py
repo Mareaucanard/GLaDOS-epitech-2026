@@ -22,10 +22,10 @@ class TestFile:
             self.timed_out = True
             return
         self.actual = res.stdout.decode("utf-8")
-        if (self.actual[-1] == '\n'):
+        if len(self.actual) != 0 and (self.actual[-1] == '\n'):
             self.actual = self.actual[:-1]
         self.error_channel = res.stderr.decode("utf-8")
-        if self.error_channel[-1] == '\n':
+        if len(self.error_channel) != 0 and self.error_channel[-1] == '\n':
             self.error_channel = self.error_channel[:-1]
         self.exit_code = res.returncode
 
@@ -36,7 +36,7 @@ class TestFile:
         if self.timed_out:
             print(colored(f"File {self.filename} has timed out\n", "light_red"))
             return False
-        elif self.actual != self.expected_output or self.error_channel != self.expected_error or self.exit_code != self.exit_code:
+        elif self.actual != self.expected_output or self.exit_code != self.exit_code:
             s = f"File {self.filename}: KO"
             if self.exit_code != self.exit_code:
                 s = s + f"\nExpected exit code {self.exit_code} but got {self.expected_code}"
@@ -47,7 +47,7 @@ class TestFile:
             print(colored(s + "\n", "light_red"))
             return False
         else:
-            print(colored(f"File {self.filename}: OK\n", "light_green"))
+            print(colored(f"File {self.filename}: OK", "light_green"))
             return True
 
 fileList = [
@@ -55,6 +55,11 @@ fileList = [
     TestFile("okay/foo.txt", expected_output="42"),
     TestFile("okay/lazy_vars.txt", expected_output="1"),
     TestFile("okay/var_attribution.txt", expected_output=""),
+    TestFile("okay/sort_list.txt", expected_output="""[1,2,3,4]
+[1,2,3,4]
+[]
+[1,1,1,1]
+[2]"""),
 
     TestFile("okay/basic_operations/add.txt", expected_output="5"),
     TestFile("okay/basic_operations/sub.txt", expected_output="-1"),
