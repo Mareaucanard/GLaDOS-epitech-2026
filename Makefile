@@ -14,6 +14,10 @@ BINPATH = $(shell stack path --local-install-root)/bin/
 BINNAME = glados-exe
 
 all:
+			docker pull someone2love/glados_build_env:latest
+			docker run --rm -v $(shell pwd):/glados -w /glados someone2love/glados_build_env:latest make build
+
+build:
 			stack setup --allow-different-user
 			stack build --copy-bins --allow-different-user
 			mv $(BINNAME) $(NAME)
@@ -25,6 +29,7 @@ clean:
 
 fclean:		clean
 			rm -f $(NAME)
+			docker rmi -f someone2love/glados_build_env:latest
 
 tests:
 			stack test --coverage

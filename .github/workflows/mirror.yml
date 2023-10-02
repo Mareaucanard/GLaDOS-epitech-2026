@@ -9,7 +9,7 @@ env:
 jobs:
   compile:
     runs-on: ubuntu-latest
-    container: epitechcontent/epitest-docker:latest
+    container: someone2love/glados_build_env:latest
 
     steps:
     - uses: actions/checkout@v3
@@ -20,7 +20,7 @@ jobs:
 
     - name: compile
       run: |
-        timeout 2m make
+        timeout 5m make build
 
     - name: check_binary
       run: |
@@ -63,7 +63,6 @@ jobs:
           name: glados-bin
 
       - name: Create Release
-        if: github.ref == 'refs/heads/main'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

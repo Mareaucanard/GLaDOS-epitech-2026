@@ -26,6 +26,7 @@ data Ast
   | Call Ast [Ast] -- ^ A call
   | Boolean Bool -- ^ A boolean
   | Lambda ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
+  | Tab [Ast] -- ^ A list of Ast
   | None -- ^ None
 
 -- Manually implement Eq for Ast
@@ -42,9 +43,11 @@ instance Eq Ast where
 -- |Makes Ast printable.
 instance Show Ast where
   show :: Ast -> String -- ^ The return value
-  show (Lambda _) = "Lambda"
-  show (Value i) = "Value " ++ show i
+  show (Lambda _) = "#<procedure>"
+  show (Tab t) = show t
+  show (Value i) = show i
   show (Sym s) = "Symbol " ++ show s
   show (Call a b) = "Call " ++ show a ++ " " ++ show b
-  show (Boolean b) = "Boolean " ++ show b
+  show (Boolean True) = "#t"
+  show (Boolean False) = "#f"
   show None = "None"
