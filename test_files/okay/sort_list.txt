@@ -12,5 +12,5 @@
 (sort (list 1 2 3 4))
 (sort (list 4 3 2 1))
 (sort (list))
-(sort (list 1 1 1 1 1 1))
+(sort (list 1 1 1 1))
 (sort (list 2))

@@ -5,7 +5,7 @@
 -- Interpreter
 --}
 
-module Interpreter (parseLine, parseLineFromFile) where
+module Interpreter (parseLineFromFile) where
 import System.IO
 
 countParenthesis :: String -> Int -> Int
@@ -17,23 +17,17 @@ countParenthesis (_:xs) n = countParenthesis xs n
 concatStringIOString :: String -> IO String -> IO String
 concatStringIOString s1 io = io >>= (\s2 -> return (s1 ++ " " ++ s2))
 
-parseLineLogic :: Int -> String -> IO String
-parseLineLogic n line =
+parseLineFileLogic :: Int -> Handle -> String -> IO String
+parseLineFileLogic n file line =
   if nbPar == 0
     then return line
-    else concatStringIOString line (parseLine nbPar)
+    else concatStringIOString line (parseLineFromFile nbPar file)
   where nbPar = countParenthesis line n
 
 parseLineFromFile :: Int -> Handle -> IO String
 parseLineFromFile n file = do
   isClosed <- hIsEOF file
-  if isClosed 
+  if isClosed
     then return "quit"
-    else hGetLine file >>= (\line -> parseLineLogic n line)
+    else hGetLine file >>= (\line -> parseLineFileLogic n file line)
 
-parseLine :: Int -> IO String
-parseLine n = do
-  isClosed <- isEOF
-  if isClosed 
-    then  putStrLn "" >> return "quit"
-    else getLine >>= (\line -> parseLineLogic n line)

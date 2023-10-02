@@ -25,6 +25,15 @@ extractSymbols (Symbol x : xs) = case extractSymbols xs of
 extractSymbols [] = Left []
 extractSymbols _ = Right "Can't extract (not a symbol)"
 
+-- |Extracts sym from a list of Asts.
+extractSym :: [Ast] -- ^ The list of Ast to extract
+  -> Either [String] String -- ^ The return value
+extractSym (Sym x : xs) = case extractSym xs of
+  Right err -> Right err
+  Left list -> Left (x:list)
+extractSym [] = Left []
+extractSym _ = Right "Can't extract (not a symbol)"
+
 -- |Handles lambdas.
 handleLambda :: [SExpr] -- ^ The list of SExpr to handle
   -> Either Ast String -- ^ The return value
@@ -116,6 +125,13 @@ tryReadVar key m = case Map.lookup key m of
   Nothing -> Right $ "Unknown symbol " ++ key
   Just v  -> Left (v, m)
 
+handleNamedFunction :: [Ast] -- ^ The name of the arguments of the function
+    -> Ast -- ^ The function to be called
+    -> Either Ast String  -- ^ On success new var map else error message
+handleNamedFunction args eval = case extractSym args of
+  Right _ -> Right "Named function arguments must be symbols"
+  Left argNames -> Left $ createLambda argNames eval
+
 -- |Handles the special keyword define.
 -- On error returns a Right string with a description of the error.
 -- On success returns on the left a tuple with the evaluated expression and new map.
@@ -124,9 +140,11 @@ defineSymbol :: [Ast] -- ^ The arguments
              -> Either (String, Ast) String -- ^ The return value
 defineSymbol [Sym s, v] m = case evalAst v m of
   Right msg      -> Right msg
-  Left (None, _) -> Right "Can't define symbol to None"
   Left (eo, _)   -> Left (s, eo)
-defineSymbol [s, _] _ = Right $ "Can only define a symbol, not " ++ show s
+defineSymbol [Call (Sym name) args, v] _ = case handleNamedFunction args v of
+  Right msg -> Right msg
+  Left newLambda -> Left (name, newLambda)
+defineSymbol [s, _] _ = Right $ "Can only define a symbol or call, not " ++ show s
 defineSymbol _ _ = Right "define takes exactly two argument"
 
 -- |Evaluates an Ast and also update variables if there's a define.
