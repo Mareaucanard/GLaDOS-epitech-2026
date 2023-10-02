@@ -19,6 +19,7 @@ data SExpr
   | Boolan Bool -- ^ A boolean
   deriving (Show -- ^ Makes SExpr printable
     , Read -- ^ Makes SExpr readable
+    , Eq
   )
 data Ast
   = Value Int -- ^ An integer
@@ -37,6 +38,7 @@ instance Eq Ast where
   (Boolean x) == (Boolean y) = x == y
   -- Decide how to compare Lambda values here (e.g., consider them equal if they have the same function signature)
   (Lambda _) == (Lambda _) = True
+  (Tab x) == (Tab y) = x == y
   None == None = True
   _ == _ = False
 

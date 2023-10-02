@@ -85,7 +85,7 @@ divAst args m = twoOpFunc args m "div" divLogic
 
 -- |Modulo operation logic.
 modLogic :: Ast -> Ast -> Either Ast String
-modLogic (Value _) (Value 0) = Right "Module by zero"
+modLogic (Value _) (Value 0) = Right "Mod by zero"
 modLogic (Value a) (Value b) = Left (Value (a `mod` b))
 modLogic _ _ = Right "Invalid use of mod operation"
 

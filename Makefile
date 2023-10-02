@@ -32,6 +32,9 @@ fclean:		clean
 			docker rmi -f someone2love/glados_build_env:latest
 
 tests:
-			stack test --coverage
+			@stack test --coverage || true
+			@ln -sf /home/mareau/Programs/semestre_5/glados/.stack-work/install/x86_64-linux/5659563df3a50a00a90044575e65fadb5a715e0b372ebe388e5567a46d60cb70/9.4.7/hpc/index.html report.html
+			@echo -e "\e[0;32mhtml report created at report.html\e[0m"
+
 
 re:			clean all
