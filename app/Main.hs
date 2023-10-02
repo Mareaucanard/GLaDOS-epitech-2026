@@ -61,10 +61,6 @@ loopFile file m = do
     "quit" -> return (Just m)
     _ -> handleLineFile file line m
 
-argsHandler :: [String] -> IO ()
-argsHandler [] = putStr "Welcome to GLaDOS, the lisp interpreter\n"
-argsHandler _ = return ()
-
 handleFile :: String -> VarMap -> IO (Maybe VarMap)
 handleFile filename m = do
   file <- openFile filename ReadMode
@@ -76,10 +72,23 @@ handleFiles (x:xs) m = handleFile x m >>= (\rVal -> case rVal of
   (Just newM) -> handleFiles xs newM
   Nothing -> exitWith (ExitFailure 84))
 
+outputHelper :: IO ()
+outputHelper =
+  putStr "GLaDOS:\n\t-h, --help\tDisplay this help" >>
+  putStr "\n\tfile\t\tFile to interpret\n" >>
+  exitWith ExitSuccess
+
+handleArgs :: [String] -> IO ()
+handleArgs [] = putStr "Welcome to GLaDOS, the lisp interpreter\n"
+handleArgs (x:xs) = case x of
+  "-h" -> outputHelper
+  "--help" -> outputHelper
+  _ -> handleArgs xs
+
 main :: IO ()
 main = do
   args <- getArgs
-  argsHandler args
+  handleArgs args
   seed <- randomIO :: IO Int
   case args of
     [] -> loop (Map.insert "seed" (Value seed) defaultSymbols)
