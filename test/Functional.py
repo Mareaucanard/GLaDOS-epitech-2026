@@ -1,5 +1,9 @@
 import subprocess
-from termcolor import colored
+try:
+    from termcolor import colored
+except ModuleNotFoundError:
+    def colored(string, *args, **kwargs):
+        return string
 from sys import argv
 
 class TestFile:
