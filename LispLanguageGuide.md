@@ -56,11 +56,11 @@ Returns the modulo result of the first value by the second value.
 > `> (% 7 2)`  
 `1`
 
-- Power " ^ "
+- Power " ** "
 
 Returns the result of the value to the power of the second value.
 
-> `> (^ 2 3)`  
+> `> (** 2 3)`  
 `8`
 
 - if " if "
@@ -133,3 +133,104 @@ Returns the tail of the given list.
 > `> (cdr 1 2 3)`  
 `[2, 3]`
 
+- Cons " cons "
+
+Appends the second value to the first value (a list) and returns it.
+
+> `> (cons [1 2] 3)`  
+`[1, 2, 3]`
+
+- isEmpty " isemtpy "
+
+Returns a boolean value depending on if the value is empty or not.
+
+> `> (isempty [])`  
+`True`
+
+- Empty " empty "
+
+Empties the list and returns it.
+
+> `> (empty [1, 2, 3])`  
+`[]`
+
+- And " and "
+
+Returns True if both values are True, returns false otherwise.
+
+> `> (and #t #t)`  
+`True`
+
+- Or " or "
+
+Returns True if at least one of the two values is True, returns false otherwise.
+
+> `> (or #t #f)`  
+`True`
+
+- Not " not "
+
+Returns the opposite of the given boolean value.
+
+> `> (not #t)`  
+`False`
+
+- Binary And " & "
+
+Takes two equal-length binary representations and performs the logical AND operation on each pair of the corresponding bits.  
+Returns the result of all the operations put in a single number.
+
+> `> (& 12 27)`  
+`8`
+
+- Binary Or " | "
+
+Takes two equal-length binary representations and performs the logical OR operation on each pair of the corresponding bits.  
+Returns the result of all the operations put in a single number.
+
+> `> (| 12 27)`  
+`31`
+
+- Binary Xor " ^ "
+
+Takes two equal-length binary representations and performs the logical XOR operation on each pair of the corresponding bits.  
+Returns the result of all the operations put in a single number.
+
+> `> (^ 12 27)`  
+`23`
+
+- Binary Not " ~ "
+
+Takes two equal-length binary representations and performs the logical NOT operation on each pair of the corresponding bits.  
+Returns the result of all the operations put in a single number.
+
+> `> (~ 12)`  
+`-13`
+
+- Binary Left Shift " << "
+
+Moves all the bits of the first value to the left, a number of times depending on the second value.
+
+> `> (<< 12 3)`  
+`96`
+
+- Binary Right Shift " >> "
+
+Moves all the bits of the first value to the right, a number of times depending on the second value.
+
+> `> (<< 12 3)`  
+`1`
+
+- Nil " nil "
+
+Returns Null or empty.
+
+> `> nil`  
+` `
+
+- Seed " seed "
+
+Returns the seed.
+
+> `> seed`  
+`8115863839095233`
