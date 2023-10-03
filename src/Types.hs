@@ -17,9 +17,7 @@ data SExpr
   | Symbol String -- ^ A symbol
   | List [SExpr] -- ^ A list of SExpr
   | Boolan Bool -- ^ A boolean
-  deriving (Show -- ^ Makes SExpr printable
-    , Read -- ^ Makes SExpr readable
-    , Eq
+  deriving (Show, Eq -- ^ For unit tests
   )
 data Ast
   = Value Int -- ^ An integer

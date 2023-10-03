@@ -22,11 +22,10 @@ handleListItem e = actualPrintTree e
 handleList :: [SExpr] -- ^ The list to print
   -> Int -- ^ The number of items already printed
   -> String -- ^ The return value
-handleList [] 0 = "an empty list"
+handleList [] _ = "an empty list"
 handleList (x : xs) 0 = "a list with " ++ handleListItem x ++ handleList xs 1
 handleList [x] _ = " and " ++ handleListItem x
 handleList (x : xs) n = ", " ++ handleListItem x ++ handleList xs (n + 1)
-handleList [] _ = ""
 
 -- |Logic behind print tree.
 actualPrintTree :: SExpr -- ^ The tree to print
