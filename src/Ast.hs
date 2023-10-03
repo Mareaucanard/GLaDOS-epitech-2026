@@ -111,9 +111,7 @@ evalCall (Sym "rand") [] m = case Map.lookup "seed" m of
 evalCall (Sym "rand") _ _ = Right "Rand only takes one argument"
 evalCall (Sym "define") arg m = case defineSymbol arg m of
   Right msg   -> Right msg
-  Left (s, v) -> case arg of
-    ((Call _ _):_) -> Left (v, Map.insert s v m)
-    _ -> Left (None, Map.insert s v m)
+  Left (s, v) -> Left (None, Map.insert s v m)
 evalCall o l m = case evalAst o m of
   Right msg     -> Right msg
   Left (eo, em) -> applyOp eo l em

@@ -83,7 +83,7 @@ main = hspec $ do
         let call = Call (Sym "define")
         it "Wrong arg number" $ evalDefault (call []) `shouldBe` Right "Define takes exactly two arguments"
         it "Wrong arg type" $ evalDefault (call [Value 3, Value 4]) `shouldBe` Right "Can only define a symbol or call"
-        it "Can't evaluate named" $ evalDefault (Call (call [Call (Sym "named_func") [], Call (Sym "undefined") []]) []) `shouldBe` evalDefault (Call (Sym "undefined") [])
+        it "Can't evaluate named" $ evalDefault (Call (call [Call (Sym "named_func") [], Call (Sym "undefined") []]) []) `shouldBe` Right "Can't apply on an empty function"
 
       describe "Bad applying" $ do
         it "Value" $ evalDefault (Call (Value 0) []) `shouldBe` Right "Can't apply on number"
@@ -261,7 +261,7 @@ main = hspec $ do
     it "define named function" $ do
       let expected_result = Map.insert "x" (Lambda undefined) defaultSymbols
       let ast = Call (Sym "define") [Call (Sym "x") [Sym "y"], Value 3]
-      evalAst ast defaultSymbols `shouldBe` Left (Lambda undefined, expected_result)
+      evalAst ast defaultSymbols `shouldBe` Left (None, expected_result)
 
   describe "show ast" $ do
     it "lambda" $ show (Lambda undefined) `shouldBe` "#<procedure>"
@@ -272,9 +272,9 @@ main = hspec $ do
     it "bool false" $ show (Boolean False) `shouldBe` "#f"
     it "None" $ show None `shouldBe` "None"
     it "Call" $ show (Call (Sym "+") [Value 1, Value 1]) `shouldBe` "Call Symbol \"+\" [1,1]"
-    it "Eq1" $ (Call (Sym "h") [Value 1, Value 2]) == (Call (Sym "w") [Value 1, Value 2]) `shouldBe` False
-    it "Eq2" $ (Call (Sym "h") [Value 1, Value 2]) == (Call (Sym "h") [Value 1, Value 3]) `shouldBe` False
-    it "Eq3" $ (Call (Sym "h") [Value 1, Value 2]) == (Call (Sym "h") [Value 1, Value 2]) `shouldBe` True
+    it "Eq1" $ Call (Sym "h") [Value 1, Value 2] == Call (Sym "w") [Value 1, Value 2] `shouldBe` False
+    it "Eq2" $ Call (Sym "h") [Value 1, Value 2] == Call (Sym "h") [Value 1, Value 3] `shouldBe` False
+    it "Eq3" $ Call (Sym "h") [Value 1, Value 2] == Call (Sym "h") [Value 1, Value 2] `shouldBe` True
 
   describe "mapEvalCalls" $ do
     it "evaluates empty list of arguments" $ do
