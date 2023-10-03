@@ -14,6 +14,7 @@ import qualified Data.Map.Lazy as Map
 
 data ExArgs = ExArgs { filename :: String
                     , prompt :: Bool
+                    , gladVersion :: Bool
                     , help :: Bool }
 
 processInput :: IO String
@@ -66,8 +67,8 @@ loopFile file m = do
     _ -> handleLineFile file line m
 
 handleFile :: String -> VarMap -> IO (Maybe VarMap)
-handleFile filename m = do
-  file <- openFile filename ReadMode
+handleFile toOpen m = do
+  file <- openFile toOpen ReadMode
   loopFile file m
 
 handleFiles :: [String] -> VarMap -> IO ()
@@ -83,18 +84,26 @@ parseArgs [] parsed = parsed
 parseArgs (x:xs) parsed = case x of
   "-h" -> parseArgs xs parsed { help = True }
   "--help" -> parseArgs xs parsed { help = True }
-  _ -> parsed { filename = x }
+  "-p" -> parseArgs xs parsed { prompt = False }
+  "--no-prompt" -> parseArgs xs parsed { prompt = False }
+  "-v" -> parseArgs xs parsed { gladVersion = True }
+  "--version" -> parseArgs xs parsed { gladVersion = True }
+  _ -> parseArgs xs parsed { filename = x }
 
 handleArgs :: ExArgs -> IO ()
 handleArgs ExArgs { help = True } = putStr "GLaDOS:\n\t-h, --help\tDisplay this help" >>
   putStr "\n\tfile\t\tFile to interpret\n" >>
   exitSuccess
+handleArgs ExArgs { gladVersion = True } = putStr "GLaDOS version PLACEHOLDER" >> --add version as env var when implemented in comp
+  exitSuccess
+handleArgs ExArgs { filename = "" } = hPutStrLn stderr "** ERROR ** : No file given" >>
+  exitWith (ExitFailure 84)
 handleArgs _ = return ()
 
 main :: IO ()
 main = do
   args <- getArgs
-  let parsedArgs = parseArgs args ExArgs { filename = "", prompt = True, help = False }
+  let parsedArgs = parseArgs args ExArgs { filename = "", prompt = True, help = False, gladVersion = False }
   handleArgs parsedArgs
   seed <- randomIO :: IO Int
   case args of
