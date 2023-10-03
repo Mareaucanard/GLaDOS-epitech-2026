@@ -9,8 +9,12 @@ import System.Exit
 import System.Random
 import System.IO
 import Types (Ast(..))
-import System.Environment   
+import System.Environment
 import qualified Data.Map.Lazy as Map
+
+data ExArgs = ExArgs { filename :: String
+                    , prompt :: Bool
+                    , help :: Bool }
 
 processInput :: IO String
 processInput = do
@@ -72,23 +76,26 @@ handleFiles (x:xs) m = handleFile x m >>= (\rVal -> case rVal of
   (Just newM) -> handleFiles xs newM
   Nothing -> exitWith (ExitFailure 84))
 
-outputHelper :: IO ()
-outputHelper =
-  putStr "GLaDOS:\n\t-h, --help\tDisplay this help" >>
-  putStr "\n\tfile\t\tFile to interpret\n" >>
-  exitWith ExitSuccess
+parseArgs :: [String]
+  -> ExArgs
+  -> ExArgs
+parseArgs [] parsed = parsed
+parseArgs (x:xs) parsed = case x of
+  "-h" -> parseArgs xs parsed { help = True }
+  "--help" -> parseArgs xs parsed { help = True }
+  _ -> parsed { filename = x }
 
-handleArgs :: [String] -> IO ()
-handleArgs [] = putStr "Welcome to GLaDOS, the lisp interpreter\n"
-handleArgs (x:xs) = case x of
-  "-h" -> outputHelper
-  "--help" -> outputHelper
-  _ -> handleArgs xs
+handleArgs :: ExArgs -> IO ()
+handleArgs ExArgs { help = True } = putStr "GLaDOS:\n\t-h, --help\tDisplay this help" >>
+  putStr "\n\tfile\t\tFile to interpret\n" >>
+  exitSuccess
+handleArgs _ = return ()
 
 main :: IO ()
 main = do
   args <- getArgs
-  handleArgs args
+  let parsedArgs = parseArgs args ExArgs { filename = "", prompt = True, help = False }
+  handleArgs parsedArgs
   seed <- randomIO :: IO Int
   case args of
     [] -> loop (Map.insert "seed" (Value seed) defaultSymbols)
