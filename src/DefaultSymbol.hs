@@ -233,6 +233,8 @@ defaultSymbols = Map.fromList
   , ("*", Lambda mulAst)
   , ("/", Lambda divAst)
   , ("%", Lambda modAst)
+  , ("div", Lambda divAst)
+  , ("mod", Lambda modAst)
   , ("**", Lambda powAst)
   , ("if", Lambda ifAst)
   , ("==", Lambda equalAst)
