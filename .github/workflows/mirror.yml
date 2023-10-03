@@ -28,6 +28,9 @@ jobs:
           echo "::error title=Executable not found::$BINARY"
         fi
 
+    - name: run_tests
+      run: timeout 5m make tests
+
     - uses: actions/upload-artifact@v2
       with:
         name: glados-bin
