@@ -38,21 +38,23 @@ twoOpFunc _ _ name _ = Right $ "Invalid use of " ++ name ++ " operation"
 basicOp :: (Int -> Int -> Int) -- ^ The function to apply
         -> (Ast -> Ast -> Either Ast String) -- ^ The return value
 basicOp f (Value a) (Value b) = Left $ Value (f a b)
-basicOp _ v1 v2 = Right $ "Invalid operation " ++ show v1 ++ " " ++ show v2
+basicOp _ _ _  = Right "Invalid operation"
 
 -- |Boolean operation.
 -- If the two Ast are not of type Value, returns an error.
 -- If the two Ast are of type Value, returns the result of the function f.
 boolOp :: (Int -> Int -> Bool) -> (Ast -> Ast -> Either Ast String)
 boolOp f (Value a) (Value b) = Left $ Boolean (f a b)
-boolOp _ v1 v2 = Right $ "Invalid operation " ++ show v1 ++ " " ++ show v2
+boolOp _ _ _  = Right "Invalid operation"
+
 
 -- |Boolean logic operation.
 -- If the two Ast are not of type Boolean, returns an error.
 -- If the two Ast are of type Boolean, returns the result of the function f.
 logOp :: (Bool -> Bool -> Bool) -> (Ast -> Ast -> Either Ast String)
 logOp f (Boolean a) (Boolean b) = Left $ Boolean (f a b)
-logOp _ b1 b2 = Right $ "Invalid operation " ++ show b1 ++ " " ++ show b2
+logOp _ _ _ = Right "Invalid operation"
+
 
 -- |Bitwise boolean operation.
 -- If the two Ast are not of type Value, returns an error.
@@ -85,7 +87,7 @@ divAst args m = twoOpFunc args m "div" divLogic
 
 -- |Modulo operation logic.
 modLogic :: Ast -> Ast -> Either Ast String
-modLogic (Value _) (Value 0) = Right "Module by zero"
+modLogic (Value _) (Value 0) = Right "Mod by zero"
 modLogic (Value a) (Value b) = Left (Value (a `mod` b))
 modLogic _ _ = Right "Invalid use of mod operation"
 
@@ -105,7 +107,7 @@ ifAst [cond, x, y] m = case evalAstNoVars cond m of
                          then evalAstNoVars x m
                          else evalAstNoVars y m
   Left _ -> Right "If condition can only evaluate boolean values"
-ifAst s _ = Right $ "Invalid use of if condition" ++ show s
+ifAst _ _ = Right "Invalid use of if condition"
 
 -- |Equal bool operator.
 equalAst :: [Ast] -> VarMap -> Either Ast String
@@ -129,7 +131,7 @@ supAst args m = twoOpFunc args m "greater than" (boolOp (>))
 
 -- |Superior or equal bool operator.
 supEqAst :: [Ast] -> VarMap -> Either Ast String
-supEqAst args m = twoOpFunc args m "greater or equal than than" (boolOp (>=))
+supEqAst args m = twoOpFunc args m "greater or equal than" (boolOp (>=))
 
 list :: [Ast] -> VarMap -> Either Ast String
 list [] _ = Left (Tab [])
@@ -145,8 +147,7 @@ car [arg] m = case evalAst arg m of
   Right msg           -> Right msg
   Left (Tab [], _)    -> Right "Can't apply car on empty list"
   Left (Tab (x:_), _) -> Left x
-  Left (v, _)         -> Right
-    $ "Invalid use of car function, only works on lists but got " ++ show v
+  Left (_, _)         -> Right "car function only works on lists"
 car l _ = Right
   $ "Invalid argument count for car, expected 1 but got " ++ show (length l)
 
@@ -155,8 +156,7 @@ cdr [arg] m = case evalAst arg m of
   Right msg -> Right msg
   Left (Tab [], _) -> Right "Can't apply cdr on empty list"
   Left (Tab (_:xs), _) -> Left (Tab xs)
-  Left (v, _) -> Right
-    $ "Invalid use of cdr function, only works on lists but got " ++ show v
+  Left (_, _) -> Right "cdr function only works on lists"
 cdr l _ = Right
   $ "Invalid argument count for cdr, expected 1 but got " ++ show (length l)
 
@@ -168,15 +168,14 @@ cons [arg1, arg2] m = case evalAst arg1 m of
     Left (Tab lst, _) -> Left (Tab (v1:lst))
     Left (v2, _)      -> Left (Tab [v1, v2])
 cons l _ = Right
-  $ "Invalid argument count for cdr, expected 1 but got " ++ show (length l)
+  $ "Invalid argument count for cons, expected 2 but got " ++ show (length l)
 
 isEmpty :: [Ast] -> VarMap -> Either Ast String
 isEmpty [arg] m = case evalAst arg m of
   Right msg        -> Right msg
   Left (Tab [], _) -> Left (Boolean True)
   Left (Tab _, _)  -> Left (Boolean False)
-  Left (v, _)
-    -> Right $ "Invalid use of isEmpty, only works on lists but got" ++ show v
+  Left (_, _) -> Right "isEmpty only works on lists"
 isEmpty l _ = Right
   $ "Invalid argument count for isEmpty, expected 1 but got "
   ++ show (length l)
@@ -203,7 +202,7 @@ binAndAst args m = twoOpFunc args m "&" (binBoolOp (.&.))
 
 -- |bitwise or operator
 binOrAst :: [Ast] -> VarMap -> Either Ast String
-binOrAst args m = twoOpFunc args m "&" (binBoolOp (.|.))
+binOrAst args m = twoOpFunc args m "|" (binBoolOp (.|.))
 
 -- |bitwise not operator
 binNotAst :: [Ast] -> VarMap -> Either Ast String
@@ -215,7 +214,7 @@ binNotAst _ _ = Right "Invalid use of not operation"
 
 -- |bitwise xor operator
 binXorAst :: [Ast] -> VarMap -> Either Ast String
-binXorAst args m = twoOpFunc args m "&" (binBoolOp xor)
+binXorAst args m = twoOpFunc args m "^" (binBoolOp xor)
 
 -- |bitwise lshift operator
 binLshiftAst :: [Ast] -> VarMap -> Either Ast String
@@ -223,7 +222,7 @@ binLshiftAst args m = twoOpFunc args m "<<" (binBoolOp shift)
 
 -- |bitwise rshift operator
 binRshiftAst :: [Ast] -> VarMap -> Either Ast String
-binRshiftAst args m = twoOpFunc args m "<<" (binBoolOp shiftR)
+binRshiftAst args m = twoOpFunc args m ">>" (binBoolOp shiftR)
 
 -- |Default symbols.
 defaultSymbols :: VarMap

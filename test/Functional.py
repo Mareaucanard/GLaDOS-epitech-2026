@@ -1,5 +1,9 @@
 import subprocess
-from termcolor import colored
+try:
+    from termcolor import colored
+except ModuleNotFoundError:
+    def colored(string, *args, **kwargs):
+        return string
 from sys import argv
 
 class TestFile:
@@ -38,10 +42,10 @@ class TestFile:
             print(colored(f"File {self.filename} has timed out\n", "light_red"))
             return False
         missing_in_error = [item for item in self.expected_in_error if item.lower() not in self.error_channel.lower()]
-        if self.actual != self.expected_output or self.exit_code != self.exit_code or len(missing_in_error) != 0:
+        if self.actual != self.expected_output or self.exit_code != self.expected_code or len(missing_in_error) != 0:
             s = f"File {self.filename}: KO"
-            if self.exit_code != self.exit_code:
-                s = s + f"\nExpected exit code {self.exit_code} but got {self.expected_code}"
+            if self.exit_code != self.expected_code:
+                s = s + f"\nExpected exit code {self.expected_code} but got {self.exit_code}"
             if self.actual != self.expected_output:
                 s = s + f"\nExpected output:\n'{self.expected_output}'\nBut got:\n'{self.actual}'"
             if len(missing_in_error) != 0:
@@ -102,8 +106,10 @@ def main():
             success_count += 1
     if (success_count == len(fileList)):
         print(colored(f"{success_count}/{success_count} test passed", "light_green"))
+        return 0
     else:
         print(colored(f"{success_count}/{len(fileList)} test passed", "light_red"))
+        return 84
 
 if __name__ == "__main__":
-    main()
+    exit(main())

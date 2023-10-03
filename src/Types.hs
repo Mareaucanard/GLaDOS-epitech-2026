@@ -17,8 +17,7 @@ data SExpr
   | Symbol String -- ^ A symbol
   | List [SExpr] -- ^ A list of SExpr
   | Boolan Bool -- ^ A boolean
-  deriving (Show -- ^ Makes SExpr printable
-    , Read -- ^ Makes SExpr readable
+  deriving (Show, Eq -- ^ For unit tests
   )
 data Ast
   = Value Int -- ^ An integer
@@ -28,6 +27,18 @@ data Ast
   | Lambda ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
   | Tab [Ast] -- ^ A list of Ast
   | None -- ^ None
+
+-- Manually implement Eq for Ast
+instance Eq Ast where
+  (Value x) == (Value y) = x == y
+  (Sym x) == (Sym y) = x == y
+  (Call a1 args1) == (Call a2 args2) = a1 == a2 && args1 == args2
+  (Boolean x) == (Boolean y) = x == y
+  -- Decide how to compare Lambda values here (e.g., consider them equal if they have the same function signature)
+  (Lambda _) == (Lambda _) = True
+  (Tab x) == (Tab y) = x == y
+  None == None = True
+  _ == _ = False
 
 -- |Makes Ast printable.
 instance Show Ast where
