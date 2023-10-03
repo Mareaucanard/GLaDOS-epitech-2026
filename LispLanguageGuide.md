@@ -1,10 +1,12 @@
 # GLaDOS - Lisp language usage guide
 ## Table of contents
-- Basic syntax
-- Default symbols
-  - Arithmetic operations
-  - Logical operations
-  - Boolean operations
+- [GLaDOS - Lisp language usage guide](#glados---lisp-language-usage-guide)
+  - [Table of contents](#table-of-contents)
+  - [Basic syntax](#basic-syntax)
+  - [Default Symbols](#default-symbols)
+    - [Arithmetic operations](#arithmetic-operations)
+    - [Logical operations](#logical-operations)
+    - [Binary operations](#binary-operations)
 
 ## Basic syntax
 
@@ -22,6 +24,7 @@ Thus, dividing 6 by 2.
 Any expression should be put between parenthesis.
 
 ## Default Symbols
+### Arithmetic operations
 
 - Addition " + "
 
@@ -62,6 +65,8 @@ Returns the result of the value to the power of the second value.
 
 > `> (** 2 3)`
 `8`
+
+### Logical operations
 
 - if " if "
 
@@ -174,6 +179,8 @@ Returns the opposite of the given boolean value.
 
 > `> (not #t)`
 `False`
+
+### Binary operations
 
 - Binary And " & "
 
