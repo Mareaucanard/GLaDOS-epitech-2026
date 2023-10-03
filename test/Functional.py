@@ -44,8 +44,8 @@ class TestFile:
         missing_in_error = [item for item in self.expected_in_error if item.lower() not in self.error_channel.lower()]
         if self.actual != self.expected_output or self.exit_code != self.expected_code or len(missing_in_error) != 0:
             s = f"File {self.filename}: KO"
-            if self.exit_code != self.exit_code:
-                s = s + f"\nExpected exit code {self.exit_code} but got {self.expected_code}"
+            if self.exit_code != self.expected_code:
+                s = s + f"\nExpected exit code {self.expected_code} but got {self.exit_code}"
             if self.actual != self.expected_output:
                 s = s + f"\nExpected output:\n'{self.expected_output}'\nBut got:\n'{self.actual}'"
             if len(missing_in_error) != 0:

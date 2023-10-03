@@ -1,9 +1,11 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main (main) where
 
-import Ast
+import Ast ( evalAst, sexprToAST, VarMap )
 import Data.Char (toLower)
 import Lib (parseString)
 import Interpreter (parseLineFromFile)
+import Control.Exception
 import DefaultSymbol (defaultSymbols)
 import System.Exit ( ExitCode(ExitFailure), exitWith )
 import System.Random ( randomIO )
@@ -15,7 +17,7 @@ import System.IO
       stderr,
       stdin,
       stdout,
-      IOMode(ReadMode) )
+      IOMode(ReadMode))
 import Types (Ast(..))
 import System.Environment ( getArgs )
 import qualified Data.Map.Lazy as Map
@@ -54,8 +56,9 @@ handleFile :: String -> VarMap -> IO (Maybe VarMap)
 handleFile "stdin" m = do
   loopFile stdin m
 handleFile filename m = do
-  file <- openFile filename ReadMode
-  loopFile file m
+  handle (\(e :: IOException) -> hPutStrLn stderr (show e)  >> return Nothing) $ do
+    file <- openFile filename ReadMode
+    loopFile file m
 
 handleFiles :: [String] -> VarMap -> IO ()
 handleFiles [] _ = return ()
