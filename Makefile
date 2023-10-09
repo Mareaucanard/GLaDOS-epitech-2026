@@ -5,6 +5,8 @@
 ## Wow, such make, much file!
 ##
 
+include glados.env
+
 NAME	=	glados
 
 CC		=	ghc
@@ -15,7 +17,7 @@ BINNAME = glados-exe
 
 all:
 			docker pull someone2love/glados_build_env:latest
-			docker run --rm -v $(shell pwd):/glados -w /glados someone2love/glados_build_env:latest make build
+			docker run --env-file glados.env --rm -v $(shell pwd):/glados -w /glados someone2love/glados_build_env:latest make build
 
 build:
 			stack setup --allow-different-user
