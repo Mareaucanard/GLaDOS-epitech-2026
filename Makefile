@@ -32,5 +32,5 @@ tests:
 
 re:			clean all
 
-doc:	clean
+doc:		clean
 			haddock ./src/* --html -o ./doc
