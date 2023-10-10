@@ -14,7 +14,7 @@ import Lib (parseString)
 import Interpreter (parseLineFromFile)
 import Control.Exception
 import DefaultSymbol (defaultSymbols)
-import System.Exit ( ExitCode(ExitFailure), exitWith )
+import System.Exit ( ExitCode(ExitFailure), exitWith, exitSuccess )
 import System.Random ( randomIO )
 import System.IO
     ( Handle,
@@ -26,8 +26,13 @@ import System.IO
       stdout,
       IOMode(ReadMode))
 import Types (Ast(..))
-import System.Environment ( getArgs )
+import System.Environment
 import qualified Data.Map.Lazy as Map
+
+data ExArgs = ExArgs { filename :: String
+                    , prompt :: Bool
+                    , gladVersion :: Bool
+                    , help :: Bool }
 
 processInputFile :: Handle -> IO String
 processInputFile file = do
@@ -55,16 +60,12 @@ loopFile file m = do
     "quit" -> putStr (if file == stdin then "\n" else "") >> return (Just m)
     _ -> handleLineFile file line m
 
-argsHandler :: [String] -> IO ()
-argsHandler [] = putStr "Welcome to GLaDOS, the lisp interpreter\n"
-argsHandler _ = return ()
-
 handleFile :: String -> VarMap -> IO (Maybe VarMap)
 handleFile "stdin" m = do
   loopFile stdin m
-handleFile filename m = do
+handleFile fname m = do
   handle (\(e :: IOException) -> hPutStrLn stderr (show e)  >> return Nothing) $ do
-    file <- openFile filename ReadMode
+    file <- openFile fname ReadMode
     loopFile file m
 
 handleFiles :: [String] -> VarMap -> IO ()
@@ -73,10 +74,34 @@ handleFiles (x:xs) m = handleFile x m >>= (\rVal -> case rVal of
   (Just newM) -> handleFiles xs newM
   Nothing -> exitWith (ExitFailure 84))
 
+parseArgs :: [String]
+  -> ExArgs
+  -> ExArgs
+parseArgs [] parsed = parsed
+parseArgs (x:xs) parsed = case x of
+  "-h" -> parseArgs xs parsed { help = True }
+  "--help" -> parseArgs xs parsed { help = True }
+  "-p" -> parseArgs xs parsed { prompt = False }
+  "--no-prompt" -> parseArgs xs parsed { prompt = False }
+  "-v" -> parseArgs xs parsed { gladVersion = True }
+  "--version" -> parseArgs xs parsed { gladVersion = True }
+  _ -> parseArgs xs parsed { filename = x }
+
+handleArgs :: ExArgs -> IO ()
+handleArgs ExArgs { help = True } = putStr "GLaDOS:\n\t-h, --help\tDisplay this help" >>
+  putStr "\n\tfile\t\tFile to interpret\n" >>
+  exitSuccess
+handleArgs ExArgs { gladVersion = True } = putStr "GLaDOS version PLACEHOLDER" >> --add version as env var when implemented in comp
+  exitSuccess
+handleArgs ExArgs { filename = "" } = hPutStrLn stderr "** ERROR ** : No file given" >>
+  exitWith (ExitFailure 84)
+handleArgs _ = return ()
+
 main :: IO ()
 main = do
   args <- getArgs
-  argsHandler args
+  let parsedArgs = parseArgs args ExArgs { filename = "", prompt = True, help = False, gladVersion = False }
+  handleArgs parsedArgs
   seed <- randomIO :: IO Int
   case args of
     [] -> handleFiles ["stdin"] (Map.insert "seed" (Value seed) defaultSymbols)
