@@ -8,7 +8,7 @@
 
 module Lib (printTree, parseString, myMaybeMap) where
 
-import Data.Char (isNumber, isSpace, toUpper)
+import Data.Char (isSpace, toUpper)
 import Data.List (dropWhileEnd)
 import Text.Read (readMaybe)
 import Types (SExpr (..))
@@ -23,11 +23,10 @@ handleListItem e = actualPrintTree e
 handleList :: [SExpr] -- ^ The list to print
   -> Int -- ^ The number of items already printed
   -> String -- ^ The return value
-handleList [] 0 = "an empty list"
+handleList [] _ = "an empty list"
 handleList (x : xs) 0 = "a list with " ++ handleListItem x ++ handleList xs 1
 handleList [x] _ = " and " ++ handleListItem x
 handleList (x : xs) n = ", " ++ handleListItem x ++ handleList xs (n + 1)
-handleList [] _ = ""
 
 -- |Logic behind print tree.
 actualPrintTree :: SExpr -- ^ The tree to print
@@ -145,10 +144,9 @@ parseString (' ' : xs) = parseString xs
 parseString ('\n' : xs) = parseString xs
 parseString ('(' : xs) = parseList ('(' : xs)
 parseString ('#' : xs) = parseBool (trim xs)
-parseString (x : xs) =
-  if isNumber x
-    then parseNumber (x : xs)
-    else parseSymbol (x : xs)
+parseString (x : xs) = case parseNumber (x:xs) of
+    Right _ -> parseSymbol (x:xs)
+    Left res -> Left res
 parseString [] = Right "Can't evaluate empty string"
 
 -- |Splits args magic.

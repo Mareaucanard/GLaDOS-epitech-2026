@@ -5,7 +5,8 @@
 -- = File description:
 -- Interpreter
 
-module Interpreter (parseLine) where
+module Interpreter (parseLineFromFile) where
+import System.IO
 
 -- | Counts parenthesis in a string
 countParenthesis :: String -- ^ The string to count
@@ -23,16 +24,17 @@ concatStringIOString :: String -- ^ The first string
 concatStringIOString s1 io = io >>= (\s2 -> return (s1 ++ " " ++ s2)) -- Concatenates the two strings
 
 -- | Parsline function logic
-parseLineLogic :: Int
-  -> String
-  -> IO String
-parseLineLogic n line =
+parseLineFileLogic :: Int -> Handle -> String -> IO String
+parseLineFileLogic n file line =
   if nbPar == 0
     then return line
-    else concatStringIOString line (parseLine nbPar)
+    else concatStringIOString line (parseLineFromFile nbPar file)
   where nbPar = countParenthesis line n
 
--- | Parses a line
-parseLine :: Int -> 
-  IO String
-parseLine n = getLine >>= (\line -> parseLineLogic n line)
+parseLineFromFile :: Int -> Handle -> IO String
+parseLineFromFile n file = do
+  isClosed <- hIsEOF file
+  if isClosed
+    then return "quit"
+    else hGetLine file >>= (\line -> parseLineFileLogic n file line)
+    
