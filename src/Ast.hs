@@ -1,10 +1,11 @@
-{--
--- EPITECH PROJECT, 2023
+-- |
+-- = EPITECH PROJECT, 2023
 -- glados
--- File description:
+--
+-- = File description:
 -- Ast
---}
-module Ast (sexprToAST, evalAst, VarMap, mapEvalCalls) where
+
+module Ast (sexprToAST, evalAst, VarMap, mapEvalCalls, createLambda) where
 
 import qualified Data.Map.Lazy as Map
 import           Lib (myMaybeMap)
@@ -24,6 +25,15 @@ extractSymbols (Symbol x : xs) = case extractSymbols xs of
   Left list -> Left (x:list)
 extractSymbols [] = Left []
 extractSymbols _ = Right "Can't extract (not a symbol)"
+
+-- |Extracts sym from a list of Asts.
+extractSym :: [Ast] -- ^ The list of Ast to extract
+  -> Either [String] String -- ^ The return value
+extractSym (Sym x : xs) = case extractSym xs of
+  Right err -> Right err
+  Left list -> Left (x:list)
+extractSym [] = Left []
+extractSym _ = Right "Can't extract (not a symbol)"
 
 -- |Handles lambdas.
 handleLambda :: [SExpr] -- ^ The list of SExpr to handle
@@ -57,15 +67,15 @@ applyOp :: Ast -- ^ The operator
         -> [Ast] -- ^ The arguments
         -> VarMap -- ^ The map of variables
         -> Either (Ast, VarMap) String -- ^ The return value
-applyOp (Value v) _ _ = Right $ "Can't apply on value " ++ show v
-applyOp (Tab t) _ _ = Right $ "Can't apply on tab " ++ show t
-applyOp (Sym s) _ _ = Right $ "Wrong use of symbol " ++ s
+applyOp (Value _) _ _ = Right "Can't apply on number"
+applyOp (Tab _) _ _ = Right "Can't apply on list"
 applyOp (Call o l) args m = Left (Call (Call o l) args, m)
 applyOp None _ _ = Right "Can't apply on an empty function"
 applyOp (Lambda l) args m = case l args m of
   Right msg -> Right msg
   Left v    -> evalAst v m
 applyOp (Boolean _) _ _ = Right "Can't apply on boolean"
+applyOp _ _ _ = Right "Can't apply"  -- Should never be reached
 
 -- |Tries to add to a Either list.
 -- If there's an error, returns the first error found.
@@ -95,10 +105,11 @@ evalCall :: Ast -- ^ The operator
          -> VarMap -- ^ The map of variables
          -> Either (Ast, VarMap) String -- ^ The return value
 evalCall (Sym "rand") [] m = case Map.lookup "seed" m of
-  Just (Value seed) -> Left (Value (rand), Map.insert "seed" (Value rand) m)
+  Just (Value seed) -> Left (Value rand, Map.insert "seed" (Value rand) m)
     where
       rand = fst (uniform (mkStdGen seed) :: (Int, StdGen))
-  _ -> Right $ "Invalid seed, please set it to a value"
+  _ -> Right "Invalid seed, please set it to a value"
+evalCall (Sym "rand") _ _ = Right "Rand only takes one argument"
 evalCall (Sym "define") arg m = case defineSymbol arg m of
   Right msg   -> Right msg
   Left (s, v) -> Left (None, Map.insert s v m)
@@ -116,6 +127,13 @@ tryReadVar key m = case Map.lookup key m of
   Nothing -> Right $ "Unknown symbol " ++ key
   Just v  -> Left (v, m)
 
+handleNamedFunction :: [Ast] -- ^ The name of the arguments of the function
+    -> Ast -- ^ The function to be called
+    -> Either Ast String  -- ^ On success new var map else error message
+handleNamedFunction args eval = case extractSym args of
+  Right _ -> Right "Named function arguments must be symbols"
+  Left argNames -> Left $ createLambda argNames eval
+
 -- |Handles the special keyword define.
 -- On error returns a Right string with a description of the error.
 -- On success returns on the left a tuple with the evaluated expression and new map.
@@ -124,10 +142,12 @@ defineSymbol :: [Ast] -- ^ The arguments
              -> Either (String, Ast) String -- ^ The return value
 defineSymbol [Sym s, v] m = case evalAst v m of
   Right msg      -> Right msg
-  Left (None, _) -> Right "Can't define symbol to None"
   Left (eo, _)   -> Left (s, eo)
-defineSymbol [s, _] _ = Right $ "Can only define a symbol, not " ++ show s
-defineSymbol _ _ = Right "define takes exactly two argument"
+defineSymbol [Call (Sym name) args, v] _ = case handleNamedFunction args v of
+  Right msg -> Right msg
+  Left newLambda -> Left (name, newLambda)
+defineSymbol [_, _] _ = Right "Can only define a symbol or call"
+defineSymbol _ _ = Right "Define takes exactly two arguments"
 
 -- |Evaluates an Ast and also update variables if there's a define.
 -- On error returns a Right string with a description of the error.
@@ -178,8 +198,8 @@ insertLambdaVars (name : names) (var : vars) vmap = case evalAst var vmap of
   where
     nmap = insertLambdaVars names vars vmap
 insertLambdaVars [] [] m = Left m
-insertLambdaVars [] _ _ = Right "Not enough arguments"
-insertLambdaVars _ [] _ = Right "Too many arguments"
+insertLambdaVars _ [] _ = Right "Not enough arguments"
+insertLambdaVars [] _ _ = Right "Too many arguments"
 
 -- |Creates a lambda.
 createLambda :: [String] -- ^ The list of arguments names

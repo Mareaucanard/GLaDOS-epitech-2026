@@ -21,7 +21,8 @@ cabal.project.local
 cabal.project.local~
 .HTF/
 .ghc.environment.*
-test_files*
 .vscode*
-
+doc/
+glados-exe.tix
+report.html
 glados
