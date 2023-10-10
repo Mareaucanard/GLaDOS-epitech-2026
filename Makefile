@@ -31,6 +31,7 @@ clean:
 
 fclean:		clean
 			rm -f $(NAME)
+			rm -drf ./doc
 			docker rmi -f someone2love/glados_build_env:latest
 
 tests: | unit_test functional_test
@@ -44,4 +45,8 @@ unit_test:
 			@echo -e "\e[0;32mhtml report created at report.html\e[0m"
 
 
+
 re:			clean all
+
+doc:		clean
+			haddock ./src/* --html -o ./doc

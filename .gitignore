@@ -22,7 +22,7 @@ cabal.project.local~
 .HTF/
 .ghc.environment.*
 .vscode*
+doc/
 glados-exe.tix
 report.html
-
 glados
