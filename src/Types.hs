@@ -1,17 +1,21 @@
-{--
--- EPITECH PROJECT, 2023
+-- |
+-- = EPITECH PROJECT, 2023
 -- glados
--- File description:
+--
+-- = File description:
 -- Types
---}
+
 
 {-# LANGUAGE InstanceSigs #-}
 module Types (VarMap, Ast (..), SExpr(..)) where
 
 import qualified Data.Map.Lazy as Map
 
-type VarMap = Map.Map String Ast
+-- | A map of variables.
+type VarMap
+  = Map.Map String Ast -- ^ The map of variables
 
+-- | An SExpr.
 data SExpr
   = Integer Int -- ^ An integer
   | Symbol String -- ^ A symbol
@@ -19,6 +23,8 @@ data SExpr
   | Boolan Bool -- ^ A boolean
   deriving (Show, Eq -- ^ For unit tests
   )
+
+-- | An Ast.
 data Ast
   = Value Int -- ^ An integer
   | Sym String -- ^ A symbol

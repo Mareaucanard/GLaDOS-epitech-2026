@@ -5,6 +5,8 @@
 ## Wow, such make, much file!
 ##
 
+include glados.env
+
 NAME	=	glados
 
 CC		=	ghc
@@ -15,7 +17,7 @@ BINNAME = glados-exe
 
 all:
 			docker pull someone2love/glados_build_env:latest
-			docker run --rm -v $(shell pwd):/glados -w /glados someone2love/glados_build_env:latest make build
+			docker run --env-file glados.env --rm -v $(shell pwd):/glados -w /glados someone2love/glados_build_env:latest make build
 
 build:
 			stack setup --allow-different-user
@@ -29,6 +31,7 @@ clean:
 
 fclean:		clean
 			rm -f $(NAME)
+			rm -drf ./doc
 			docker rmi -f someone2love/glados_build_env:latest
 
 tests: | unit_test functional_test
@@ -38,8 +41,12 @@ functional_test:
 
 unit_test:
 			@stack test --coverage
-			@ln -sf /home/mareau/Programs/semestre_5/glados/.stack-work/install/x86_64-linux/5659563df3a50a00a90044575e65fadb5a715e0b372ebe388e5567a46d60cb70/9.4.7/hpc/index.html report.html
+			@ln -sf $(stack path --local-install-root)/hpc/index.html report.html
 			@echo -e "\e[0;32mhtml report created at report.html\e[0m"
 
 
+
 re:			clean all
+
+doc:		clean
+			haddock ./src/* --html -o ./doc

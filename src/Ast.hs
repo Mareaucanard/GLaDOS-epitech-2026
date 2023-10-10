@@ -1,9 +1,10 @@
-{--
--- EPITECH PROJECT, 2023
+-- |
+-- = EPITECH PROJECT, 2023
 -- glados
--- File description:
+--
+-- = File description:
 -- Ast
---}
+
 module Ast (sexprToAST, evalAst, VarMap, mapEvalCalls, createLambda) where
 
 import qualified Data.Map.Lazy as Map
