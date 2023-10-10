@@ -15,7 +15,7 @@ countParenthesis :: String -- ^ The string to count
 countParenthesis [] n = n -- If the string is empty, return the number of parenthesis
 countParenthesis ('(':xs) n = countParenthesis xs (n + 1) -- If the first char is a '(', add 1 to the number of parenthesis
 countParenthesis (')':xs) n = countParenthesis xs (n - 1) -- If the first char is a ')', remove 1 to the number of parenthesis
-countParenthesis (x:xs) n = countParenthesis xs n -- If the first char is not a parenthesis, call the function again with the tail of the string
+countParenthesis (_:xs) n = countParenthesis xs n -- If the first char is not a parenthesis, call the function again with the tail of the string
 
 -- | Concatenates a string and an IO String into an IO String
 concatStringIOString :: String -- ^ The first string
@@ -37,4 +37,3 @@ parseLineFromFile n file = do
   if isClosed
     then return "quit"
     else hGetLine file >>= (\line -> parseLineFileLogic n file line)
-    
