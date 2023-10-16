@@ -37,11 +37,11 @@ fclean:		clean
 tests: | unit_test functional_test
 
 functional_test:
-			python3 test/Functional.py
+			python3 test/LISP/Functional.py
 
 unit_test:
 			@stack test --coverage
-			@ln -sf $(stack path --local-install-root)/hpc/index.html report.html
+			@ln -sf "$(stack path --local-install-root)/hpc/index.html" report.html
 			@echo -e "\e[0;32mhtml report created at report.html\e[0m"
 
 

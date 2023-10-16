@@ -5,11 +5,11 @@
 -- = File description:
 -- Ast
 
-module Ast (sexprToAST, evalAst, VarMap, mapEvalCalls, createLambda) where
+module LISP.Ast (sexprToAST, evalAst, VarMap, mapEvalCalls, createLambda) where
 
 import qualified Data.Map.Lazy as Map
-import           Lib (myMaybeMap)
-import           Types (Ast(..), SExpr(..), VarMap)
+import           LISP.Lib (myMaybeMap)
+import           LISP.Types (Ast(..), SExpr(..), VarMap)
 import           System.Random (StdGen, mkStdGen, uniform)
 
 -- |Checks list of SExpr.

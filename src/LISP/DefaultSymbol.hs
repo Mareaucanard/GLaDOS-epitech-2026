@@ -5,10 +5,10 @@
 -- = File description:
 -- DefaultSymbol
 
-module DefaultSymbol (defaultSymbols) where
+module LISP.DefaultSymbol (defaultSymbols) where
 
-import           Ast (evalAst, mapEvalCalls)
-import           Types (Ast(..), VarMap)
+import           LISP.Ast (evalAst, mapEvalCalls)
+import           LISP.Types (Ast(..), VarMap)
 import qualified Data.Map.Lazy as Map
 import           Data.Bits
 

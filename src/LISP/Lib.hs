@@ -6,12 +6,12 @@
 -- Lib
 
 
-module Lib (printTree, parseString, myMaybeMap) where
+module LISP.Lib (printTree, parseString, myMaybeMap) where
 
 import Data.Char (isSpace, toUpper)
 import Data.List (dropWhileEnd)
 import Text.Read (readMaybe)
-import Types (SExpr (..))
+import LISP.Types (SExpr (..))
 
 -- |Prints Items in lists for printTree.
 handleListItem :: SExpr -- ^ The item to print

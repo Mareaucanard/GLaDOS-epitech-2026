@@ -25,11 +25,11 @@ source-repository head
 
 library
   exposed-modules:
-      Ast
-      DefaultSymbol
-      Interpreter
-      Lib
-      Types
+      LISP.Ast
+      LISP.DefaultSymbol
+      LISP.Interpreter
+      LISP.Lib
+      LISP.Types
   other-modules:
       Paths_glados
   hs-source-dirs:
@@ -44,6 +44,7 @@ library
 executable glados-exe
   main-is: Main.hs
   other-modules:
+      LISP.LispMain
       Paths_glados
   hs-source-dirs:
       app
@@ -59,6 +60,7 @@ test-suite glados-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
+      LISP.Spec
       Paths_glados
   hs-source-dirs:
       test

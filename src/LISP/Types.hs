@@ -7,7 +7,7 @@
 
 
 {-# LANGUAGE InstanceSigs #-}
-module Types (VarMap, Ast (..), SExpr(..)) where
+module LISP.Types (VarMap, Ast (..), SExpr(..)) where
 
 import qualified Data.Map.Lazy as Map
 
