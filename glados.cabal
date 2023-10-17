@@ -29,6 +29,11 @@ library
       Instructions.ByteCode
       Instructions.HumanReadable
       Instructions.ReadByteCode
+      LISP.Ast
+      LISP.DefaultSymbol
+      LISP.Interpreter
+      LISP.Lib
+      LISP.Types
       Parsing.Parser
       Parsing.PreProcessing
       Parsing.Tokenize
@@ -42,14 +47,14 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
-    , basement >=0.0.16
+    , basement
     , binary
     , bits
     , bytes
     , bytestring
     , containers
-    , random
     , int-cast
+    , random
     , safe
   default-language: Haskell2010
 
@@ -63,14 +68,15 @@ executable glados-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , basement >=0.0.16
+    , basement
     , binary
     , bits
-    , glados
     , bytes
     , bytestring
     , containers
+    , glados
     , int-cast
+    , random
     , safe
   default-language: Haskell2010
 
@@ -78,8 +84,8 @@ test-suite glados-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      LISP.Spec
       Encoding
+      LISP.Spec
       PreProcessing
       Tokenization
       TokenParsing
@@ -89,7 +95,7 @@ test-suite glados-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , basement >=0.0.16
+    , basement
     , binary
     , bits
     , bytes
@@ -98,5 +104,6 @@ test-suite glados-test
     , glados
     , hspec
     , int-cast
+    , random
     , safe
   default-language: Haskell2010

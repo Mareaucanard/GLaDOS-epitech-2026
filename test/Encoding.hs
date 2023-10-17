@@ -1,12 +1,10 @@
 module Encoding (testEncoding) where
 
 import           Test.Hspec
-import           Types (Token(..), BinaryOperator(..), UnaryOperator(..)
-                      , Value(..), Ast(..), Instruction(..))
-import           Parsing.TokenParser (tokensToAst)
+import           Types (Value(..), Instruction(..))
 import           Instructions.ReadByteCode (readByteCode)
 import qualified Types as T
-import Instructions.ByteCode (byteCodeString)
+import           Instructions.ByteCode (byteCodeString)
 
 parseEncode :: String -> [Instruction] -> SpecWith ()
 parseEncode s l = it s $ (readByteCode (byteCodeString l)) `shouldBe` (Left l)
@@ -19,10 +17,10 @@ testEncoding = hspec
         describe "push"
           $ do
             parseEncode "int positive" [Push (Integer 1)]
-            parseEncode "int negative" [Push (Integer (- 1))]
+            parseEncode "int negative" [Push (Integer (-1))]
             parseEncode "int zero" [Push (Integer 0)]
             parseEncode "float positive" [Push (Float 3.14)]
-            parseEncode "float negative" [Push (Float (- 3.14))]
+            parseEncode "float negative" [Push (Float (-3.14))]
             parseEncode "float zeo" [Push (Float 0.0)]
             parseEncode "char" [Push (Char 'c')]
             parseEncode "str" [Push (Str "Hello")]

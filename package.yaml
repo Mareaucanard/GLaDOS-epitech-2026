@@ -28,6 +28,7 @@ dependencies:
 - bytes
 - basement
 - binary
+- bytestring
 - int-cast
 
 ghc-options:
