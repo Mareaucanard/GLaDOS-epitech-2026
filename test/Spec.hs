@@ -1,3 +1,11 @@
-import LISP.Spec
+import           Tokenization (testTokenize)
+import           PreProcessing (testPreProcessing)
+import           TokenParsing (testParsing)
+import Encoding (testEncoding)
 
-main = lispSpec
+main :: IO ()
+main = do
+  testTokenize
+  testPreProcessing
+  testParsing
+  testEncoding

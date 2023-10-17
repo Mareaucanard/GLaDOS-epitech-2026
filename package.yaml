@@ -24,6 +24,11 @@ dependencies:
 - containers
 - random
 - safe
+- bits
+- bytes
+- basement
+- binary
+- int-cast
 
 ghc-options:
 - -Wall

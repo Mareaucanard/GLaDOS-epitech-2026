@@ -25,11 +25,10 @@ source-repository head
 
 library
   exposed-modules:
-      LISP.Ast
-      LISP.DefaultSymbol
-      LISP.Interpreter
-      LISP.Lib
-      LISP.Types
+      Instructions.AstToInstructions
+      Instructions.ByteCode
+      Instructions.HumanReadable
+      Instructions.ReadByteCode
       Parsing.Parser
       Parsing.PreProcessing
       Parsing.Tokenize
@@ -43,8 +42,14 @@ library
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints
   build-depends:
       base >=4.7 && <5
+    , basement >=0.0.16
+    , binary
+    , bits
+    , bytes
+    , bytestring
     , containers
     , random
+    , int-cast
     , safe
   default-language: Haskell2010
 
@@ -58,9 +63,14 @@ executable glados-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
-    , containers
+    , basement >=0.0.16
+    , binary
+    , bits
     , glados
-    , random
+    , bytes
+    , bytestring
+    , containers
+    , int-cast
     , safe
   default-language: Haskell2010
 
@@ -69,15 +79,24 @@ test-suite glados-test
   main-is: Spec.hs
   other-modules:
       LISP.Spec
+      Encoding
+      PreProcessing
+      Tokenization
+      TokenParsing
       Paths_glados
   hs-source-dirs:
       test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , basement >=0.0.16
+    , binary
+    , bits
+    , bytes
+    , bytestring
     , containers
     , glados
     , hspec
-    , random
+    , int-cast
     , safe
   default-language: Haskell2010

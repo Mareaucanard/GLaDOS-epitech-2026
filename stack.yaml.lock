@@ -3,7 +3,14 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: int-cast-0.2.0.0@sha256:bc0f46a1839bcaa5e5e4991594d552e4590a9b0e9ab404d311aa92bb29d4db87,1856
+    pantry-tree:
+      sha256: 528bb40e73f0ab30b3a66b3baaef3736ebc3e2391252494ba4c632369daae6f3
+      size: 316
+  original:
+    hackage: int-cast-0.2.0.0@sha256:bc0f46a1839bcaa5e5e4991594d552e4590a9b0e9ab404d311aa92bb29d4db87,1856
 snapshots:
 - completed:
     sha256: 9313df78f49519315342f4c51ffc5da12659d3735f8ac3c54a1fb98ff874474e
