@@ -17,6 +17,8 @@ data Op = Addition
     | Substraction
     | Multiplication
     | Division
+    | Equal
+    | Less
     deriving Show
 
 data Instructions = Push Value
@@ -32,6 +34,8 @@ exec ((Call Addition):l) s = exec l (opStack s opAdd)
 exec ((Call Substraction):l) s = exec l (opStack s opSub)
 exec ((Call Multiplication):l) s = exec l (opStack s opMul)
 exec ((Call Division):l) s = exec l (opStack s opDiv)
+exec ((Call Equal):l) s = exec l (opStack s opEq)
+exec ((Call Less):l) s = exec l (opStack s opLess)
 exec (Ret:l) s = pop s
 exec [] s = pop s
 
@@ -47,6 +51,10 @@ opStack s op = case pop s of
     (v1, tmp_stack) -> case pop tmp_stack of
         (v2, final_stack) -> push final_stack (op v1 v2)
 
+-- jumpIfFalse :: Insts -> Int -> Insts
+-- jumpIfFalse [] _ = []
+-- jumpIfFalse 
+
 opAdd :: Value -> Value -> Value
 opAdd (Nb a) (Nb b) = Nb (a + b)
 opAdd (Boolean a) (Boolean b) = Boolean (a || b)
@@ -60,5 +68,13 @@ opMul (Nb a) (Nb b) = Nb (a * b)
 opMul (Boolean a) (Boolean b) = Boolean (a && b)
 
 opDiv :: Value -> Value -> Value
-opMul (Nb a) (Nb b) = Nb (a * b)
-opMul (Boolean a) (Boolean b) = Boolean (a && b)
+opDiv (Nb a) (Nb b) = Nb (a * b)
+opDiv (Boolean a) (Boolean b) = Boolean (a && b)
+
+opEq :: Value -> Value -> Value
+opEq (Nb a) (Nb b) = Boolean (a == b)
+opEq (Boolean a) (Boolean b) = Boolean (a == b)
+
+opLess :: Value -> Value -> Value
+opLess (Nb a) (Nb b) = Boolean (a < b)
+opLess (Boolean a) (Boolean b) = Boolean (not a && b)
