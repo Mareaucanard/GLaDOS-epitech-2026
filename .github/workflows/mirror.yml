@@ -69,9 +69,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          export DATE=$(date +"%d/%m/%Y_%Hh%M")
-          gh release create "$DATE"       \
-            --title "Dev build"                 \
+          set -a
+          source glados.env
+          set +a
+          gh release create "$GLADOS_VERSION"       \
+            --title "Glados $GLADOS_VERSION"                 \
             --generate-notes                    \
             --target main                       \
             "$PWD/glados#glados-bin"
