@@ -146,3 +146,33 @@ testParsing = hspec
                 Assign
                 (Symbol "x")
                 (BinaryOp Add (Symbol "x") (Const (Integer 1)))]]
+    parseIt
+      "if elif else"
+      [ Sym "if"
+      , OpenParenthesis
+      , Sym "x"
+      , CloseParenthesis
+      , OpenBraces
+      , Sym "y"
+      , SemiColon
+      , CloseBraces
+      , Sym "elif"
+      , OpenParenthesis
+      , Sym "a"
+      , CloseParenthesis
+      , OpenBraces
+      , Sym "b"
+      , SemiColon
+      , CloseBraces
+      , Sym "else"
+      , OpenBraces
+      , Sym "z"
+      , AddSymbol
+      , Constant (Integer 1)
+      , SemiColon
+      , CloseBraces]
+      $ Left
+        [ IfBlock
+            (Symbol "x", [Symbol "y"])
+            [(Symbol "a", [Symbol "b"])]
+            (Just [BinaryOp Add (Symbol "z") (Const (Integer 1))])]
