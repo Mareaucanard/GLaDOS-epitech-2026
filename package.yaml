@@ -23,6 +23,13 @@ dependencies:
 - base >= 4.7 && < 5
 - containers
 - random
+- safe
+- bits
+- bytes
+- basement
+- binary
+- bytestring
+- int-cast
 
 ghc-options:
 - -Wall

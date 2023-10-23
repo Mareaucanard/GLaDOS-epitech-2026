@@ -97,9 +97,8 @@ handleArgs ExArgs { filename = "" } = hPutStrLn stderr "** ERROR ** : No file gi
   exitWith (ExitFailure 84)
 handleArgs _ = return ()
 
-lispMain :: IO ()
-lispMain = do
-  args <- getArgs
+lispMain :: [String] -> IO ()
+lispMain args = do
   let parsedArgs = parseArgs args ExArgs { filename = "", prompt = True, help = False, gladVersion = False }
   handleArgs parsedArgs
   seed <- randomIO :: IO Int
