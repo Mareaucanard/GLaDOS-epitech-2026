@@ -1,59 +1,115 @@
--- |
--- = EPITECH PROJECT, 2023
--- glados
---
--- = File description:
--- Types
+module Types
+    ( Value(..)
+    , UnaryOperator(..)
+    , BinaryOperator(..)
+    , TernaryOperator(..)
+    , Ast(..)
+    , Token(..)
+    , IfType
+    , Instruction(..)) where
 
+import           Data.Int (Int64)
 
-{-# LANGUAGE InstanceSigs #-}
-module Types (VarMap, Ast (..), SExpr(..)) where
+data Value = Integer Int64
+           | Float Double
+           | Char Char
+           | Boolean Bool
+           | Str String
+           | Nil
+  deriving (Eq, Show)
 
-import qualified Data.Map.Lazy as Map
+data UnaryOperator = BoolNot
+                   | Negative
+  deriving (Eq, Show)
 
--- | A map of variables.
-type VarMap
-  = Map.Map String Ast -- ^ The map of variables
+data BinaryOperator =
+    Add
+  | Sub
+  | Times
+  | Div
+  | Mod
+  | Assign
+  | Equal
+  | Lower
+  | LowerEq
+  | BoolAnd
+  | BoolOr
+  | Greater
+  | GreaterEq
+  | NotEq
+  deriving (Eq, Show)
 
--- | An SExpr.
-data SExpr
-  = Integer Int -- ^ An integer
-  | Symbol String -- ^ A symbol
-  | List [SExpr] -- ^ A list of SExpr
-  | Boolan Bool -- ^ A boolean
-  deriving (Show, Eq -- ^ For unit tests
-  )
+data TernaryOperator = TernaryGate
+  deriving (Eq, Show)
 
--- | An Ast.
-data Ast
-  = Value Int -- ^ An integer
-  | Sym String -- ^ A symbol
-  | Call Ast [Ast] -- ^ A call
-  | Boolean Bool -- ^ A boolean
-  | Lambda ([Ast] -> VarMap -> Either Ast String) -- ^ A lambda
-  | Tab [Ast] -- ^ A list of Ast
-  | None -- ^ None
+data Token =
+    Constant Value
+  | Sym String
+  | OpenParenthesis
+  | CloseParenthesis
+  | Comma
+  | SemiColon
+  | OpenBracket
+  | CloseBracket
+  | OpenBraces
+  | CloseBraces
+  | Colon
+  | Period
+  | QuestionMark
+  | Blank
+  | AddSymbol
+  | SubSymbol
+  | Unary UnaryOperator
+  | Binary BinaryOperator
+  | PreProcessor String [Token]
+  deriving (Eq, Show)
 
--- Manually implement Eq for Ast
-instance Eq Ast where
-  (Value x) == (Value y) = x == y
-  (Sym x) == (Sym y) = x == y
-  (Call a1 args1) == (Call a2 args2) = a1 == a2 && args1 == args2
-  (Boolean x) == (Boolean y) = x == y
-  -- Decide how to compare Lambda values here (e.g., consider them equal if they have the same function signature)
-  (Lambda _) == (Lambda _) = True
-  (Tab x) == (Tab y) = x == y
-  None == None = True
-  _ == _ = False
+type IfType = (Ast, [Ast])
 
--- |Makes Ast printable.
-instance Show Ast where
-  show :: Ast -> String -- ^ The return value
-  show (Lambda _) = "#<procedure>"
-  show (Tab t) = show t
-  show (Value i) = show i
-  show (Sym s) = "Symbol " ++ show s
-  show (Call a b) = "Call " ++ show a ++ " " ++ show b
-  show (Boolean True) = "#t"
-  show (Boolean False) = "#f"
-  show None = "None"
+data Ast =
+    Symbol String
+  | Const Value
+  | List [Ast]
+  | Dict [(Ast, Ast)]
+  | UnaryOp UnaryOperator Ast
+  | BinaryOp BinaryOperator Ast Ast
+  | TernaryOp TernaryOperator Ast Ast Ast
+  | Block [Ast]
+  | FunctionCall String [Ast]
+  | FunctionDefinition String [String] [Ast]
+  | IfBlock IfType [IfType] (Maybe [Ast])
+  | WhileBlock Ast [Ast]
+  | ForBlock Ast Ast Ast [Ast]
+  | Return Ast
+  | IndexOf String Ast
+  | None
+  deriving (Eq, Show)
+
+data Instruction =
+    Function String [String]
+  | Push Value
+  | PushSymbol String
+  | JIF Int64
+  | Jump Int64
+  | Call
+  | Set
+  | ADD
+  | SUB
+  | MUL
+  | DIV
+  | MOD
+  | AND
+  | OR
+  | NOT
+  | EQ
+  | NEQ
+  | LT
+  | LET
+  | GT
+  | GET
+  | NEGATIVE
+  | TERNARY
+  | RET
+  | LIST Int64
+  | INDEX String
+  deriving (Show, Eq)

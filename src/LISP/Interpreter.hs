@@ -5,7 +5,7 @@
 -- = File description:
 -- Interpreter
 
-module Interpreter (parseLineFromFile) where
+module LISP.Interpreter (parseLineFromFile) where
 import System.IO
 
 -- | Counts parenthesis in a string
