@@ -9,9 +9,14 @@ module Vm
     ( exec
     ) where
 
+import Data.Int (Int64)
+
 data Value = Nb Int
     | Boolean Bool
-    deriving Show
+    deriving (Show, Eq)
+
+data Symbol = Val Value
+    | Func [Instruction]
 
 data Op = Addition
     | Substraction
@@ -21,23 +26,47 @@ data Op = Addition
     | Less
     deriving Show
 
-data Instructions = Push Value
-    | Call Op
-    | Ret
+data Instruction = Function String [String]
+    | Push Value
+    | PushSymbol String
+    | JIF Int64
+    | Jump Int64
+    | Call
+    | Set
+    | ADD
+    | SUB
+    | MUL
+    | DIV
+    | MOD
+    | AND
+    | OR
+    | NOT
+    | EQ
+    | NEQ
+    | LT
+    | LET
+    | GT
+    | GET
+    | NEGATIVE
+    | TERNARY
+    | RET
+    | LIST Int64
+    | INDEX String
+    deriving (Show, Eq)
 
 type Stack = [Value]
-type Insts = [Instructions]
+type Insts = [Instruction]
 
-exec :: Insts -> Stack -> (Value, Stack)
-exec ((Push val):l) s = exec l (push s val)
-exec ((Call Addition):l) s = exec l (opStack s opAdd)
-exec ((Call Substraction):l) s = exec l (opStack s opSub)
-exec ((Call Multiplication):l) s = exec l (opStack s opMul)
-exec ((Call Division):l) s = exec l (opStack s opDiv)
-exec ((Call Equal):l) s = exec l (opStack s opEq)
-exec ((Call Less):l) s = exec l (opStack s opLess)
-exec (Ret:l) s = pop s
-exec [] s = pop s
+exec :: Insts -> Stack -> [(String, Symbol)] -> (Value, Stack)
+exec ((Push val):l) s v = exec l (push s val) v
+exec (ADD:l) s v = exec l (opStack s opAdd) v
+exec (SUB:l) s v = exec l (opStack s opSub) v
+exec (MUL:l) s v = exec l (opStack s opMul) v
+exec (DIV:l) s v = exec l (opStack s opDiv) v
+exec (Vm.EQ:l) s v = exec l (opStack s opEq) v
+exec (Vm.LT:l) s v = exec l (opStack s opLess) v
+exec (RET:l) s v = pop s
+exec [] s v = pop s
 
 push :: Stack -> Value -> Stack
 push s val = val : s
