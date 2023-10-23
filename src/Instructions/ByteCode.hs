@@ -3,13 +3,12 @@ module Instructions.ByteCode (writeByteCode, byteCodeString) where
 import           GHC.IO.Handle (Handle)
 import           Types (Instruction(..), Value(..))
 import qualified Types as T
-import           Data.ByteString.Lazy (hPut, ByteString, hPutStr, pack
-                                     , singleton, unpack)
-import qualified Data.ByteString.Lazy as BS (concat)
+import           Data.ByteString (hPut, ByteString, hPutStr, pack, singleton)
+import qualified Data.ByteString as BS (concat)
 import           Data.Word (Word8, Word64)
 import           Data.Int (Int64)
-import           Data.ByteString.Builder (toLazyByteString, word64LE)
-import GHC.Float (castDoubleToWord64)
+import           GHC.Float (castDoubleToWord64)
+import           Data.Bits (Bits(shift), (.&.))
 
 codeOf :: Instruction -> Int
 codeOf (Function _ _) = 0
@@ -57,8 +56,17 @@ int64ToWord64 = fromIntegral
 doubleToWord64 :: Double -> Word64
 doubleToWord64 = castDoubleToWord64
 
+getByte :: (Bits a, Num a) => Int -> a -> a
+getByte bs n = shift (relevantBits bs n) (shiftNum bs)
+  where
+    bitMask b = sum $ map (2 ^) [8 * b - 8 .. 8 * b - 1]
+
+    relevantBits b num = num .&. bitMask b
+
+    shiftNum b = 8 - 8 * b
+
 encodeWord64 :: Word64 -> [Word8]
-encodeWord64 = unpack . toLazyByteString . word64LE
+encodeWord64 bs = [fromIntegral (getByte i bs) | i <- [1 .. 8]]
 
 showInt64 :: Int64 -> ByteString
 showInt64 x = pack (encodeWord64 (int64ToWord64 x))
@@ -91,7 +99,8 @@ instToByteString x = BS.concat
   (singleton (intToWord8 (codeOf x)):instToByteTail x)
 
 byteCodeString :: [Instruction] -> ByteString
-byteCodeString l = BS.concat [stringToByteString "GLDB", BS.concat (map instToByteString l)]
+byteCodeString l = BS.concat
+  [stringToByteString "GLDB", BS.concat (map instToByteString l)]
 
 byteCodeList :: Handle -> [Instruction] -> IO ()
 byteCodeList _ [] = return ()

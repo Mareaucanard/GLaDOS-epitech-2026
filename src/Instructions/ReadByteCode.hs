@@ -2,21 +2,44 @@ module Instructions.ReadByteCode (readByteCode) where
 
 import           Types (Instruction(..), Value(..))
 import qualified Types as T
-import qualified Data.ByteString.Lazy as BS
-import           Data.ByteString.Lazy (ByteString)
+import qualified Data.ByteString as BS
+import           Data.ByteString.Unsafe (unsafeIndex)
+import           Data.ByteString (ByteString)
 import           Data.Word (Word8, Word64)
-import           Data.Bytes.Get (MonadGet(getWord64le))
-import           Data.Binary.Get (runGetOrFail)
 import           Basement.Floating (wordToDouble)
 import           Data.IntCast
+import           Data.Bits
+
+getN :: ByteString -> Int -> Maybe (ByteString, ByteString)
+getN l 0 = Just (l, BS.empty)
+getN l n = case BS.uncons l of
+  Nothing      -> Nothing
+  Just (x, xs) -> case getN xs (n - 1) of
+    Just (leftovers, data_tail) -> Just (leftovers, BS.cons x data_tail)
+    Nothing -> Nothing
+
+toWord64Le :: ByteString -> Word64
+toWord64Le s = (fromIntegral (s `unsafeIndex` 7) `unsafeShiftL` 56)
+  .|. (fromIntegral (s `unsafeIndex` 6) `unsafeShiftL` 48)
+  .|. (fromIntegral (s `unsafeIndex` 5) `unsafeShiftL` 40)
+  .|. (fromIntegral (s `unsafeIndex` 4) `unsafeShiftL` 32)
+  .|. (fromIntegral (s `unsafeIndex` 3) `unsafeShiftL` 24)
+  .|. (fromIntegral (s `unsafeIndex` 2) `unsafeShiftL` 16)
+  .|. (fromIntegral (s `unsafeIndex` 1) `unsafeShiftL` 8)
+  .|. (fromIntegral (s `unsafeIndex` 0))
+
+getWord64Le :: ByteString -> Maybe (ByteString, Word64)
+getWord64Le bs = case getN bs 8 of
+  Nothing -> Nothing
+  Just (leftovers, word) -> Just (leftovers, toWord64Le word)
 
 toChar :: Word8 -> Char
 toChar = toEnum . fromEnum
 
 applyToWord64 :: (Word64 -> a) -> ByteString -> Maybe (a, ByteString)
-applyToWord64 f bs = case runGetOrFail getWord64le bs of
-  Left _ -> Nothing
-  Right (leftovers, _, word) -> Just (f word, leftovers)
+applyToWord64 f bs = case getWord64Le bs of
+  Nothing -> Nothing
+  Just (leftovers, word) -> Just (f word, leftovers)
 
 getDouble :: ByteString -> Maybe (Value, ByteString)
 getDouble = applyToWord64 (Float . wordToDouble)
@@ -102,7 +125,7 @@ handleList bs = case applyToWord64 intCastIso bs of
 
 handleIndex :: ByteString -> Maybe (Instruction, ByteString)
 handleIndex bs = case readNullString bs of
-  Nothing -> Nothing
+  Nothing        -> Nothing
   Just (val, xs) -> Just (INDEX val, xs)
 
 analyzeByte :: Word8 -> ByteString -> Maybe (Instruction, ByteString)
