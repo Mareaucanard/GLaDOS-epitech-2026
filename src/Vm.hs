@@ -57,19 +57,20 @@ data Instruction = Function String [String]
 type Stack = [Value]
 type Insts = [Instruction]
 
-exec :: Insts -> Stack -> [(String, Symbol)] -> (Value, Stack)
-exec ((Push val):l) s v = exec l (push s val) v
-exec (ADD:l) s v = exec l (opStack s opAdd) v
-exec (SUB:l) s v = exec l (opStack s opSub) v
-exec (MUL:l) s v = exec l (opStack s opMul) v
-exec (DIV:l) s v = exec l (opStack s opDiv) v
-exec (Vm.EQ:l) s v = exec l (opStack s opEq) v
-exec (Vm.LT:l) s v = exec l (opStack s opLess) v
-exec (RET:l) s v = pop s
-exec [] s v = pop s
+exec :: Insts -> Stack -> [(String, Symbol)] -> Insts -> (Value, Stack)
+exec ((Push val):l) s vTab past = exec l (push s val) vTab (Push val:past)
+exec (ADD:l) s vTab past = exec l (opStack s opAdd) vTab (ADD:past)
+exec (SUB:l) s vTab past = exec l (opStack s opSub) vTab (SUB:past)
+exec (MUL:l) s vTab past = exec l (opStack s opMul) vTab (MUL:past)
+exec (DIV:l) s vTab past = exec l (opStack s opDiv) vTab (DIV:past)
+exec (Vm.EQ:l) s vTab past = exec l (opStack s opEq) vTab (Vm.EQ:past)
+exec (Vm.LT:l) s vTab past = exec l (opStack s opLess) vTab (Vm.LT:past)
+exec ((JIF jmp):l) s vTab past = jumpIfFalse (JIF jmp:l) (fromIntegral jmp) s vTab past
+exec (RET:l) s _ _ = pop s
+exec [] s _ _ = pop s
 
 push :: Stack -> Value -> Stack
-push s val = val : s
+push s val = val:s
 
 pop :: Stack -> (Value, Stack)
 pop [] = (Nb 0, [])
@@ -80,9 +81,15 @@ opStack s op = case pop s of
     (v1, tmp_stack) -> case pop tmp_stack of
         (v2, final_stack) -> push final_stack (op v1 v2)
 
--- jumpIfFalse :: Insts -> Int -> Insts
--- jumpIfFalse [] _ = []
--- jumpIfFalse 
+jumpIfFalse :: Insts -> Int -> Stack -> [(String, Symbol)] -> Insts -> (Value, Stack)
+jumpIfFalse [] a b c [] = exec [] b c []
+jumpIfFalse (n:next) jmp (Boolean True:stk) vars prev = exec next stk vars (n:prev)
+jumpIfFalse (s:l) 0 b c prev = exec l b c (s:prev)
+jumpIfFalse (n:next) jmp [] vars (p:prev) = (Nb 0, [])
+jumpIfFalse (n:next) jmp (s:stk) vars (p:prev) | jmp > length (n:next) = exec [RET] stk vars prev
+                                   | jmp < length (p:prev) = exec [RET] stk vars prev
+                                   | jmp > 0 = jumpIfFalse next (jmp-1) stk vars (n:p:prev)
+                                   | jmp < 0 = jumpIfFalse (p:n:next) (jmp+1) stk vars prev
 
 opAdd :: Value -> Value -> Value
 opAdd (Nb a) (Nb b) = Nb (a + b)
