@@ -102,4 +102,5 @@ main = do
         (Args { mode = Just Exec })   -> handleVmFile inFile outFile False
         (Args { mode = Just Decode }) -> handleVmFile inFile outFile True
         (Args { mode = Just Lisp })   -> lispMain inFile outFile
+        (Args { mode = Just Run })   -> undefined
         (Args { mode = Nothing })     -> undefined

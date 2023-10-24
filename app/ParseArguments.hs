@@ -5,7 +5,7 @@ import           Data.Maybe (fromJust)
 
 data Mode = Comp
           | Human
-            -- | Run
+            | Run
           | Exec
           | Lisp
           | Decode
@@ -35,11 +35,11 @@ argsLogic ("--version":_) args = Left $ args { version = True }
 argsLogic ("-v":_) args = Left $ args { version = True }
 argsLogic ("--compile":xs) args = argsLogic xs $ args { mode = Just Comp }
 argsLogic ("--decode":xs) args = argsLogic xs $ args { mode = Just Decode }
--- argsLogic ("--run":xs) args = argsLogic xs $ args { mode = Just Run }
+argsLogic ("--run":xs) args = argsLogic xs $ args { mode = Just Run }
 argsLogic ("--human":xs) args = argsLogic xs $ args { mode = Just Human }
 argsLogic ("--exec":xs) args = argsLogic xs $ args { mode = Just Exec }
 argsLogic ("--lisp":xs) args = argsLogic xs $ args { mode = Just Lisp }
-argsLogic (('-':x):_) _ = Right $ "unknown option: -" ++ show x
+argsLogic (('-':x):_) _ = Right $ "unknown option: -" ++  x
 argsLogic (x:xs) args = case args of
   Args { inputFile = Nothing } -> argsLogic xs (args { inputFile = Just x })
   Args { inputFile = Just _ }  -> Right "Multiple files specified"

@@ -46,11 +46,13 @@ class TestFile:
         if self.actual != self.expected_output or self.exit_code != self.expected_code or len(missing_in_error) != 0:
             s = f"File {self.filename}: KO"
             if self.exit_code != self.expected_code:
-                s = s + f"\nExpected exit code {self.expected_code} but got {self.exit_code}"
+                s += f"\nExpected exit code {self.expected_code} but got {self.exit_code}"
             if self.actual != self.expected_output:
-                s = s + f"\nExpected output:\n'{self.expected_output}'\nBut got:\n'{self.actual}'"
+                s += f"\nExpected output:\n'{self.expected_output}'\nBut got:\n'{self.actual}'"
+                if len(self.error_channel) != 0:
+                    s += f"\nError channel was not empty: \n'{self.error_channel}'"
             if len(missing_in_error) != 0:
-                s = s + f"\nKeywords {', '.join(missing_in_error)} in error message:\nBut got\n'{self.error_channel}'"
+                s += f"\nKeywords {', '.join(missing_in_error)} in error message:\nBut got\n'{self.error_channel}'"
             print(colored(s + "\n", "light_red"))
             return False
         else:
@@ -64,7 +66,7 @@ class TestLisp(TestFile):
         self.options = ["--lisp"]
 
 
-fileList = [
+lispFileList = [
     TestLisp("okay/sujet/lambda1.scm", expected_output="#<procedure>"),
     TestLisp("okay/sujet/lambda2.scm", expected_output="3"),
     TestLisp("okay/sujet/lambda3.scm", expected_output="7"),
@@ -106,15 +108,15 @@ fileList = [
 def main():
     skipGood = "--skip-good" in argv
     success_count = 0
-    for file in fileList:
+    for file in lispFileList:
         file.run()
         if (file.checkResult(skipGood)):
             success_count += 1
-    if (success_count == len(fileList)):
+    if (success_count == len(lispFileList)):
         print(colored(f"{success_count}/{success_count} test passed", "light_green"))
         return 0
     else:
-        print(colored(f"{success_count}/{len(fileList)} test passed", "light_red"))
+        print(colored(f"{success_count}/{len(lispFileList)} test passed", "light_red"))
         return 84
 
 if __name__ == "__main__":
