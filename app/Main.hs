@@ -13,6 +13,7 @@ import Data.ByteString as BS (readFile)
 import System.IO
 import Instructions.ReadByteCode (readByteCode)
 import LISP.LispMain (lispMain)
+import Translator (translate)
 
 
 addMain :: [Ast] -> [Ast]
