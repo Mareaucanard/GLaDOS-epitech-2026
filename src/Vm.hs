@@ -65,20 +65,24 @@ exec (OR:l) s vTab past = do
 exec (NOT:l) s vTab past = do
     s' <- singleOpStack s opNot
     exec l s' vTab (NOT:past)
+exec (NEGATIVE:l) s vTab past = do
+    s' <- singleOpStack s opNeg
+    exec l s' vTab (NEGATIVE:past)
+exec (TERNARY:l) s vTab past = exec l (opTernary s) vTab (TERNARY:past)
 exec ((JIF jmp):l) s vTab past = jumpIfFalse (JIF jmp:l) (fromIntegral jmp) s vTab past
-exec (RET:l) s _ _ = pop s
-exec [] s _ _ = pop s
-exec _ s _ _ = pop s
+exec (RET:l) s _ _ = return $ pop s
+exec [] s _ _ = return $ pop s
+exec _ s _ _ = return $ pop s
 
 opStack :: Stack -> (Value -> Value -> Value) -> IO Stack
 opStack s op = do
-    (v1, tmp_stack) <- pop s
-    (v2, final_stack) <- pop tmp_stack
+    let (v1, tmp_stack) = pop s
+    let (v2, final_stack) = pop tmp_stack
     return (push final_stack (op v1 v2))
 
 singleOpStack :: Stack -> (Value -> Value) -> IO Stack
 singleOpStack s op = do 
-    (v1, final_stack) <- pop s
+    let (v1, final_stack) = pop s
     return (push final_stack (op v1))
 
 -- Instructions
@@ -86,9 +90,9 @@ singleOpStack s op = do
 push :: Stack -> Value -> Stack
 push s val = val:s
 
-pop :: Stack -> IO (Value, Stack)
-pop [] = return (Integer 0, [])
-pop (x:xs) = return (x, xs)
+pop :: Stack -> (Value, Stack)
+pop [] = (Integer 0, [])
+pop (x:xs) = (x, xs)
 
 jumpIfFalse :: Insts -> Int -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
 jumpIfFalse [] a b c [] = exec [] b c []
@@ -154,6 +158,20 @@ opOr (Boolean a) (Boolean b) = Boolean (a || b)
 
 opNot :: Value -> Value
 opNot (Boolean a) = Boolean (not a)
+
+opNeg :: Value -> Value
+opNeg (Boolean a) = opNot (Boolean a)
+opNeg (Integer a) = Integer (a * (-1))
+opNeg (Float a) = Float (a * (-1))
+
+opTernary :: Stack -> Stack
+opTernary s = do
+    let (condition, tmp_stack) = pop s
+    let (trueVal, tmp_stack2) = pop tmp_stack
+    let (falseVal, final_stack) = pop tmp_stack2
+    case condition of
+        Boolean True -> push final_stack trueVal
+        Boolean False -> push final_stack falseVal
 
 -- BUILTINS
 opPrint :: Stack -> IO (Value, Stack)
