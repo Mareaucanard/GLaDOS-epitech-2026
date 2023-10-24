@@ -40,6 +40,7 @@ library
       Parsing.TokenParser
       Parsing.VerifyParsing
       Types
+      Translator
   other-modules:
       Paths_glados
   hs-source-dirs:

@@ -35,7 +35,7 @@ handleVmFile filename = do
   byte_code <- BS.readFile filename
   case readByteCode byte_code of
     Right err -> putStrLn err
-    Left insts -> writeHumanReadable stdout insts
+    Left insts -> writeHumanReadable stdout (translate insts)
 
 main :: IO ()
 main = do

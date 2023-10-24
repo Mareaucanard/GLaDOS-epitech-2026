@@ -13,10 +13,18 @@ import qualified Data.Map.Lazy as Map
 import Types
 import Vm (exec)
 
-makeSym :: [Instruction] -> [(String, Symbol)]
-makeSym [] = []
-makeSym ((Function name args):xs) = (name, Func xs) : makeSym xs
-makeSym ((PushSymbol name):xs) = (name) : makeSym xs
+makeSym :: [Instruction] -> Map.Map String Symbol -> Map.Map String Symbol
+makeSym [] _ = []
+makeSym ((Function name insts):xs) m =
+    let updatedMap = Map.insert name insts m
+    in makeSym xs updatedMap
 
-translate :: [Instruction] -> IO()
-translate inst = exec inst makeSym (inst )
+removeFunc :: [Instruction] -> [Instruction]
+removeFunc [] = []
+removeFunc ((Function "main" insts):xs) = insts
+removeFunc _ = removeFunc xs
+
+-- exec :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
+
+translate :: [Instruction] -> [Instruction]
+translate insts = exec (removeFunc inst) [] (makeSym (inst Map.empty)) []
