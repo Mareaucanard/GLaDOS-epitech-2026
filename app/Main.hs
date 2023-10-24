@@ -21,7 +21,7 @@ addMain x = case extractFunctions x of
 
 printParsed :: Either [Token] String -> Bool -> IO ()
 printParsed (Right err) _ = putStrLn "Tokenization failed" >> putStrLn err
-printParsed (Left tokens) b = print tokens >> case tokensToAst (applyPreProcessing tokens) of
+printParsed (Left tokens) b = case tokensToAst (applyPreProcessing tokens) of
   Right x  -> putStrLn x
   Left ast -> case verifyParsing ast of
     Nothing ->  f stdout (astListToInstructions $ addMain (ast))
