@@ -6,7 +6,9 @@
 -}
 
 module Vm
-    ( exec
+    ( exec,
+      Symbol,
+      Stack
     ) where
 
 import qualified Data.Map.Lazy as Map
@@ -41,7 +43,10 @@ exec (Types.LT:l) s vTab past = do
     exec l s' vTab (Types.LT:past)
 exec (MOD:l) s vTab past = do
     s' <- opStack s opMod
-    exec l s' vTab (Types.LT:past)
+    exec l s' vTab (MOD:past)
+exec (AND:l) s vTab past = do
+    s' <- opStack s opAnd
+    exec l s' vTab (AND:past)
 exec ((JIF jmp):l) s vTab past = jumpIfFalse (JIF jmp:l) (fromIntegral jmp) s vTab past
 exec (RET:l) s _ _ = pop s
 exec [] s _ _ = pop s
@@ -99,9 +104,10 @@ opMod :: Value -> Value -> Value
 opMod (Integer a) (Integer b) = Integer (a `mod` b)
 
 opAnd :: Value -> Value -> Value
-opAnd (Integer a) (Integer b) = Integer (a + b)
-opAnd (Float a) (Float b) = Float (a + b)
 opAnd (Boolean a) (Boolean b) = Boolean (a && b)
+
+opOr :: Value -> Value -> Value
+opOr (Boolean a) (Boolean b) = Boolean (a || b)
 
 -- BUILTINS
 opPrint :: Stack -> IO (Value, Stack)
