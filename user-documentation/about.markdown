@@ -4,15 +4,13 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+Our developpement team is constituted of 5 students:
+* Matthieu Fraiz: Lead developper & DEV-OPS,
+* Ange Mouquet: Co-developper,
+* Thibault Mir: Co-developper,
+* Adélaïde Chanteux: Co-developper,
+* Raymond Thalamas: Documentation & DEV-OPS.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+This documentation was entirely made with Jekyll (and with love)!
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
-
-
-[jekyll-organization]: https://github.com/jekyll
+Dont hesitate to visit our repo [HERE](https://github.com/EpitechPromo2026/B-FUN-500-TLS-5-1-glados-matthieu.fraiz)!
