@@ -30,6 +30,9 @@ dependencies:
 - binary
 - bytestring
 - int-cast
+- filepath
+- text
+- template-haskell
 
 ghc-options:
 - -Wall
