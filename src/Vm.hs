@@ -23,6 +23,7 @@ type Insts = [Instruction]
 
 exec :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
 exec ((Push val):l) s vTab past = exec l (push s val) vTab (Push val:past)
+-- exec (PushSymbol str:l) s vTab past = exec l (pushSymbol s) vTab (PushSymbol str:past)
 exec (ADD:l) s vTab past = do
     s' <- opStack s opAdd
     exec l s' vTab (ADD:past)
@@ -90,6 +91,9 @@ singleOpStack s op = do
 push :: Stack -> Value -> Stack
 push s val = val:s
 
+-- pushSymbol :: Stack -> String -> Stack
+-- pushSymbol s val = val:s
+
 pop :: Stack -> (Value, Stack)
 pop [] = (Integer 0, [])
 pop (x:xs) = (x, xs)
@@ -107,6 +111,7 @@ jumpIfFalse (n:next) jmp (s:stk) vars (p:prev) | jmp > length (n:next) = exec [R
 opAdd :: Value -> Value -> Value
 opAdd (Integer a) (Integer b) = Integer (a + b)
 opAdd (Boolean a) (Boolean b) = Boolean (a || b)
+opAdd (Str a) (Str b) = Str (a ++ b)
 
 opSub :: Value -> Value -> Value
 opSub (Integer a) (Integer b) = Integer (a - b)
