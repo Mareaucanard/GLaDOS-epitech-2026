@@ -1,0 +1,10 @@
+<sidebar class="site-sidebar h-card">
+    <categories>Intro:</categories>
+        {%- for post in site.posts -%}
+        <a class="post-link" href="{{ post.url | relative_url }}">
+        {{ post.title | escape }}</a>
+        {%- endfor -%}
+    <categories>Services</categories>
+    <categories>Clients</categories>
+    <categories>Contact</categories>
+</sidebar>

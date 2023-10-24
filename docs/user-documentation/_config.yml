@@ -31,6 +31,8 @@ theme: minima
 plugins:
   - jekyll-feed
 
+url: https://github.com/Mareaucanard/GLaDOS-epitech-2026
+baseurl: /GLaDOS-epitech-2026/
 # Exclude from processing.
 # The following items will not be processed, by default.
 # Any item listed under the `exclude:` key here will be automatically added to

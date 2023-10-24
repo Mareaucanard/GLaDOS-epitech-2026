@@ -5,7 +5,8 @@
   border-top: 5px solid $grey-color-dark;
   border-bottom: 1px solid $grey-color-dark;
   min-height: $spacing-unit * 1.865;
-
+  // left: 18%;
+  // max-width: 82%;
   // Positioning context for the mobile navigation icon
   position: relative;
 }
@@ -106,6 +107,7 @@
   * Site sidebar
   */
 .site-sidebar {
+  border-top: 5px solid $grey-color-dark;
   width: 18%;
   height: 100%;
   position: fixed;
@@ -113,21 +115,39 @@
   top: 0;
   left: 0;
   overflow-x: hidden;
-  background-color: #000000;
+  background-color: #111111;
 }
+.site-sidebar categories {
+  border-top: 1px solid $grey-color-dark;
+  padding: 0px 8px 0px 16px;
+  @include relative-font-size(1.625);
+  min-height: $spacing-unit * 1.865;
+  font-weight: 300;
+  line-height: $base-line-height * $base-font-size * 2.25;
+  display: block;
+  color: #f1f1f1;
+}
+
 .site-sidebar a {
-  padding: 6px 8px 6px 16px;
-  text-decoration: none;
-  font-size: 25px;
+  padding: 0px 8px 0px 16px;
+  @include relative-font-size(1.2);
+  min-height: $spacing-unit * 1.240;
+  font-weight: 260;
+  line-height: $base-line-height * $base-font-size * 2.25;
+  letter-spacing: -1px;
+  margin-left: 6%;
   display: block;
   color: #f1f1f1;
 }
 .site-sidebar a:hover {
   color: #e66c6c;
 }
+
+
 @media screen and (max-height: 450px) {
   .site-sidebar {padding-top: 15px;}
-  .site-sidebar a {font-size: 18px;}
+  .site-sidebar categories {font-size: 18px;}
+  .site-sidebar a {font-size: 15px;}
 }
 
 /**
