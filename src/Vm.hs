@@ -38,24 +38,48 @@ exec (DIV:l) s vTab past = do
 exec (Types.EQ:l) s vTab past = do
     s' <- opStack s opEq
     exec l s' vTab (Types.EQ:past)
+exec (NEQ:l) s vTab past = do
+    s' <- opStack s opNeq
+    exec l s' vTab (NEQ:past)
 exec (Types.LT:l) s vTab past = do
     s' <- opStack s opLess
     exec l s' vTab (Types.LT:past)
+exec (Types.LET:l) s vTab past = do
+    s' <- opStack s opLessEq
+    exec l s' vTab (Types.LET:past)
+exec (Types.GT:l) s vTab past = do
+    s' <- opStack s opGreater
+    exec l s' vTab (Types.GT:past)
+exec (Types.GET:l) s vTab past = do
+    s' <- opStack s opGreaterEq
+    exec l s' vTab (GET:past)
 exec (MOD:l) s vTab past = do
     s' <- opStack s opMod
     exec l s' vTab (MOD:past)
 exec (AND:l) s vTab past = do
     s' <- opStack s opAnd
     exec l s' vTab (AND:past)
+exec (OR:l) s vTab past = do
+    s' <- opStack s opOr
+    exec l s' vTab (OR:past)
+exec (NOT:l) s vTab past = do
+    s' <- singleOpStack s opNot
+    exec l s' vTab (NOT:past)
 exec ((JIF jmp):l) s vTab past = jumpIfFalse (JIF jmp:l) (fromIntegral jmp) s vTab past
 exec (RET:l) s _ _ = pop s
 exec [] s _ _ = pop s
+exec _ s _ _ = pop s
 
 opStack :: Stack -> (Value -> Value -> Value) -> IO Stack
 opStack s op = do
     (v1, tmp_stack) <- pop s
     (v2, final_stack) <- pop tmp_stack
     return (push final_stack (op v1 v2))
+
+singleOpStack :: Stack -> (Value -> Value) -> IO Stack
+singleOpStack s op = do 
+    (v1, final_stack) <- pop s
+    return (push final_stack (op v1))
 
 -- Instructions
 
@@ -95,10 +119,29 @@ opDiv (Boolean a) (Boolean b) = Boolean (a && b)
 opEq :: Value -> Value -> Value
 opEq (Integer a) (Integer b) = Boolean (a == b)
 opEq (Boolean a) (Boolean b) = Boolean (a == b)
+opEq (Char a) (Char b) = Boolean (a == b)
+opEq (Str a) (Str b) = Boolean (a == b)
+opEq _ _ = Boolean False
+
+opNeq :: Value -> Value -> Value
+opNeq a b = case opEq a b of
+    Boolean result -> Boolean (not result)
 
 opLess :: Value -> Value -> Value
 opLess (Integer a) (Integer b) = Boolean (a < b)
 opLess (Boolean a) (Boolean b) = Boolean (not a && b)
+
+opLessEq :: Value -> Value -> Value
+opLessEq (Integer a) (Integer b) = Boolean (a <= b)
+opLessEq (Boolean a) (Boolean b) = Boolean ((not a && b) || (a && b))
+
+opGreater :: Value -> Value -> Value
+opGreater (Integer a) (Integer b) = Boolean (a > b)
+opGreater (Boolean a) (Boolean b) = Boolean (a && not b)
+
+opGreaterEq :: Value -> Value -> Value
+opGreaterEq (Integer a) (Integer b) = Boolean (a >= b)
+opGreaterEq (Boolean a) (Boolean b) = Boolean ((a && not b) || (a && b))
 
 opMod :: Value -> Value -> Value
 opMod (Integer a) (Integer b) = Integer (a `mod` b)
@@ -108,6 +151,9 @@ opAnd (Boolean a) (Boolean b) = Boolean (a && b)
 
 opOr :: Value -> Value -> Value
 opOr (Boolean a) (Boolean b) = Boolean (a || b)
+
+opNot :: Value -> Value
+opNot (Boolean a) = Boolean (not a)
 
 -- BUILTINS
 opPrint :: Stack -> IO (Value, Stack)
