@@ -8,6 +8,7 @@ data Mode = Comp
             -- | Run
           | Exec
           | Lisp
+          | Decode
 
 data Args = Args { inputFile :: Maybe String
                  , outputFile :: Maybe String
@@ -33,6 +34,7 @@ argsLogic ("-h":_) args = Left $ args { help = True }
 argsLogic ("--version":_) args = Left $ args { version = True }
 argsLogic ("-v":_) args = Left $ args { version = True }
 argsLogic ("--compile":xs) args = argsLogic xs $ args { mode = Just Comp }
+argsLogic ("--decode":xs) args = argsLogic xs $ args { mode = Just Decode }
 -- argsLogic ("--run":xs) args = argsLogic xs $ args { mode = Just Run }
 argsLogic ("--human":xs) args = argsLogic xs $ args { mode = Just Human }
 argsLogic ("--exec":xs) args = argsLogic xs $ args { mode = Just Exec }

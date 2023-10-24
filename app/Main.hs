@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell #-}
+
 module Main (main) where
 
 import           System.Environment (getArgs, getProgName)
@@ -49,13 +50,16 @@ handleSource fileInputName fileOutputName isHuman = do
   source <- hGetContents inFile
   compileFile (tokenize source) outFile isHuman
 
-handleVmFile :: String -> String -> IO ()
-handleVmFile filename output = do
+handleVmFile :: String -> String -> Bool -> IO ()
+handleVmFile filename output decode = do
   byte_code <- BS.readFile filename
   outFile <- streamOpenFile output WriteMode
   case readByteCode byte_code of
-    Right err  -> putStrLn err
-    Left insts -> writeHumanReadable outFile insts >> hFlush outFile
+    Right err -> putStrLn err
+    Left inst -> if decode
+                 then writeHumanReadable outFile inst
+                 else undefined
+  hFlush outFile
 
 streamOpenFile :: String -> IOMode -> IO Handle
 streamOpenFile "stdin" _ = return stdin
@@ -70,6 +74,7 @@ doHelp = do
   putStrLn "\t--compile: compiles the file to byte code"
   putStrLn "\t--exec: executes a bytecode program"
   putStrLn "\t--human: compiles and prints the list of instructions"
+  putStrLn "\t--decode: reads bytecode and prints the list of instructions"
   putStrLn "\t--lisp: uses a lisp interpreter"
   putStrLn "input_file:"
   putStrLn "\tyou can pass 'stdin' as the input file"
@@ -90,10 +95,11 @@ main = do
       let inFile = fromJust $ inputFile args
       let outFile = fromJust $ outputFile args
       case args of
-        (Args { help = True })       -> doHelp
-        (Args { version = True })    -> doVersion
-        (Args { mode = Just Comp })  -> handleSource inFile outFile False
-        (Args { mode = Just Exec })  -> handleVmFile inFile outFile
-        (Args { mode = Just Human }) -> handleSource inFile outFile True
-        (Args { mode = Just Lisp })  -> lispMain inFile outFile
-        (Args { mode = Nothing })    -> undefined
+        (Args { help = True })        -> doHelp
+        (Args { version = True })     -> doVersion
+        (Args { mode = Just Comp })   -> handleSource inFile outFile False
+        (Args { mode = Just Human })  -> handleSource inFile outFile True
+        (Args { mode = Just Exec })   -> handleVmFile inFile outFile False
+        (Args { mode = Just Decode }) -> handleVmFile inFile outFile True
+        (Args { mode = Just Lisp })   -> lispMain inFile outFile
+        (Args { mode = Nothing })     -> undefined
