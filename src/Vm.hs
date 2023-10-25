@@ -7,7 +7,7 @@
 
 module Vm
     ( exec,
-      Symbol,
+      Symbol(..),
       Stack
     ) where
 
@@ -17,6 +17,7 @@ import Types
 
 data Symbol = Val Value
     | Func [String] [Instruction]
+    deriving (Show, Eq)
 
 type Stack = [Value]
 type Insts = [Instruction]

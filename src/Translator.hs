@@ -11,20 +11,25 @@ module Translator
 
 import qualified Data.Map.Lazy as Map
 import Types
-import Vm (exec)
+import Vm
+
+getInsts :: [Instruction] -> [Instruction] -> [Instruction]
+getInsts [] funcInsts = funcInsts
+getInsts ((Function _ _):_) funcInsts = funcInsts
+getInsts (x:xs) funcInsts = getInsts xs (funcInsts ++ [x])
 
 makeSym :: [Instruction] -> Map.Map String Symbol -> Map.Map String Symbol
-makeSym [] _ = []
-makeSym ((Function name insts):xs) m =
-    let updatedMap = Map.insert name insts m
+makeSym [] m = m
+makeSym ((Function name args):xs) m =
+    let updatedMap = Map.insert name (Func args (getInsts xs [])) m
     in makeSym xs updatedMap
+makeSym (_:xs) m = makeSym xs m
 
-removeFunc :: [Instruction] -> [Instruction]
-removeFunc [] = []
-removeFunc ((Function "main" insts):xs) = insts
-removeFunc _ = removeFunc xs
+goToMain :: [Instruction] -> [Instruction]
+goToMain [] = []
+goToMain ((Function "main" _):xs) = xs
+goToMain (_:xs) = goToMain xs
 
 -- exec :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
-
-translate :: [Instruction] -> [Instruction]
-translate insts = exec (removeFunc inst) [] (makeSym (inst Map.empty)) []
+translate :: [Instruction] -> ([Instruction], Stack, Map.Map String Symbol, [Instruction])
+translate insts = ((goToMain insts), [], (makeSym insts Map.empty), [])

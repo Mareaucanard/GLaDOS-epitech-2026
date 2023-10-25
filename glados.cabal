@@ -40,6 +40,7 @@ library
       Parsing.TokenParser
       Parsing.VerifyParsing
       Types
+      Vm
       Translator
   other-modules:
       Paths_glados
