@@ -1,8 +1,8 @@
 ---
 layout: post
-title:  "Welcome to GLaDOS"
+title:  "How to write code for GLaDOS"
 date:   2023-10-23 15:22:07 +0200
-categories: intro
+categories: syntax
 ---
 This is a test `post`.
 I will not be using posts as actual posts but rather a way to write documentation for the project regardless of time/date/etc...
