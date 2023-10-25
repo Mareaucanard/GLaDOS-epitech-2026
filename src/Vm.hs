@@ -23,7 +23,6 @@ type Insts = [Instruction]
 
 exec :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
 exec ((Push val):l) s vTab past = exec l (push s val) vTab (Push val:past)
--- exec (PushSymbol str:l) s vTab past = exec l (pushSymbol s) vTab (PushSymbol str:past)
 exec (ADD:l) s vTab past = do
     s' <- opStack s opAdd
     exec l s' vTab (ADD:past)
@@ -70,7 +69,8 @@ exec (NEGATIVE:l) s vTab past = do
     s' <- singleOpStack s opNeg
     exec l s' vTab (NEGATIVE:past)
 exec (TERNARY:l) s vTab past = exec l (opTernary s) vTab (TERNARY:past)
-exec ((JIF jmp):l) s vTab past = jumpIfFalse (JIF jmp:l) (fromIntegral jmp) s vTab past
+exec ((JIF jmp):l) s vTab past = jumpIfFalse l (fromIntegral jmp) (fromIntegral jmp) s vTab (JIF jmp:past)
+exec ((Jump jmp):l) s vTab past = jump l (fromIntegral jmp) (fromIntegral jmp) s vTab (Jump jmp:past)
 exec (RET:l) s _ _ = return $ pop s
 exec [] s _ _ = return $ pop s
 exec _ s _ _ = return $ pop s
@@ -91,22 +91,28 @@ singleOpStack s op = do
 push :: Stack -> Value -> Stack
 push s val = val:s
 
--- pushSymbol :: Stack -> String -> Stack
--- pushSymbol s val = val:s
-
 pop :: Stack -> (Value, Stack)
 pop [] = (Integer 0, [])
 pop (x:xs) = (x, xs)
 
-jumpIfFalse :: Insts -> Int -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
-jumpIfFalse [] a b c [] = exec [] b c []
-jumpIfFalse (n:next) jmp (Boolean True:stk) vars prev = exec next stk vars (n:prev)
-jumpIfFalse (s:l) 0 b c prev = exec l b c (s:prev)
-jumpIfFalse (n:next) jmp [] vars (p:prev) = return (Integer 0, [])
-jumpIfFalse (n:next) jmp (s:stk) vars (p:prev) | jmp > length (n:next) = exec [RET] stk vars prev
-                                   | jmp < length (p:prev) = exec [RET] stk vars prev
-                                   | jmp > 0 = jumpIfFalse next (jmp-1) stk vars (n:p:prev)
-                                   | jmp < 0 = jumpIfFalse (p:n:next) (jmp+1) stk vars prev
+jumpIfFalse :: Insts -> Int -> Int -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
+jumpIfFalse [] a a2 b c [] = exec [] b c []
+jumpIfFalse (n:next) jmp j2 (Boolean True:stk) vars prev = exec next stk vars (n:prev)
+jumpIfFalse l 0 _ b c prev = exec l b c prev
+jumpIfFalse (n:next) jmp j2 [] vars (p:prev) = return (Integer 0, [])
+jumpIfFalse (n:next) jmp j2 (s:stk) vars (p:prev) | jmp > length (n:next) && jmp /= j2 = exec [RET] stk vars prev
+                                   | jmp < length (p:prev) && jmp /= j2 = exec [RET] stk vars prev
+                                   | jmp > 0 = jumpIfFalse next (jmp-1) j2 stk vars (n:p:prev)
+                                   | jmp < 0 = jumpIfFalse (p:n:next) (jmp+1) j2 stk vars prev
+
+jump :: Insts -> Int -> Int -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
+jump [] a a2 b c [] = exec [] b c []
+jump l 0 _ b c prev = exec l b c prev
+jump (n:next) jmp j2 [] vars (p:prev) = return (Integer 0, [])
+jump (n:next) jmp j2 stk vars (p:prev) | jmp > length (n:next) && jmp /= j2 = exec [Push (Integer (-9999)), RET] stk vars prev
+                                   | jmp < length (p:prev) && jmp /= j2 = exec [Push (Integer (-9999)), RET] stk vars prev
+                                   | jmp > 0 = jump next (jmp-1) j2 stk vars (n:p:prev)
+                                   | jmp < 0 = jump (p:n:next) (jmp+1) j2 stk vars prev
 
 opAdd :: Value -> Value -> Value
 opAdd (Integer a) (Integer b) = Integer (a + b)

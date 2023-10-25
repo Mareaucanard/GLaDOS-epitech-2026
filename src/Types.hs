@@ -15,6 +15,8 @@ data Value = Integer Int64
            | Char Char
            | Boolean Bool
            | Str String
+           | SymVM String
+           | ListVM [Value]
            | Nil
   deriving (Eq, Show)
 
