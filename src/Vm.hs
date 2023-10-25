@@ -72,6 +72,7 @@ exec (NEGATIVE:l) s vTab past = do
 exec (TERNARY:l) s vTab past = exec l (opTernary s) vTab (TERNARY:past)
 exec ((JIF jmp):l) s vTab past = jumpIfFalse l (fromIntegral jmp) (fromIntegral jmp) s vTab (JIF jmp:past)
 exec ((Jump jmp):l) s vTab past = jump l (fromIntegral jmp) (fromIntegral jmp) s vTab (Jump jmp:past)
+exec ((LIST n):l) s vTab past = exec l (opList s (fromIntegral n) []) vTab (LIST n:past)
 exec (RET:l) s _ _ = return $ pop s
 exec [] s _ _ = return $ pop s
 exec _ s _ _ = return $ pop s
@@ -184,6 +185,11 @@ opTernary s = do
     case condition of
         Boolean True -> push final_stack trueVal
         Boolean False -> push final_stack falseVal
+
+opList :: Stack -> Int -> [Value] -> Stack
+opList stk 0 vals = ListVM vals:stk
+opList [] _ vals = [ListVM vals]
+opList (s:stk) n vals = opList stk (n-1) (vals ++ [s])
 
 -- BUILTINS
 opPrint :: Stack -> IO (Value, Stack)
