@@ -12,7 +12,7 @@ module Vm
     ) where
 
 import qualified Data.Map.Lazy as Map
-import Data.Int (Int64)
+import Data.Int()
 import Types
 
 data Symbol = Val Value
@@ -73,7 +73,7 @@ exec (TERNARY:l) s vTab past = exec l (opTernary s) vTab (TERNARY:past)
 exec ((JIF jmp):l) s vTab past = jumpIfFalse l (fromIntegral jmp) (fromIntegral jmp) s vTab (JIF jmp:past)
 exec ((Jump jmp):l) s vTab past = jump l (fromIntegral jmp) (fromIntegral jmp) s vTab (Jump jmp:past)
 exec ((LIST n):l) s vTab past = exec l (opList s (fromIntegral n) []) vTab (LIST n:past)
-exec (RET:l) s _ _ = return $ pop s
+exec (RET:_) s _ _ = return $ pop s
 exec [] s _ _ = return $ pop s
 exec _ s _ _ = return $ pop s
 
@@ -192,8 +192,48 @@ opList [] _ vals = [ListVM vals]
 opList (s:stk) n vals = opList stk (n-1) (vals ++ [s])
 
 -- BUILTINS
+
+opPrintList :: [Value] -> Bool -> IO ()
+opPrintList [] _ = putStr "]"
+opPrintList list True = putStr "[" >> opPrintList list False
+opPrintList (x:xs) False
+    | (length (x:xs)) == 1 = opPrintValue x >> opPrintList xs False
+    | otherwise = opPrintValue x >> putStr ", " >> opPrintList xs False
+
+opPrintValue :: Value -> IO ()
+opPrintValue (Str s) = putStrLn s
+opPrintValue (Integer i) = putStrLn (show i)
+opPrintValue (Float f) = putStrLn (show f)
+opPrintValue (Boolean b) = putStrLn (show b)
+opPrintValue (Char c) = putChar c
+opPrintValue (ListVM l) = opPrintList l True
+opPrintValue (SymVM s) = putStrLn (show s)
+opPrintValue Nil = putStrLn "Nil"
+
 opPrint :: Stack -> IO (Value, Stack)
 opPrint ((Str s):stk) = do
-                        putStrLn s
+                        opPrintValue (Str s)
                         return (Str s, stk)
+opPrint ((Integer i):stk) = do
+                        opPrintValue (Integer i)
+                        return (Integer i, stk)
+opPrint ((Float f):stk) = do
+                        opPrintValue (Float f)
+                        return (Float f, stk)
+opPrint ((Boolean b):stk) = do
+                        opPrintValue (Boolean b)
+                        return (Boolean b, stk)
+opPrint ((Char c):stk) = do
+                        opPrintValue (Char c)
+                        return (Char c, stk)
+opPrint ((ListVM l):stk) = do
+                        opPrintValue (ListVM l)
+                        return (ListVM l, stk)
+opPrint ((SymVM s):stk) = do
+                        opPrintValue (SymVM s)
+                        return (SymVM s, stk)
+opPrint (Nil:stk) = do
+                        opPrintValue Nil
+                        return (Nil, stk)
+
 
