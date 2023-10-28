@@ -24,6 +24,12 @@ type Insts = [Instruction]
 
 exec :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
 exec ((Push val):l) s vTab past = exec l (push s val) vTab (Push val:past)
+exec (Print:l) s vTab past = do
+    (val, s') <- opPrint s
+    exec l s' vTab (Print:past)
+exec (Set:l) s vTab past = do
+    (nVTab, s') <- set s vTab
+    exec l s' nVTab (Set:past)
 exec (ADD:l) s vTab past = do
     s' <- opStack s opAdd
     exec l s' vTab (ADD:past)
@@ -96,6 +102,10 @@ push s val = val:s
 pop :: Stack -> (Value, Stack)
 pop [] = (Integer 0, [])
 pop (x:xs) = (x, xs)
+
+set :: Stack -> Map.Map String Symbol -> IO (Map.Map String Symbol, Stack)
+set ((SymVM s):(val):stk) vTab = return (Map.insert s (Val val) vTab, stk)
+set stack vTab = return (vTab, stack)
 
 jumpIfFalse :: Insts -> Int -> Int -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
 jumpIfFalse [] a a2 b c [] = exec [] b c []
@@ -201,39 +211,39 @@ opPrintList (x:xs) False
     | otherwise = opPrintValue x >> putStr ", " >> opPrintList xs False
 
 opPrintValue :: Value -> IO ()
-opPrintValue (Str s) = putStrLn s
-opPrintValue (Integer i) = putStrLn (show i)
-opPrintValue (Float f) = putStrLn (show f)
-opPrintValue (Boolean b) = putStrLn (show b)
+opPrintValue (Str s) = putStr s
+opPrintValue (Integer i) = putStr (show i)
+opPrintValue (Float f) = putStr (show f)
+opPrintValue (Boolean b) = putStr (show b)
 opPrintValue (Char c) = putChar c
 opPrintValue (ListVM l) = opPrintList l True
-opPrintValue (SymVM s) = putStrLn (show s)
-opPrintValue Nil = putStrLn "Nil"
+opPrintValue (SymVM s) = putStr (show s)
+opPrintValue Nil = putStr "Nil"
 
 opPrint :: Stack -> IO (Value, Stack)
 opPrint ((Str s):stk) = do
-                        opPrintValue (Str s)
+                        opPrintValue (Str s) >> putStr "\n"
                         return (Str s, stk)
 opPrint ((Integer i):stk) = do
-                        opPrintValue (Integer i)
+                        opPrintValue (Integer i) >> putStr "\n"
                         return (Integer i, stk)
 opPrint ((Float f):stk) = do
-                        opPrintValue (Float f)
+                        opPrintValue (Float f) >> putStr "\n"
                         return (Float f, stk)
 opPrint ((Boolean b):stk) = do
-                        opPrintValue (Boolean b)
+                        opPrintValue (Boolean b) >> putStr "\n"
                         return (Boolean b, stk)
 opPrint ((Char c):stk) = do
-                        opPrintValue (Char c)
+                        opPrintValue (Char c) >> putStr "\n"
                         return (Char c, stk)
 opPrint ((ListVM l):stk) = do
-                        opPrintValue (ListVM l)
+                        opPrintValue (ListVM l) >> putStr "\n"
                         return (ListVM l, stk)
 opPrint ((SymVM s):stk) = do
-                        opPrintValue (SymVM s)
+                        opPrintValue (SymVM s) >> putStr "\n"
                         return (SymVM s, stk)
 opPrint (Nil:stk) = do
-                        opPrintValue Nil
+                        opPrintValue Nil >> putStr "\n"
                         return (Nil, stk)
 
 

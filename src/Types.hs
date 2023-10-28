@@ -93,6 +93,7 @@ data Instruction =
   | PushSymbol String
   | JIF Int64
   | Jump Int64
+  | Print
   | Call
   | Set
   | ADD
