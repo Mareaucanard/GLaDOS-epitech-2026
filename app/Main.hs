@@ -29,9 +29,9 @@ addMain :: [Ast] -> [Ast]
 addMain x = case extractFunctions x of
   (a, b) -> a ++ [FunctionDefinition "main" [] b]
 
-printParsed :: Either [Token] String -> Bool -> IO ()
-printParsed (Right err) _ = putStrLn "Tokenization failed" >> putStrLn err
-printParsed (Left tokens) b = print tokens >> case tokensToAst (applyPreProcessing tokens) of
+compileFile :: Either [Token] String -> Handle -> Bool -> IO ()
+compileFile (Right err) _ _ = putStrLn "Tokenization failed" >> putStrLn err
+compileFile (Left tokens) outFile b = print tokens >> case tokensToAst (applyPreProcessing tokens) of
   Right x  -> putStrLn x
   Left ast -> case verifyParsing ast of
     Nothing

@@ -42,8 +42,6 @@ library
       Translator
       Types
       Vm
-      Translator
-      Vm
   other-modules:
       Paths_glados
   hs-source-dirs:
