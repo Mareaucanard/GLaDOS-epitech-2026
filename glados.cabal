@@ -39,7 +39,10 @@ library
       Parsing.Tokenize
       Parsing.TokenParser
       Parsing.VerifyParsing
+      Translator
       Types
+      Vm
+      Translator
       Vm
   other-modules:
       Paths_glados

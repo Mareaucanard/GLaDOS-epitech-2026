@@ -22,17 +22,17 @@ import           System.Exit (exitWith, ExitCode(ExitFailure))
 import           Data.Maybe (fromJust)
 import           LISP.LispMain (lispMain)
 import           LookupBuildEnv
+import Translator (translate)
+
 
 addMain :: [Ast] -> [Ast]
 addMain x = case extractFunctions x of
   (a, b) -> a ++ [FunctionDefinition "main" [] b]
 
-compileFile :: Either [Token] String -> Handle -> Bool -> IO ()
-compileFile (Right err) _ _ =
-  putStrLn "Tokenization failed" >> putStrLn err >> exitWith (ExitFailure 84)
-compileFile (Left tokens) outFile b = case tokensToAst
-  (applyPreProcessing tokens) of
-  Right x -> putStrLn x
+printParsed :: Either [Token] String -> Bool -> IO ()
+printParsed (Right err) _ = putStrLn "Tokenization failed" >> putStrLn err
+printParsed (Left tokens) b = print tokens >> case tokensToAst (applyPreProcessing tokens) of
+  Right x  -> putStrLn x
   Left ast -> case verifyParsing ast of
     Nothing
       -> f outFile (astListToInstructions $ addMain (simplifyParsing ast))
@@ -58,7 +58,7 @@ handleVmFile filename output decode = do
     Right err -> putStrLn err
     Left inst -> if decode
                  then writeHumanReadable outFile inst
-                 else undefined
+                 else print (translate insts)
   hFlush outFile
 
 streamOpenFile :: String -> IOMode -> IO Handle
