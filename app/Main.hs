@@ -58,7 +58,7 @@ handleVmFile filename output decode = do
     Right err -> putStrLn err
     Left inst -> if decode
                  then writeHumanReadable outFile inst
-                 else print (translate insts)
+                 else print (translate inst)
   hFlush outFile
 
 streamOpenFile :: String -> IOMode -> IO Handle
