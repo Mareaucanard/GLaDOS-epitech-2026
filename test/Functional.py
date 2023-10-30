@@ -23,11 +23,11 @@ basic_print_output = """0
 True
 False
 nil
-h
+'h'
 Hello, world!
-["This","is","a","string","list"]"""
+[This, is, a, string, list]"""
 
-loops_output = ["\n".join(str(x) for x in range(10))]
+loops_output = "\n".join(str(x) for x in range(10))
 
 fileList = [
     GladosFile("okay/basic_prints.gld", output=basic_print_output),
@@ -42,7 +42,7 @@ fileList = [
 
     GladosFile("okay/operators/add.gld", output="3"),
     GladosFile("okay/operators/and.gld", output="False"),
-    GladosFile("okay/operators/div.gld", output="0.5"),
+    GladosFile("okay/operators/div.gld", output="0\n0.5"),
     GladosFile("okay/operators/equal.gld", output="True"),
     GladosFile("okay/operators/greater_equal.gld", output="True"),
     GladosFile("okay/operators/greater.gld", output="False"),

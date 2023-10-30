@@ -321,7 +321,7 @@ showValue (Integer i) = show i
 showValue (Float f) = show f
 showValue (Boolean b) = show b
 showValue (Char c) = show c
-showValue Nil = "Nil"
+showValue Nil = "nil"
 
 showFlat :: FlatStack -> String
 showFlat (Tab l) = opPrintList l True

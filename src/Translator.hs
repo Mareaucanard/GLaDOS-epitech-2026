@@ -31,5 +31,5 @@ goToMain ((Function "main" _):xs) = xs
 goToMain (_:xs) = goToMain xs
 
 -- exec :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
-translate :: [Instruction] -> ([Instruction], Stack, Map.Map String Symbol, [Instruction])
-translate insts = ((goToMain insts), [], (makeSym insts Map.empty), [])
+translate :: [Instruction] -> ([Instruction], Map.Map String Symbol)
+translate insts = (goToMain insts, makeSym insts Map.empty)

@@ -14,4 +14,4 @@ print(nil);
 print('h');
 print("Hello, world!");
 
-print(["This", "is", "a", "string", "list"])
+print(["This", "is", "a", "string", "list"]);
