@@ -34,7 +34,6 @@ codeOf OR = 19
 codeOf NOT = 20
 codeOf (LIST _) = 21
 codeOf RET = 22
-codeOf TERNARY = 23
 codeOf (INDEX _) = 24
 codeOf NEGATIVE = 25
 

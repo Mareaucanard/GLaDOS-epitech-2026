@@ -152,7 +152,6 @@ analyzeByte 19 bs = Just (OR, bs)
 analyzeByte 20 bs = Just (NOT, bs)
 analyzeByte 21 bs = handleList bs
 analyzeByte 22 bs = Just (RET, bs)
-analyzeByte 23 bs = Just (TERNARY, bs)
 analyzeByte 24 bs = handleIndex bs
 analyzeByte 25 bs = Just (NEGATIVE, bs)
 analyzeByte _ _ = Nothing

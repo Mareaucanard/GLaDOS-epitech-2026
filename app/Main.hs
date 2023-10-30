@@ -46,15 +46,16 @@ main :: IO ()
 main = do
   args <- getArgs
   case args of
-    ["--encode", str] -> f str >>= \k -> printParsed (tokenize k) (writeByteCode stdout)
-    ["--human", str] -> f str >>= \k -> printParsed (tokenize k) (\x -> v (translate x))
-      where v (a, b, c, d) = print a
+    ["--encode", str] -> f str
+      >>= \k -> printParsed (tokenize k) (writeHumanReadable stdout)
+    ["--human", str] -> f str
+      >>= \k -> printParsed (tokenize k) (\x -> v (translate x))
+      where
+        v (a, b, c, d) = print a
     ["--decode", filename] -> handleVmFile filename
-    ["--run", filename] -> f filename >>= \str ->
-      printParsed (tokenize str) j
+    ["--run", filename] -> f filename >>= \str -> printParsed (tokenize str) j
       where
         j i = exec inst [] tvmap []
-          >>= (\(v, s) -> print (show v ++ "\n" ++ show s))
           where
             (inst, _, vmap, _) = translate i
 

@@ -9,19 +9,15 @@ module Types
     , Instruction(..)) where
 
 import           Data.Int (Int64)
-import System.IO (Handle)
 
 data Value = Integer Int64
            | Float Double
            | Char Char
            | Boolean Bool
            | Str String
-           | SymVM String
-           | ListVM [Value]
-           | Reference (String, Int)
-           | File Handle
            | Nil
   deriving (Eq, Show)
+
 
 data UnaryOperator = BoolNot
                    | Negative
@@ -96,7 +92,6 @@ data Instruction =
   | PushSymbol String
   | JIF Int64
   | Jump Int64
-  | Print
   | Call
   | Set
   | ADD
@@ -114,7 +109,6 @@ data Instruction =
   | GT
   | GET
   | NEGATIVE
-  | TERNARY
   | RET
   | LIST Int64
   | INDEX String
