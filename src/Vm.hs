@@ -30,6 +30,7 @@ exec (Print:l) s vTab past = do
 exec (Set:l) s vTab past = do
     (nVTab, s') <- set s vTab
     exec l s' nVTab (Set:past)
+exec ((INDEX nomVar):l) s vTab past = exec l (index s nomVar vTab) vTab (INDEX val:past)
 exec (ADD:l) s vTab past = do
     s' <- opStack s opAdd
     exec l s' vTab (ADD:past)
@@ -103,9 +104,19 @@ pop :: Stack -> (Value, Stack)
 pop [] = (Integer 0, [])
 pop (x:xs) = (x, xs)
 
+replace :: Value -> Int -> Value
+replace (ListVM l) = ListVM l
+replace v = v
+
 set :: Stack -> Map.Map String Symbol -> IO (Map.Map String Symbol, Stack)
 set ((SymVM s):(val):stk) vTab = return (Map.insert s (Val val) vTab, stk)
+--set ((Reference ref):(val):stk) vTab = return (Map.updateWithKey replace (second ref) vTab, stk)
 set stack vTab = return (vTab, stack)
+
+index :: Stack -> Map.Map String Symbol -> String -> Stack
+index (Integer i:s) vTab nomVar = push s (Reference reference)
+    where reference = findIndex vTab nomVar i
+index s _ _ = s
 
 jumpIfFalse :: Insts -> Int -> Int -> Stack -> Map.Map String Symbol -> Insts -> IO (Value, Stack)
 jumpIfFalse [] a a2 b c [] = exec [] b c []

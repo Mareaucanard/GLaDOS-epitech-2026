@@ -17,6 +17,7 @@ data Value = Integer Int64
            | Str String
            | SymVM String
            | ListVM [Value]
+           | Reference (String, Int)
            | Nil
   deriving (Eq, Show)
 
