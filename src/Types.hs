@@ -9,6 +9,7 @@ module Types
     , Instruction(..)) where
 
 import           Data.Int (Int64)
+import System.IO (Handle)
 
 data Value = Integer Int64
            | Float Double
@@ -18,6 +19,7 @@ data Value = Integer Int64
            | SymVM String
            | ListVM [Value]
            | Reference (String, Int)
+           | File Handle
            | Nil
   deriving (Eq, Show)
 
