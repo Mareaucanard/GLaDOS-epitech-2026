@@ -36,4 +36,4 @@ parseLineFromFile n file = do
   isClosed <- hIsEOF file
   if isClosed
     then return "quit"
-    else hGetLine file >>= (\line -> parseLineFileLogic n file line)
+    else hGetLine file >>= parseLineFileLogic n file

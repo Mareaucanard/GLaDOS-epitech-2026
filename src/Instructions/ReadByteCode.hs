@@ -26,7 +26,7 @@ toWord64Le s = (fromIntegral (s `unsafeIndex` 7) `unsafeShiftL` 56)
   .|. (fromIntegral (s `unsafeIndex` 3) `unsafeShiftL` 24)
   .|. (fromIntegral (s `unsafeIndex` 2) `unsafeShiftL` 16)
   .|. (fromIntegral (s `unsafeIndex` 1) `unsafeShiftL` 8)
-  .|. (fromIntegral (s `unsafeIndex` 0))
+  .|. fromIntegral (s `unsafeIndex` 0)
 
 getWord64Le :: ByteString -> Maybe (ByteString, Word64)
 getWord64Le bs = case getN bs 8 of

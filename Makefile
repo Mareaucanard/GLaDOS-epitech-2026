@@ -6,6 +6,7 @@
 ##
 
 include glados.env
+export
 
 NAME	=	glados
 
@@ -37,7 +38,7 @@ fclean:		clean
 tests: | unit_test functional_test
 
 functional_test:
-			python3 test/LISP/Functional.py
+			python3 test/Functional.py
 
 unit_test:
 			@stack test --coverage

@@ -1,0 +1,14 @@
+function mod_3(x) {
+    if (x % 3 == 0) {
+        print("0");
+    } elif (x % 3 == 1) {
+        print("1");
+    } else {
+        print("2");
+    }
+}
+
+mod_3(0);
+mod_3(1);
+mod_3(2);
+
