@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Data types"
+title:  "Logical operators"
 date:   2023-10-23 15:22:07 +0200
 categories: syntax
 ---
@@ -31,8 +31,3 @@ categories: syntax
 {% highlight BackusNaur %}
 <null> ::= 'Null'
 {% endhighlight %}
-
-### To declare a variable, use the following syntax:
-
-{% highlight GLaDOS %}
-
