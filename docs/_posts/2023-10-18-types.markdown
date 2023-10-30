@@ -1,0 +1,13 @@
+---
+layout: post
+title:  "Different data types in GLaDOS"
+date:   2023-10-23 15:22:07 +0200
+categories: syntax
+---
+
+In the GLaDOS language, there are several different data types. These include:
+
+* `int` - An integer value
+{% highlight BackusNaur %}
+"<int> ::= "
+{% endhighlight %}
