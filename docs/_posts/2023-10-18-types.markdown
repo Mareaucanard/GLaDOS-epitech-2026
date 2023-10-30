@@ -31,8 +31,11 @@ categories: syntax
 {% highlight BackusNaur %}
 <null> ::= 'Null'
 {% endhighlight %}
-
+<br>
 ### To declare a variable, use the following syntax:
 
 {% highlight GLaDOS %}
-
+<identifier> = <value>;
+{% endhighlight %}
+#### Variables are not typed, and can be assigned any value.
+#### The value of a variable can be changed at any time.
