@@ -18,6 +18,7 @@ import           Vm.Utils
 import           Text.Read (readMaybe)
 import Vm.Builtin.Math (mathMap)
 import Vm.Builtin.Lists (listMap)
+import Vm.Builtin.IO (ioMap)
 
 -- BUILTINS
 
@@ -29,7 +30,7 @@ builtInMap = Map.fromList
   , ("str", BuiltIn stringCall)
   , ("int", BuiltIn intCall)
   , ("float", BuiltIn floatCall)
-  ] ++ listMap ++ mathMap)
+  ] ++ listMap ++ mathMap ++ ioMap)
 
 typeOfCall :: BuiltInFunc
 typeOfCall s m = case popN s m 1 of
