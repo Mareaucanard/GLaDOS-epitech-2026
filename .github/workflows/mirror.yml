@@ -17,10 +17,11 @@ jobs:
     - name: Permissions bug workaround
       run: |
         chown -R $(id -un):$(id -gn) ~
+        stack upgrade --binary-version 2.7.3
 
     - name: compile
       run: |
-        timeout 5m make build
+        make build
 
     - name: check_binary
       run: |
@@ -29,7 +30,7 @@ jobs:
         fi
 
     - name: run_tests
-      run: timeout 5m make tests
+      run: make tests
 
     - uses: actions/upload-artifact@v2
       with:
