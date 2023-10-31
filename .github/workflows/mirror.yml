@@ -17,7 +17,7 @@ jobs:
     - name: Permissions bug workaround
       run: |
         chown -R $(id -un):$(id -gn) ~
-        stack upgrade --binary-version 2.13.1
+        stack upgrade --binary-version 2.1.1
 
     - name: compile
       run: |
