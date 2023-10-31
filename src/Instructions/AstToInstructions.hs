@@ -1,7 +1,7 @@
 module Instructions.AstToInstructions (astListToInstructions) where
 
 import           Types (Ast(..), UnaryOperator(..), BinaryOperator(..)
-                      , Instruction(..), TernaryOperator(TernaryGate), IfType
+                      , Instruction(..), IfType
                       , Value(Boolean))
 import qualified Types as T (Instruction(..))
 import           Basement.Compat.Base (Int64)

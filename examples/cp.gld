@@ -1,0 +1,17 @@
+if (len(vargs) != 2) {
+    v = str(len(vargs));
+    throw("cp takes 2 arguments, but " + v + " were given.");
+}
+source = vargs[0];
+target = vargs[1];
+
+in = open(source, 'r');
+out = open(target, 'w');
+
+line = in.read();
+while (line != nil) {
+    out.write(line);
+    out.write("\n");
+    line = in.read();
+}
+

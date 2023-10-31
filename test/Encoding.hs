@@ -48,7 +48,6 @@ testEncoding = hspec
         parseEncode "GT" [T.GT]
         parseEncode "GET" [GET]
         parseEncode "NEGATIVE" [NEGATIVE]
-        parseEncode "TERNARY" [TERNARY]
         parseEncode "RET" [RET]
         parseEncode "List" [LIST 5]
         parseEncode "Index" [INDEX "x"]

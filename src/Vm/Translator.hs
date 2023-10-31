@@ -5,13 +5,13 @@
 -- Translator
 -}
 
-module Translator
+module Vm.Translator
     ( translate
     ) where
 
 import qualified Data.Map.Lazy as Map
 import Types
-import Vm
+import Vm.VmTypes
 
 getInsts :: [Instruction] -> [Instruction] -> [Instruction]
 getInsts [] funcInsts = funcInsts

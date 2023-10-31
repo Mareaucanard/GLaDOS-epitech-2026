@@ -33,6 +33,7 @@ dependencies:
 - filepath
 - text
 - template-haskell
+- http-conduit
 
 ghc-options:
 - -Wall

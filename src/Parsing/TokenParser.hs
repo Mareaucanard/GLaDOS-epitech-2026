@@ -260,7 +260,9 @@ parseBinary string parseOps =
 
     parseNoSelf = removeAboveEqual string
 
-    applyBin x op = BinaryOp op x
+    applyBin x Sub (BinaryOp Sub x' y') = BinaryOp Sub x (BinaryOp Add x' y')
+    applyBin x Sub (BinaryOp Add x' y') = BinaryOp Sub x (BinaryOp Sub x' y')
+    applyBin x op y = BinaryOp op x y
 
 parseAssign :: TokenParser Ast
 parseAssign = parseBinary "assignment" (Assign <$ parseToken (Binary Assign))

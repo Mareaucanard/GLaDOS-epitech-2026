@@ -1,71 +1,10 @@
-{-
--- EPITECH PROJECT, 2023
--- Test lisp
--- File description:
--- Vm
--}
-{-# LANGUAGE InstanceSigs #-}
+module Vm.Instructions (exec, call) where
 
-module Vm (exec, Symbol(..), Stack, builtInMap) where
-
-import qualified Data.Map.Lazy as Map
-import           Data.Int (Int64)
 import           Types
-import           Data.List (intercalate)
-import           System.Random (randomIO)
-import           System.IO (stderr, openFile, IOMode(WriteMode, ReadMode)
-                          , hGetLine, hClose, hIsEOF, hPutStrLn, stdin, Handle)
-import           System.Exit (exitFailure, exitWith, ExitCode(ExitFailure), die)
-
-data Symbol = Val FlatStack
-            | Func [String] [Instruction]
-            | BuiltIn (Stack -> VarMap -> IO (StackValue, Stack))
-
-instance Show Symbol where
-  show :: Symbol -> String
-  show (Val v) = show v
-  show (Func args insts) = show args ++ show insts
-  show (BuiltIn _) = show "built-in"
-
-data FlatStack = V Value
-               | Tab [FlatStack]
-               | File Handle
-  deriving (Show, Eq)
-
-data StackValue = Flat FlatStack
-                | SymVM String
-                | Ref String StackValue
-  deriving (Show)
-
-type Stack = [StackValue]
-
-type Insts = [Instruction]
-
-type VarMap = Map.Map String Symbol
-
-insertArgs :: [String] -> [FlatStack] -> VarMap -> VarMap
-insertArgs [] [] m = m
-insertArgs (x:xs) (y:ys) m = Map.insert x (Val y) (insertArgs xs ys m)
-insertArgs _ _ m = m
-
-call :: Stack -> VarMap -> IO (StackValue, Stack)
-call stack m = case pop stack of
-  (SymVM func_name, tmp_stack) -> case Map.lookup func_name m of
-    Nothing -> die $ "No function named " ++ show func_name
-    Just (Val _) -> die $ show func_name ++ " is not a function"
-    Just (BuiltIn f) -> f tmp_stack m
-    Just (Func args insts) -> case popN tmp_stack m (length args) of
-      Left e -> die e
-      Right (final_stack, l) -> if length l /= length args
-                                then die "Not enough arguments for function"
-                                else f
-        where
-          f = exec insts final_stack (insertArgs args l m) []
-            >>= \(rval, _) -> return (rval, final_stack)
-  (_, _) -> die "Bad function call, not a function"
-
-fi :: (Integral a, Num b) => a -> b
-fi = fromIntegral
+import           Vm.VmTypes
+import qualified Data.Map.Lazy as Map
+import           System.Exit (die)
+import           Vm.Utils
 
 exec
   :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (StackValue, Stack)
@@ -129,9 +68,33 @@ exec ((Jump jmp):l) s vTab past = jump (Jump jmp:l) (fi jmp) s vTab past
 exec ((LIST n):l) s vTab past = case opList s vTab (fi n) of
   Left e          -> die e
   Right new_stack -> exec l new_stack vTab (LIST n:past)
-exec (RET:_) s _ _ = return $ pop s
-exec [] s _ _ = return $ pop s
-exec _ s _ _ = return $ pop s
+exec (RET:_) (x:xs) m _ = case flatten x m of
+  Left e   -> die e
+  Right x' -> return (Flat x', xs)
+exec (RET:_) [] _ _ = die "STACK ERROR INVALID RETURN"
+exec [] s _ _ = return (Flat (V Nil), s)
+exec ((Function _ _):_) _ _ _ = die "STACK ERROR FUNCTION IN EXEC"
+
+insertArgs :: [String] -> [FlatStack] -> VarMap -> VarMap
+insertArgs [] [] m = m
+insertArgs (x:xs) (y:ys) m = Map.insert x (Val y) (insertArgs xs ys m)
+insertArgs _ _ m = m
+
+call :: Stack -> VarMap -> IO (StackValue, Stack)
+call stack m = case pop stack of
+  (SymVM func_name, tmp_stack) -> case Map.lookup func_name m of
+    Nothing -> die $ "No function named " ++ show func_name
+    Just (Val _) -> die $ show func_name ++ " is not a function"
+    Just (BuiltIn f) -> f tmp_stack m
+    Just (Func args insts) -> case popN tmp_stack m (length args) of
+      Left e -> die e
+      Right (final_stack, l) -> if length l /= length args
+                                then die "Not enough arguments for function"
+                                else f
+        where
+          f = exec insts final_stack (insertArgs args l m) []
+            >>= \(rval, _) -> return (rval, final_stack)
+  (_, _) -> die "Bad function call, not a function"
 
 opStack
   :: Stack -> (FlatStack -> FlatStack -> Maybe FlatStack) -> VarMap -> IO Stack
@@ -164,7 +127,7 @@ pop (x:xs) = (x, xs)
 -- replace :: Value -> Int -> Value
 -- replace (ListVM l) = ListVM l
 -- replace v = v
-set :: Stack -> Map.Map String Symbol -> Insts -> Insts -> IO (VarMap, Stack)
+set :: Stack -> VarMap -> Insts -> Insts -> IO (VarMap, Stack)
 set s m i past = case pop s of
   (SymVM sym, tmp_stack) -> case popN tmp_stack m 1 of
     Right (final_stack, [x]) -> return (Map.insert sym (Val x) m, final_stack)
@@ -176,7 +139,25 @@ set s m i past = case pop s of
     ++ show s
     ++ show i
     ++ show past
-  _ -> die "Invalid stack SET"
+  (Ref name val, tmp_stack) -> case Map.lookup name m of
+    Nothing -> die $ "Undefined variable" ++ name
+    Just (Val (Tab l)) -> case flatten val m of
+      Left e -> die e
+      Right (V (Integer flat_i))
+        -> if length l > fi flat_i
+           then case popN tmp_stack m 1 of
+             Right (f_stack, [x]) -> return
+               (Map.insert name (Val (Tab l')) m, f_stack)
+               where
+                 l' = setAt l (fi flat_i) x
+             Right _ -> die "STACK ERROR"
+             Left e -> die e
+           else die $ "Index out of range for " ++ name
+      Right _ -> die $ "Can't subscript " ++ name ++ " not an index"
+    Just _ -> die $ name ++ " is not a list"
+
+setAt :: [a] -> Int -> a -> [a]
+setAt xs i x = take i xs ++ [x] ++ drop (i + 1) xs
 
 index :: Stack -> String -> Stack
 index s varName = Ref varName val:new_s
@@ -211,24 +192,30 @@ opAdd :: FlatStack -> FlatStack -> Maybe FlatStack
 opAdd (V (Integer x)) (V (Integer y)) = Just $ V (Integer (x + y))
 opAdd (V (Float x)) (V (Integer y)) = Just $ V (Float (x + fi y))
 opAdd (V (Integer x)) (V (Float y)) = Just $ V (Float (fi x + y))
+opAdd (V (Float x)) (V (Float y)) = Just $ V (Float (x + y))
+opAdd (V (Str x)) (V (Str y)) = Just $ V (Str (x ++ y))
 opAdd _ _ = Nothing
 
 opSub :: FlatStack -> FlatStack -> Maybe FlatStack
 opSub (V (Integer x)) (V (Integer y)) = Just $ V (Integer (x - y))
 opSub (V (Float x)) (V (Integer y)) = Just $ V (Float (x - fi y))
 opSub (V (Integer x)) (V (Float y)) = Just $ V (Float (fi x - y))
+opSub (V (Float x)) (V (Float y)) = Just $ V (Float (x - y))
 opSub _ _ = Nothing
 
 opMul :: FlatStack -> FlatStack -> Maybe FlatStack
 opMul (V (Integer x)) (V (Integer y)) = Just $ V (Integer (x * y))
 opMul (V (Float x)) (V (Integer y)) = Just $ V (Float (x * fi y))
 opMul (V (Integer x)) (V (Float y)) = Just $ V (Float (fi x * y))
+opMul (V (Float x)) (V (Float y)) = Just $ V (Float (x * y))
+
 opMul _ _ = Nothing
 
 opDiv :: FlatStack -> FlatStack -> Maybe FlatStack
 opDiv (V (Integer x)) (V (Integer y)) = Just $ V (Integer (x `div` y))
 opDiv (V (Float x)) (V (Integer y)) = Just $ V (Float (x / fi y))
 opDiv (V (Integer x)) (V (Float y)) = Just $ V (Float (fi x / y))
+opDiv (V (Float x)) (V (Float y)) = Just $ V (Float (x / y))
 opDiv _ _ = Nothing
 
 opMod :: FlatStack -> FlatStack -> Maybe FlatStack
@@ -245,6 +232,7 @@ opLess :: FlatStack -> FlatStack -> Maybe FlatStack
 opLess (V (Integer x)) (V (Integer y)) = Just $ V (Boolean (x < y))
 opLess (V (Float x)) (V (Integer y)) = Just $ V (Boolean (x < fi y))
 opLess (V (Integer x)) (V (Float y)) = Just $ V (Boolean (fi x < y))
+opLess (V (Float x)) (V (Float y)) = Just $ V (Boolean (x < y))
 opLess (V (Char x)) (V (Char y)) = Just $ V (Boolean (x < y))
 opLess _ _ = Nothing
 
@@ -252,6 +240,7 @@ opLessEq :: FlatStack -> FlatStack -> Maybe FlatStack
 opLessEq (V (Integer x)) (V (Integer y)) = Just $ V (Boolean (x <= y))
 opLessEq (V (Float x)) (V (Integer y)) = Just $ V (Boolean (x <= fi y))
 opLessEq (V (Integer x)) (V (Float y)) = Just $ V (Boolean (fi x <= y))
+opLessEq (V (Float x)) (V (Float y)) = Just $ V (Boolean (x <= y))
 opLessEq (V (Char x)) (V (Char y)) = Just $ V (Boolean (x <= y))
 opLessEq _ _ = Nothing
 
@@ -286,144 +275,3 @@ opList :: Stack -> VarMap -> Int -> Either String Stack
 opList s m n = case popN s m n of
   Right (final_stack, tab) -> Right $ Flat (Tab tab):final_stack
   Left e -> Left e
-
--- BUILTINS
-readRef :: [a] -> StackValue -> VarMap -> String -> Either String a
-readRef l ind m name = case flatten ind m of
-  Right (V (Integer i)) -> if length l >= fi i
-                           then Right $ l !! fi i
-                           else Left $ "Index out of range for " ++ name
-  _ -> Left "Invalid type for index"
-  Left e -> Left e
-
-flatten :: StackValue -> VarMap -> Either String FlatStack
-flatten (SymVM v) m = case Map.lookup v m of
-  Just (Val x) -> flatten (Flat x) m
-  _ -> Left $ "undefined variable " ++ v
-flatten (Flat x) _ = Right x
-flatten (Ref name ind) m = case Map.lookup name m of
-  Just (Val (Tab x)) -> readRef x ind m name
-  Just (Val (V (Str x))) -> case readRef x ind m name of
-    Right new_x -> return (V (Char new_x))
-    Left e      -> Left e
-  _ -> Left $ "Undefined variable" ++ name
-
-opPrintList :: [FlatStack] -> Bool -> String
-opPrintList [] False = "]"
-opPrintList list True = "[" ++ opPrintList list False
-opPrintList (x:xs) False
-  | length (x:xs) == 1 = showFlat x ++ opPrintList xs False
-  | otherwise = showFlat x ++ ", " ++ opPrintList xs False
-
-showValue :: Value -> String
-showValue (Str s) = s
-showValue (Integer i) = show i
-showValue (Float f) = show f
-showValue (Boolean b) = show b
-showValue (Char c) = show c
-showValue Nil = "nil"
-
-showFlat :: FlatStack -> String
-showFlat (Tab l) = opPrintList l True
-showFlat (V l) = showValue l
-showFlat (File f) = show f
-
--- Builtin
-type BuiltInFunc = (Stack -> VarMap -> IO (StackValue, Stack))
-
-popN :: Stack -> VarMap -> Int -> Either String (Stack, [FlatStack])
-popN s _ 0 = Right (s, [])
-popN [] _ _ = Right ([], [])
-popN (x:xs) m n = case flatten x m of
-  Right v -> case popN xs m (n - 1) of
-    Right (final, t) -> Right (final, v:t)
-    Left e           -> Left e
-  Left e  -> Left e
-
-none :: Monad m => b -> m (StackValue, b)
-none f = return (Flat (V Nil), f)
-
-builtInMap :: VarMap
-builtInMap = Map.fromList
-  [ ("print", BuiltIn printCall)
-  , ("typeOf", BuiltIn typeOfCall)
-  , ("rand", BuiltIn rand)
-  , ("open", BuiltIn open)
-  , ("close", BuiltIn closeCall)
-  , ("input", BuiltIn inputCall)
-  , ("len", BuiltIn lenCall)
-    --   , ("write", BuiltIn writeCall)
-  , ("read", BuiltIn readCall)]
-
-typeOfVal :: FlatStack -> String
-typeOfVal (V (Integer _)) = "integer"
-typeOfVal (V (Float _)) = "float"
-typeOfVal (V (Char _)) = "char"
-typeOfVal (V (Boolean _)) = "boolean"
-typeOfVal (V (Str _)) = "string"
-typeOfVal (V Nil) = "nil"
-typeOfVal (File _) = "file"
-typeOfVal (Tab _) = "list"
-
-typeOfCall :: BuiltInFunc
-typeOfCall s m = case popN s m 1 of
-  Right (final_stack, [v]) -> putStrLn (typeOfVal v) >> none final_stack
-  Right _ -> die "typeof takes one argument but none where given"
-  Left e -> die e
-
-printCall :: BuiltInFunc
-printCall s m = case popN s m 1 of
-  Right (f, [x]) -> putStrLn (showFlat x) >> none f
-  Right (_, _)   -> die "Print takes one argument but none given"
-  Left e         -> die e
-
-rand :: BuiltInFunc
-rand s _ = (randomIO :: IO Double) >>= (\x -> return (Flat (V (Float x)), s))
-
-openLogic :: String -> Char -> Stack -> IO (StackValue, Stack)
-openLogic filename 'w' s = openFile filename WriteMode
-  >>= \f -> return (Flat (File f), s)
-openLogic filename 'r' s = openFile filename ReadMode
-  >>= \f -> return (Flat (File f), s)
-openLogic _ _ _ = die "Open: invalid mode"
-
-open :: BuiltInFunc
-open s m = case popN s m 2 of
-  Right (f_stack, [V (Str filename), V (Char mode)])
-    -> openLogic filename mode f_stack
-  Right (_, [V (Str _), _]) -> die "Open: invalid type for mode"
-  Right (_, [_, V (Char _)]) -> die "Open: invalid type for mode"
-  Right (_, _) -> die "Open: Wrong number of arguments"
-  Left e -> die e
-
-readCall :: BuiltInFunc
-readCall s m = case popN s m 1 of
-  Right (f_stack, [File f]) -> hIsEOF f
-    >>= \empty
-    -> if empty
-       then none f_stack
-       else hGetLine f >>= \line -> return (Flat (V (Str line)), f_stack)
-  Right (_, _) -> die "Read: not a file"
-  Left e -> die e
-
-closeCall :: BuiltInFunc
-closeCall s m = case popN s m 1 of
-  Right (f_stack, [File f]) -> hClose f >> none f_stack
-  Right (_, _) -> die "Close: not a file"
-  Left e -> die e
-
-inputCall :: BuiltInFunc
-inputCall s _ = hIsEOF stdin
-  >>= \empty -> if empty
-                then none s
-                else getLine >>= \line -> return (Flat (V (Str line)), s)
-
-lenCall :: BuiltInFunc
-lenCall s m = case popN s m 1 of
-  Right (f_stack, [Tab t]) -> return (f t, f_stack)
-  Right (f_stack, [V (Str t)]) -> return (f t, f_stack)
-  Right (_, [_]) -> die "Len: invalid type"
-  Right _ -> die "len: Wrong number of arguments"
-  Left e -> die e
-  where
-    f l = Flat (V (Integer (fi (length l))))

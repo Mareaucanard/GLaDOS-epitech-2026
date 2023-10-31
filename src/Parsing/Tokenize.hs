@@ -16,7 +16,10 @@ parseInteger = applyInteger <$> parseInt
     applyInteger x = Constant (Integer x)
 
 parseDoubleString :: Parser String
-parseDoubleString = join <$> parseMaybe (parseChar '-') <*> parseDigitStr <*> parseChar '.' <*> parseDigitStr
+parseDoubleString = join <$> parseMaybe (parseChar '-')
+  <*> parseDigitStr
+  <*> parseChar '.'
+  <*> parseDigitStr
   where
     join Nothing a b c = a ++ [b] ++ c
     join (Just x) a b c = (x:a) ++ [b] ++ c
@@ -35,13 +38,27 @@ parseBoolean = Constant (Boolean True) <$ parseString "True"
 
 parseCharToken :: Parser Token
 parseCharToken = Constant . Char
-  <$> between (parseChar '\'') (parseChar '\'') parseAnyChar
+  <$> between
+    (parseChar '\'')
+    (parseChar '\'')
+    (parseAnyChar
+     <|> ('\n' <$ parseString "\n")
+     <|> ('\r' <$ parseString "\r")
+     <|> ('\t' <$ parseString "\t"))
+
+flattenString :: String -> String
+flattenString [] = []
+flattenString ('\\':'\\':xs) = '\\' : flattenString xs
+flattenString ('\\':'n':xs) = '\n' : flattenString xs
+flattenString ('\\':'t':xs) = '\t' : flattenString xs
+flattenString ('\\':'r':xs) = '\r' : flattenString xs
+flattenString (x:xs) = x : flattenString xs
 
 allowedChars :: [Char]
 allowedChars = [' ', '!', '\n', '\t'] ++ ['#' .. '~']
 
 parseStringToken :: Parser Token
-parseStringToken = Constant . Str
+parseStringToken = Constant . Str . flattenString
   <$> between
     (parseChar '"')
     (parseChar '"')

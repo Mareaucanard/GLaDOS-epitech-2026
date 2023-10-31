@@ -15,16 +15,18 @@ import           Instructions.ByteCode (writeByteCode)
 import qualified Data.ByteString as BS (readFile)
 import           System.IO as SIO (Handle, stderr, stdout, hPutStrLn, openFile
                                  , stdin, IOMode(WriteMode, ReadMode)
-                                 , hGetContents, hFlush)
+                                 , hGetContents, hFlush, hClose)
 import           Instructions.ReadByteCode (readByteCode)
 import           ParseArguments (parseArguments, Args(..), Mode(..))
 import           System.Exit (exitWith, ExitCode(ExitFailure))
 import           Data.Maybe (fromJust)
 import           LISP.LispMain (lispMain)
 import           LookupBuildEnv
-import           Translator (translate)
-import           Vm (exec, builtInMap)
+import           Vm.Translator (translate)
+import           Vm.Instructions (exec)
+import           Vm.Builtin.BuiltinMap (builtInMap)
 import qualified Data.Map.Lazy as Map
+import           Vm.VmTypes
 
 addMain :: [Ast] -> [Ast]
 addMain x = case extractFunctions x of
@@ -35,13 +37,15 @@ compileFile :: Either [Token] String
             -> (Handle -> [Instruction] -> IO ())
             -> IO ()
 compileFile (Right err) _ _ = putStrLn "Tokenization failed" >> putStrLn err
-compileFile (Left tokens) outFile f = case tokensToAst (applyPreProcessing tokens) of
-    Right x  -> putStrLn x
-    Left ast -> case verifyParsing ast of
-      Nothing
-        -> f outFile (astListToInstructions $ addMain (simplifyParsing ast))
-        >> hFlush outFile
-      Just err -> putStrLn err
+compileFile (Left tokens) outFile f = case tokensToAst
+  (applyPreProcessing tokens) of
+  Right x  -> putStrLn x
+  Left ast -> case verifyParsing ast of
+    Nothing
+      -> f outFile (astListToInstructions $ addMain (simplifyParsing ast))
+      >> hFlush outFile
+      >> hClose outFile
+    Just err -> putStrLn err
 
 handleSource :: String -> String -> (Handle -> [Instruction] -> IO ()) -> IO ()
 handleSource fileInputName fileOutputName f = do
@@ -50,16 +54,17 @@ handleSource fileInputName fileOutputName f = do
   source <- hGetContents inFile
   compileFile (tokenize source) outFile f
 
-handleVmFile :: String -> String -> Bool -> IO ()
-handleVmFile filename output decode = do
+handleVmFile :: [String] -> String -> String -> Bool -> IO ()
+handleVmFile args filename output decode = do
   byte_code <- BS.readFile filename
   outFile <- streamOpenFile output WriteMode
   case readByteCode byte_code of
     Right err -> putStrLn err
     Left inst -> if decode
                  then writeHumanReadable outFile inst
-                 else print (translate inst)
+                 else applyRun args outFile inst
   hFlush outFile
+  hClose outFile
 
 streamOpenFile :: String -> IOMode -> IO Handle
 streamOpenFile "stdin" _ = return stdin
@@ -86,12 +91,17 @@ doVersion = do
   case $(lookupCompileEnvExp "GLADOS_VERSION") of
     Just x -> putStrLn $ "Version " ++ x
 
-applyRun :: Handle -> [Instruction] -> IO ()
-applyRun _ insts = exec new_insts [] fused_map [] >> return ()
+applyRun :: [String] -> Handle -> [Instruction] -> IO ()
+applyRun args _ insts = exec new_insts [] fused_map [] >> return ()
   where
     (new_insts, m) = translate insts
 
-    fused_map = Map.fromList (Map.toList builtInMap ++ (Map.toList m))
+    fused_map = Map.fromList
+      ([("vargs", Val (Tab (map f args)))]
+       ++ Map.toList builtInMap
+       ++ Map.toList m)
+
+    f s = V (Str s)
 
 main :: IO ()
 main = do
@@ -101,6 +111,7 @@ main = do
     Left args -> do
       let inFile = fromJust $ inputFile args
       let outFile = fromJust $ outputFile args
+      let pArgs = (progArgs args)
       case args of
         (Args { help = True })        -> doHelp
         (Args { version = True })     -> doVersion
@@ -108,8 +119,10 @@ main = do
           -> handleSource inFile outFile writeByteCode
         (Args { mode = Just Human })
           -> handleSource inFile outFile writeHumanReadable
-        (Args { mode = Just Exec })   -> handleVmFile inFile outFile False
-        (Args { mode = Just Decode }) -> handleVmFile inFile outFile True
+        (Args { mode = Just Exec })
+          -> handleVmFile pArgs inFile outFile False
+        (Args { mode = Just Decode }) -> handleVmFile pArgs inFile outFile True
         (Args { mode = Just Lisp })   -> lispMain inFile outFile
-        (Args { mode = Just Run })    -> handleSource inFile outFile applyRun
+        (Args { mode = Just Run })
+          -> handleSource inFile outFile (applyRun pArgs)
         (Args { mode = Nothing })     -> undefined

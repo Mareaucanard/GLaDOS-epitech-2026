@@ -55,7 +55,11 @@ fileList = [
     GladosFile("okay/operators/not.gld", output="False"),
     GladosFile("okay/operators/or.gld", output="True"),
     GladosFile("okay/operators/sub.gld", output="-1"),
-    GladosFile("okay/operators/ternary.gld", output="1\n2")
+    GladosFile("okay/operators/ternary.gld", output="1\n2"),
+
+    GladosFile("okay/factorial.gld", output="3628800"),
+    GladosFile("okay/factorial_ternary.gld", output="3628800"),
+    GladosFile("okay/sort.gld", output="[1, 3, 4, 5, 12]")
 
 
 ] + lispFileList
