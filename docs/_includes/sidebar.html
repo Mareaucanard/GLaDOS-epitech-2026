@@ -14,6 +14,11 @@
             <a class="post-link" href="{{ post.url | relative_url }}">
             {{ post.title | escape }}</a>
         {%- endfor -%}
+    <categories>Builtin functions:</categories>
+        {%- for post in site.categories.builtin -%}
+            <a class="post-link" href="{{ post.url | relative_url }}">
+            {{ post.title | escape }}</a>
+        {%- endfor -%}
     <categories>Bytecode and instructions:</categories>
         {%- for post in site.categories.bytecode -%}
             <a class="post-link" href="{{ post.url | relative_url }}">
