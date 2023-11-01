@@ -21,14 +21,14 @@ all:
 			docker run --env-file glados.env --rm -v $(shell pwd):/glados -w /glados someone2love/glados_build_env:latest make build
 
 build:
-			stack setup --allow-different-user
-			stack build --copy-bins --allow-different-user
+			stack --allow-different-user setup
+			stack --allow-different-user build --copy-bins
 			mv $(BINNAME) $(NAME)
 
 default:	all
 
 clean:
-			stack clean
+			stack --allow-different-user clean
 
 fclean:		clean
 			rm -f $(NAME)

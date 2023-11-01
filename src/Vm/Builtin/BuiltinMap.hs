@@ -4,33 +4,37 @@
 -- File description:
 -- Vm
 -}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
-{-# HLINT ignore "Use isEOF" #-}
 module Vm.Builtin.BuiltinMap (builtInMap) where
 
 import qualified Data.Map.Lazy as Map
 import           Types
-import           System.Random (randomIO)
+import           System.Random (randomIO, randomRIO)
 import           System.Exit (die)
 import           Vm.VmTypes
 import           Vm.Utils
 import           Text.Read (readMaybe)
-import Vm.Builtin.Math (mathMap)
-import Vm.Builtin.Lists (listMap)
-import Vm.Builtin.IO (ioMap)
+import           Vm.Builtin.Math (mathMap)
+import           Vm.Builtin.Lists (listMap)
+import           Vm.Builtin.IO (ioMap)
+import           System.Clock
+import System.Process.Extra (callProcess)
 
 -- BUILTINS
-
 builtInMap :: VarMap
 builtInMap = Map.fromList
-  ([
-   ("typeOf", BuiltIn typeOfCall)
-  , ("rand", BuiltIn rand)
-  , ("str", BuiltIn stringCall)
-  , ("int", BuiltIn intCall)
-  , ("float", BuiltIn floatCall)
-  ] ++ listMap ++ mathMap ++ ioMap)
+  ([ ("typeOf", BuiltIn typeOfCall)
+   , ("rand", BuiltIn rand)
+   , ("uniform", BuiltIn uniformCall)
+   , ("str", BuiltIn stringCall)
+   , ("int", BuiltIn intCall)
+   , ("float", BuiltIn floatCall)
+   , ("randrange", BuiltIn randRangeCall)
+   , ("time", BuiltIn timeCall)
+   , ("timeit", BuiltIn timeitCall)
+   , ("subprocess", BuiltIn subprocess)]
+   ++ listMap
+   ++ mathMap
+   ++ ioMap)
 
 typeOfCall :: BuiltInFunc
 typeOfCall s m = case popN s m 1 of
@@ -41,6 +45,27 @@ typeOfCall s m = case popN s m 1 of
 
 rand :: BuiltInFunc
 rand s _ = (randomIO :: IO Double) >>= (\x -> return (Flat (V (Float x)), s))
+
+uniformLogic :: Double -> Double -> Stack -> IO (StackValue, Stack)
+uniformLogic a b s = randomRIO (a, b) >>= \x -> return (Flat (V (Float x)), s)
+
+uniformCall :: BuiltInFunc
+uniformCall s m = case popN s m 2 of
+  Right (s', [V (Float a), V (Float b)]) -> uniformLogic a b s'
+  Right (s', [V (Float a), V (Integer b)]) -> uniformLogic a (fi b) s'
+  Right (s', [V (Integer a), V (Float b)]) -> uniformLogic (fi a) b s'
+  Right (s', [V (Integer a), V (Integer b)]) -> uniformLogic (fi a) (fi b) s'
+  Right (_, [_, _]) -> die "uniform: wrong arg type"
+  Right (_, _) -> die "uniform: Wrong number of arguments"
+  Left e -> die e
+
+randRangeCall :: BuiltInFunc
+randRangeCall s m = case popN s m 2 of
+  Right (s', [V (Integer a), V (Integer b)]) -> randomRIO (a, b)
+    >>= \x -> return (Flat (V (Integer x)), s')
+  Right (_, [_, _]) -> die "uniform: wrong arg type"
+  Right (_, _) -> die "uniform: Wrong number of arguments"
+  Left e -> die e
 
 stringCall :: BuiltInFunc
 stringCall s m = case popN s m 1 of
@@ -73,3 +98,32 @@ floatCall s m = case popN s m 1 of
   Left e -> die e
   where
     f f' x = Flat (V (Float (f' x)))
+
+timeitCall :: BuiltInFunc
+timeitCall s _ = getTime Realtime >>= (\x -> return (Flat (f x), s))
+  where
+    f time = Tab [V (Integer (fi (sec time))), V (Integer (fi (nsec time)))]
+
+timeCall :: BuiltInFunc
+timeCall s _ = getTime Realtime >>= (\x -> return (Flat (f x), s))
+  where
+    f time = V (Integer (fi (sec time)))
+
+
+extractStrings :: [FlatStack] -> Maybe [String]
+extractStrings [] = Just []
+extractStrings (V (Str x):xs) = case extractStrings xs of
+  Nothing  -> Nothing
+  Just xs' -> Just $ x:xs'
+extractStrings _ = Nothing
+
+
+subprocess :: BuiltInFunc
+subprocess s m = case popN s m 1 of
+  Right (s', [Tab t]) -> case extractStrings t of
+    Nothing -> die "subprocess only takes strings"
+    Just [] -> die "subprocess no command to execute"
+    Just (x:xs) -> callProcess x xs >> none s'
+  Right (_, [_]) -> die "subprocess takes string tab"
+  Right (_', _) -> die "subprocess takes one argument"
+  Left e -> die e

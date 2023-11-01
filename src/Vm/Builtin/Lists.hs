@@ -6,19 +6,25 @@ import           Vm.VmTypes
 import           Vm.Utils
 import           Data.List (intercalate)
 import           Vm.Instructions (call)
+import           Basement.Compat.Base (Int64)
+import           Data.List.Split (splitOn)
 
 listMap :: [(String, Symbol)]
-listMap = [ ("concat", BuiltIn concatCall)
-          , ("head", BuiltIn headCall)
-          , ("tail", BuiltIn tailCall)
-          , ("reverse", BuiltIn reverseCall)
-          , ("join", BuiltIn joinCall)
-          , ("any", BuiltIn anyCall)
-          , ("all", BuiltIn allCall)
-          , ("map", BuiltIn mapCall)
-          , ("len", BuiltIn lenCall)
-          , ("prepend", BuiltIn prepend)
-          , ("append", BuiltIn append)]
+listMap =
+  [ ("concat", BuiltIn concatCall)
+  , ("head", BuiltIn headCall)
+  , ("tail", BuiltIn tailCall)
+  , ("reverse", BuiltIn reverseCall)
+  , ("join", BuiltIn joinCall)
+  , ("any", BuiltIn anyCall)
+  , ("all", BuiltIn allCall)
+  , ("map", BuiltIn mapCall)
+  , ("len", BuiltIn lenCall)
+  , ("prepend", BuiltIn prepend)
+  , ("append", BuiltIn append)
+  , ("nils", BuiltIn nils)
+  , ("range", BuiltIn range)
+  , ("split", BuiltIn split)]
 
 maybeConcatLists :: [FlatStack] -> Maybe FlatStack
 maybeConcatLists ((Tab x):xs) = case maybeConcatLists xs of
@@ -41,11 +47,14 @@ concatCall s m = case popN s m 1 of
     -> f maybeConcatString (V (Str v):xs) f_stack
   Right (f_stack, [Tab []]) -> return (Flat (Tab []), f_stack)
   Right (_, [x]) -> die $ "Fetch: expected string but got " ++ typeOfVal x
-  _ -> die "DIe"
+  _ -> die "Die"
   where
-    f f' l s' = case f' l of
-      Nothing -> die "Can't concat non harmonious types"
-      Just x  -> return (Flat x, s')
+    f = concatCallBack
+
+concatCallBack :: (t -> Maybe FlatStack) -> t -> b -> IO (StackValue, b)
+concatCallBack f' l s' = case f' l of
+  Nothing -> die "Can't concat non harmonious types"
+  Just x  -> return (Flat x, s')
 
 headCall :: BuiltInFunc
 headCall s m = case popN s m 1 of
@@ -128,7 +137,7 @@ lenCall :: BuiltInFunc
 lenCall s m = case popN s m 1 of
   Right (f_stack, [Tab t]) -> return (f t, f_stack)
   Right (f_stack, [V (Str t)]) -> return (f t, f_stack)
-  Right (_, [_]) -> die "Len: invalid type"
+  Right (_, [_]) -> die "len: invalid type"
   Right _ -> die "len: Wrong number of arguments"
   Left e -> die e
   where
@@ -155,5 +164,50 @@ append s m = case popN s m 2 of
     -> die $ "Can only append char to string, not " ++ typeOfVal x
   Right
     (_, [x]) -> die $ "Can only append to list or string, not " ++ typeOfVal x
-  Right (_, _) -> die "Wrong number of arguments for append"
+  Right (_, _) -> die "append: Wrong number of arguments"
   Left e -> die e
+
+listOfNils :: Int64 -> [FlatStack]
+listOfNils 0 = []
+listOfNils n = V Nil:listOfNils (n - 1)
+
+nils :: BuiltInFunc
+nils s m = case popN s m 1 of
+  Right (s', [V (Integer size)])
+    -> if size < 0
+       then die "nils: negative number"
+       else return (Flat (Tab (listOfNils size)), s')
+  Right (_, [_]) -> die "nils: Invalid type"
+  Right (_, _) -> die "nils: Wrong number of arguments"
+  Left e -> die e
+
+rangeLogic :: Int64 -> [FlatStack]
+rangeLogic n = map f [0 .. (n - 1)]
+  where
+    f x = V (Integer x)
+
+range :: BuiltInFunc
+range s m = case popN s m 1 of
+  Right (s', [V (Integer size)])
+    -> if size < 0
+       then die "range: negative number"
+       else return (Flat (Tab (rangeLogic size)), s')
+  Right (_, [_]) -> die "range: Invalid type"
+  Right (_, _) -> die "range: Wrong number of arguments"
+  Left e -> die e
+
+split :: BuiltInFunc
+split s m = case popN s m 2 of
+  Right (s', [V (Str str), V (Str delim)])
+    -> splitCallBack (map toString (splitOn delim str)) s'
+  Right (s', [V (Str str), V (Char delim)])
+    -> splitCallBack (map toString (splitOn [delim] str)) s'
+  Right (_, [_, _]) -> die "split: Invalid type"
+  Right (_, _) -> die "split: Wrong number of arguments"
+  Left e -> die e
+
+splitCallBack :: Monad m => [FlatStack] -> b -> m (StackValue, b)
+splitCallBack x s' = return (Flat (Tab x), s')
+
+toString :: String -> FlatStack
+toString x = V (Str x)

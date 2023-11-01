@@ -18,7 +18,6 @@ data Value = Integer Int64
            | Nil
   deriving (Eq, Show)
 
-
 data UnaryOperator = BoolNot
                    | Negative
   deriving (Eq, Show)

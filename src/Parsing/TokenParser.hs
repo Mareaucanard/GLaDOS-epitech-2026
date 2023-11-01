@@ -1,5 +1,4 @@
 {-# LANGUAGE LambdaCase #-}
-{-# LANGUAGE InstanceSigs #-}
 
 module Parsing.TokenParser (tokensToAst) where
 
@@ -17,17 +16,14 @@ between a b c = getMiddle <$> a <*> c <*> b
     getMiddle _ x _ = x
 
 instance Functor TokenParser where
-  fmap :: (a -> b) -> TokenParser a -> TokenParser b
   fmap ftc (TokenParser p1) = TokenParser
     $ \str -> case p1 str of
       Just (x, str2) -> Just (ftc x, str2)
       Nothing        -> Nothing
 
 instance Applicative TokenParser where
-  pure :: a -> TokenParser a
   pure a = TokenParser $ \str -> Just (a, str)
 
-  (<*>) :: TokenParser (a -> b) -> TokenParser a -> TokenParser b
   (TokenParser pf) <*> (TokenParser p1) = TokenParser
     $ \str1 -> case pf str1 of
       Nothing        -> Nothing
@@ -36,13 +32,11 @@ instance Applicative TokenParser where
         Just (a, str3) -> Just (f a, str3)
 
 instance Alternative TokenParser where
-  (<|>) :: TokenParser a -> TokenParser a -> TokenParser a
   (<|>) (TokenParser p1) (TokenParser p2) = TokenParser
     $ \str -> case p1 str of
       Just x  -> Just x
       Nothing -> p2 str
 
-  empty :: TokenParser a
   empty = TokenParser $ const Nothing
 
 parseMaybe :: TokenParser a -> TokenParser (Maybe a)

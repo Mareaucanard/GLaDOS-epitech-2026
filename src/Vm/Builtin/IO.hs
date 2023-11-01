@@ -7,6 +7,8 @@ import           Vm.VmTypes
 import           Vm.Utils
 import           Network.HTTP.Conduit (simpleHttp)
 import qualified Data.ByteString.Lazy.Char8 as L
+import           System.Time.Extra (sleep)
+
 
 ioMap :: [(String, Symbol)]
 ioMap = [ ("open", BuiltIn open)
@@ -16,7 +18,8 @@ ioMap = [ ("open", BuiltIn open)
         , ("write", BuiltIn writeCall)
         , ("read", BuiltIn readCall)
         , ("fetch", BuiltIn fetch)
-        , ("throw", BuiltIn throwCall)]
+        , ("throw", BuiltIn throwCall)
+        , ("sleep", BuiltIn sleepCall)]
 
 printCall :: BuiltInFunc
 printCall s m = case popN s m 1 of
@@ -92,3 +95,13 @@ readByteString :: L.ByteString -> String
 readByteString bs = case L.uncons bs of
   Nothing -> []
   Just (x, leftovers) -> x:readByteString leftovers
+
+sleepCall :: BuiltInFunc
+sleepCall s m = case popN s m 1 of
+  Right (s', [V (Integer t)]) -> sleep (fromIntegral t) >> none s'
+  Right (s', [V (Float t)]) -> sleep t >> none s'
+  Right (_, [_]) -> die $ name ++ ": invalid type"
+  Right _ -> die $ name ++ ": Wrong number of arguments"
+  Left e -> die e
+  where
+    name = "sleep"

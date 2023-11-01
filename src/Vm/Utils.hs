@@ -63,9 +63,12 @@ showFlat (Tab l) = opPrintList l True
 showFlat (V l) = showValue l
 showFlat (File f) = show f
 
+showInnerFlat :: FlatStack -> String
+showInnerFlat (V (Str s)) = show s
+showInnerFlat x = showFlat x
+
 opPrintList :: [FlatStack] -> Bool -> String
 opPrintList [] False = "]"
 opPrintList list True = "[" ++ opPrintList list False
-opPrintList (x:xs) False
-  | length (x:xs) == 1 = showFlat x ++ opPrintList xs False
-  | otherwise = showFlat x ++ ", " ++ opPrintList xs False
+opPrintList [x] False = showInnerFlat x ++ opPrintList [] False
+opPrintList (x:xs) False = showInnerFlat x ++ ", " ++ opPrintList xs False

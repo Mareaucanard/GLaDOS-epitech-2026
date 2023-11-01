@@ -12,10 +12,8 @@ function is_prime(x) {
     return True;
 }
 
-
 n = 200;
 x = [];
-
 
 for (i = 1; i < n; i = i + 1) {
     x = x.append(i);

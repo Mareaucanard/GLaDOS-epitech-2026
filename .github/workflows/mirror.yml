@@ -17,20 +17,13 @@ jobs:
     - name: Permissions bug workaround
       run: |
         chown -R $(id -un):$(id -gn) ~
-        stack upgrade --binary-version 2.1.1
+
+    - name: run_tests
+      run: make tests
 
     - name: compile
       run: |
         make build
-
-    - name: check_binary
-      run: |
-        if [[ ! -f $BINARY ]]; then
-          echo "::error title=Executable not found::$BINARY"
-        fi
-
-    - name: run_tests
-      run: make tests
 
     - uses: actions/upload-artifact@v2
       with:

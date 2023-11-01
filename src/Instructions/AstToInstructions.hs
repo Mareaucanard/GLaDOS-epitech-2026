@@ -1,8 +1,7 @@
 module Instructions.AstToInstructions (astListToInstructions) where
 
 import           Types (Ast(..), UnaryOperator(..), BinaryOperator(..)
-                      , Instruction(..), IfType
-                      , Value(Boolean))
+                      , Instruction(..), IfType, Value(Boolean))
 import qualified Types as T (Instruction(..))
 import           Basement.Compat.Base (Int64)
 import qualified Data.Bifunctor
@@ -80,7 +79,8 @@ astToInst (List x) = listToInst (reverse x)
 astToInst (UnaryOp op eval) = astToInst eval ++ [unaryToInst op]
 astToInst (BinaryOp op n1 n2) =
   astToInst n2 ++ astToInst n1 ++ [binaryToInst op]
-astToInst (TernaryOp _ n1 n2 n3) = astToInst (IfBlock (n1, [n2]) [] (Just [n3]))
+astToInst (TernaryOp _ n1 n2 n3) = astToInst
+  (IfBlock (n1, [n2]) [] (Just [n3]))
 astToInst (Block block) = astListToInstructions block
 astToInst (FunctionCall name args) =
   concatMap astToInst (reverse args) ++ [PushSymbol name] ++ [Call]

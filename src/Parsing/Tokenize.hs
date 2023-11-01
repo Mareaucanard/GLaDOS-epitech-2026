@@ -64,8 +64,8 @@ parseStringToken = Constant . Str . flattenString
     (parseChar '"')
     (many (parseSomeChar allowedChars))
 
-parseNil :: Parser Token
-parseNil = Constant Nil <$ parseString "nil"
+-- parseNil :: Parser Token
+-- parseNil = Constant Nil <$ parseString "nil"
 
 parseConst :: Parser Token
 parseConst = parseFloat
@@ -73,7 +73,6 @@ parseConst = parseFloat
   <|> parseBoolean
   <|> parseCharToken
   <|> parseStringToken
-  <|> parseNil
 
 parseSymbol :: Parser Token
 parseSymbol = applySymbol <$> parseSomeChar asciiLetters
@@ -81,6 +80,7 @@ parseSymbol = applySymbol <$> parseSomeChar asciiLetters
   where
     asciiLetters = ['a' .. 'z'] ++ ['A' .. 'Z']
 
+    applySymbol 'n' "il" = Constant Nil
     applySymbol x xs = Sym (x:xs)
 
 parseBlank :: Parser Token

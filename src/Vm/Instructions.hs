@@ -10,7 +10,7 @@ exec
   :: Insts -> Stack -> Map.Map String Symbol -> Insts -> IO (StackValue, Stack)
 exec ((Push val):l) s vTab past = exec l (push s val) vTab (Push val:past)
 exec (Set:l) s vTab past = do
-  (nVTab, s') <- set s vTab l past
+  (nVTab, s') <- set s vTab
   exec l s' nVTab (Set:past)
 exec ((PushSymbol sym):l) s vTab past =
   exec l (pushSym s sym) vTab (PushSymbol sym:past)
@@ -75,25 +75,54 @@ exec (RET:_) [] _ _ = die "STACK ERROR INVALID RETURN"
 exec [] s _ _ = return (Flat (V Nil), s)
 exec ((Function _ _):_) _ _ _ = die "STACK ERROR FUNCTION IN EXEC"
 
-insertArgs :: [String] -> [FlatStack] -> VarMap -> VarMap
-insertArgs [] [] m = m
-insertArgs (x:xs) (y:ys) m = Map.insert x (Val y) (insertArgs xs ys m)
-insertArgs _ _ m = m
+insertArgs :: [String] -> [StackValue] -> VarMap -> Either String VarMap
+insertArgs [] [] m = Right m
+insertArgs (x:xs) (y:ys) m = case symFlatten y m of
+  Right v -> case insertArgs xs ys m of
+    Right m' -> Right $ Map.insert x v m'
+    Left e   -> Left e
+  Left e  -> Left e
+insertArgs _ _ m = Right m
+
+symReadRef :: [a] -> StackValue -> VarMap -> String -> Either String a
+symReadRef l ind m name = case flatten ind m of
+  Right (V (Integer i)) -> if length l > fi i
+                           then Right $ l !! fi i
+                           else Left $ "Index out of range for " ++ name
+  Left e -> Left e
+  _ -> Left "Invalid type for index"
+
+symFlatten :: StackValue -> VarMap -> Either String Symbol
+symFlatten (SymVM v) m = case Map.lookup v m of
+  Just x  -> Right x
+  Nothing -> Left $ "Undefined variable" ++ v
+symFlatten (Flat x) _ = Right (Val x)
+symFlatten (Ref name ind) m = case Map.lookup name m of
+  Just (Val (Tab x)) -> case symReadRef x ind m name of
+    Right x' -> Right (Val x')
+    Left e   -> Left e
+  Just (Val (V (Str x))) -> case symReadRef x ind m name of
+    Right new_x -> Right (Val (V (Char new_x)))
+    Left e      -> Left e
+  _ -> Left $ "Undefined variable" ++ name
+
+callFunc
+  :: [String] -> [Instruction] -> VarMap -> Stack -> IO (StackValue, Stack)
+callFunc args insts m s = case splitAt (length args) s of
+  (l, s') -> (if length l /= length args
+              then die "Not enough arguments for function"
+              else (case insertArgs args l m of
+                      Left e   -> die e
+                      Right m' -> exec insts [] m' []
+                        >>= \(rval, _) -> return (rval, s')))
 
 call :: Stack -> VarMap -> IO (StackValue, Stack)
 call stack m = case pop stack of
-  (SymVM func_name, tmp_stack) -> case Map.lookup func_name m of
+  (SymVM func_name, s') -> case Map.lookup func_name m of
     Nothing -> die $ "No function named " ++ show func_name
     Just (Val _) -> die $ show func_name ++ " is not a function"
-    Just (BuiltIn f) -> f tmp_stack m
-    Just (Func args insts) -> case popN tmp_stack m (length args) of
-      Left e -> die e
-      Right (final_stack, l) -> if length l /= length args
-                                then die "Not enough arguments for function"
-                                else f
-        where
-          f = exec insts final_stack (insertArgs args l m) []
-            >>= \(rval, _) -> return (rval, final_stack)
+    Just (BuiltIn f) -> f s' m
+    Just (Func args insts) -> callFunc args insts m s'
   (_, _) -> die "Bad function call, not a function"
 
 opStack
@@ -124,36 +153,35 @@ pop :: Stack -> (StackValue, Stack)
 pop [] = (Flat (V Nil), [])
 pop (x:xs) = (x, xs)
 
--- replace :: Value -> Int -> Value
--- replace (ListVM l) = ListVM l
--- replace v = v
-set :: Stack -> VarMap -> Insts -> Insts -> IO (VarMap, Stack)
-set s m i past = case pop s of
+setRef :: Either String FlatStack
+       -> [FlatStack]
+       -> Stack
+       -> VarMap
+       -> String
+       -> IO (VarMap, Stack)
+setRef (Left e) _ _ _ _ = die e
+setRef (Right (V (Integer flat_i))) l s m name =
+  if length l > fi flat_i
+  then case popN s m 1 of
+    Right (f_stack, [x]) -> return (Map.insert name (Val (Tab l')) m, f_stack)
+      where
+        l' = setAt l (fi flat_i) x
+    Right _ -> die "STACK ERROR"
+    Left e -> die e
+  else die $ "Index out of range for " ++ name
+setRef (Right _) _ _ _ name =
+  die $ "Can't subscript " ++ name ++ " not an index"
+
+set :: Stack -> VarMap -> IO (VarMap, Stack)
+set s m = case pop s of
   (SymVM sym, tmp_stack) -> case popN tmp_stack m 1 of
     Right (final_stack, [x]) -> return (Map.insert sym (Val x) m, final_stack)
     Left e -> die e
     _ -> die "STACK ERROR"
-  (Flat x, _) -> die
-    $ "Invalid stack SET, can't attribute to such type"
-    ++ typeOfVal x
-    ++ show s
-    ++ show i
-    ++ show past
-  (Ref name val, tmp_stack) -> case Map.lookup name m of
+  (Flat _, _) -> die "Invalid stack SET, can't attribute to such type"
+  (Ref name val, s') -> case Map.lookup name m of
     Nothing -> die $ "Undefined variable" ++ name
-    Just (Val (Tab l)) -> case flatten val m of
-      Left e -> die e
-      Right (V (Integer flat_i))
-        -> if length l > fi flat_i
-           then case popN tmp_stack m 1 of
-             Right (f_stack, [x]) -> return
-               (Map.insert name (Val (Tab l')) m, f_stack)
-               where
-                 l' = setAt l (fi flat_i) x
-             Right _ -> die "STACK ERROR"
-             Left e -> die e
-           else die $ "Index out of range for " ++ name
-      Right _ -> die $ "Can't subscript " ++ name ++ " not an index"
+    Just (Val (Tab l)) -> setRef (flatten val m) l s' m name
     Just _ -> die $ name ++ " is not a list"
 
 setAt :: [a] -> Int -> a -> [a]
@@ -208,7 +236,6 @@ opMul (V (Integer x)) (V (Integer y)) = Just $ V (Integer (x * y))
 opMul (V (Float x)) (V (Integer y)) = Just $ V (Float (x * fi y))
 opMul (V (Integer x)) (V (Float y)) = Just $ V (Float (fi x * y))
 opMul (V (Float x)) (V (Float y)) = Just $ V (Float (x * y))
-
 opMul _ _ = Nothing
 
 opDiv :: FlatStack -> FlatStack -> Maybe FlatStack

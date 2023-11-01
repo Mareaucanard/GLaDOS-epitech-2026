@@ -25,7 +25,7 @@ False
 nil
 'h'
 Hello, world!
-[This, is, a, string, list]"""
+["This", "is", "a", "string", "list"]"""
 
 loops_output = "\n".join(str(x) for x in range(10))
 
