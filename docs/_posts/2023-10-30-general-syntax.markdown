@@ -6,7 +6,8 @@ categories: syntax
 ---
 ### In this part of the documentation, we will go through the general syntax of the GLaDOS language. This includes the following:
 - Types
-- Operators
+- Logical operators
+- Arithmetic operators
 - Conditional statements
 - Loops
 - Functions
