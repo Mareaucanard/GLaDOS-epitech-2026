@@ -1,0 +1,33 @@
+---
+layout: post
+title:  "Usage GLaDOS"
+date:   2023-10-23 15:22:07 +0200
+categories: setupUsage
+---
+This is the `Usage` page of the glados documentation.
+
+Once you have your `glados` binary, you can use it with different flags for different usage:
+
+./glados `MODE` input_file [-o output_file]"
+
+`Modes`:
+
+- --compile:    compiles the file to byte code
+
+- --exec:       executes a bytecode program
+
+- --human:      compiles and prints the list of instructions
+
+- --decode:     reads bytecode and prints the list of instructions
+
+- --lisp:       uses a lisp interpreter
+
+
+`input_file`:
+
+ you can pass 'stdin' as the input file
+
+
+`output_file`:
+
+ you can pass 'stdout' as the output file
