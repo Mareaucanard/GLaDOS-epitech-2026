@@ -8,7 +8,7 @@ env:
 
 jobs:
   compile:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latestubuntu:20.04
     container: someone2love/glados_build_env:latest
 
     steps:
@@ -18,12 +18,13 @@ jobs:
       run: |
         chown -R $(id -un):$(id -gn) ~
 
-    - name: run_tests
-      run: make tests
-
     - name: compile
       run: |
         make build
+
+    - name: run_tests
+      run: make tests
+
 
     - uses: actions/upload-artifact@v2
       with:
