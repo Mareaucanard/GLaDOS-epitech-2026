@@ -1,0 +1,19 @@
+function mean(l) {
+    sum = 0;
+    size = l.len();
+    if (size == 0) {
+        return nil;
+    }
+    for (i = 0; i < size; i = i + 1) {
+        sum = sum + l[i];
+    }
+    return round(sum / float(size));
+}
+
+function get_randrange() {
+    return randrange(0, 10);
+}
+
+x = nils(5000);
+x = x.map(get_randrange);
+print(mean(x));

@@ -23,7 +23,7 @@ class TestFile:
     def run(self):
         self.has_ran = True
         try:
-            res = subprocess.run(["./glados", self.folder + self.filename ] + self.options, capture_output=True, timeout=2, stdin=subprocess.DEVNULL)
+            res = subprocess.run(["./glados", self.folder + self.filename ] + self.options, capture_output=True, timeout=10, stdin=subprocess.DEVNULL)
         except subprocess.TimeoutExpired as e:
             self.timed_out = True
             return

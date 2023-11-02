@@ -1,0 +1,15 @@
+function time_call(f) {
+    start = time();
+    f();
+    end = time();
+
+    seconds = end - start;
+    time_str = str(seconds);
+    print(time_str);
+}
+
+function x() {
+    sleep(2);
+}
+
+time_call(x);

@@ -37,6 +37,7 @@ dependencies:
 - split
 - extra
 - clock
+- MissingH
 
 ghc-options:
 - -Wall

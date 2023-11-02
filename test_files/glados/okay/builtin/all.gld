@@ -1,0 +1,7 @@
+l1 = [True, False];
+l2 = [False, False];
+l3 = [True, True];
+l4 = [];
+x = [l1, l2, l3, l4];
+x = x.map(all);
+print(x);

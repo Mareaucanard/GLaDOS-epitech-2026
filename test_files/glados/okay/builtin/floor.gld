@@ -1,0 +1,2 @@
+print(floor(1.2));
+print(floor(1.7));

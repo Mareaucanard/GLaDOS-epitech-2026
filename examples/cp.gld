@@ -1,4 +1,4 @@
-if (len(vargs) != 2) {
+if (len(vargs) != 2) { // vargs doesn't contain the program name
     v = str(len(vargs));
     throw("cp takes 2 arguments, but " + v + " were given.");
 }
@@ -8,7 +8,9 @@ target = vargs[1];
 in = open(source, 'r');
 out = open(target, 'w');
 
-line = in.read();
+line = in.read(); /* Is the same as
+    line = read(in);
+*/
 while (line != nil) {
     out.write(line);
     out.write("\n");

@@ -27,6 +27,13 @@ nil
 Hello, world!
 ["This", "is", "a", "string", "list"]"""
 
+typeof_res = """string
+char
+list
+integer
+float
+nil"""
+
 loops_output = "\n".join(str(x) for x in range(10))
 
 fileList = [
@@ -59,8 +66,43 @@ fileList = [
 
     GladosFile("okay/factorial.gld", output="3628800"),
     GladosFile("okay/factorial_ternary.gld", output="3628800"),
-    GladosFile("okay/sort.gld", output="[1, 3, 4, 5, 12]")
+    GladosFile("okay/sort.gld", output="[1, 3, 4, 5, 12]"),
 
+    GladosFile("okay/builtin/acos.gld", output="0.0"),
+    GladosFile("okay/builtin/all.gld", output="[False, False, True, True]"),
+    GladosFile("okay/builtin/any.gld", output="[True, False, True, False]"),
+    GladosFile("okay/builtin/append.gld", output="[0, 1, 2, 3]"),
+    GladosFile("okay/builtin/asin.gld", output="0.0"),
+    GladosFile("okay/builtin/atan.gld", output="0.0"),
+    GladosFile("okay/builtin/ceil.gld", output="2\n2"),
+    GladosFile("okay/builtin/concat.gld", output="Hello World"),
+    GladosFile("okay/builtin/cos.gld", output="1.0"),
+    GladosFile("okay/builtin/exp.gld", output="1.0"),
+    GladosFile("okay/builtin/float.gld", output="0.5"),
+    GladosFile("okay/builtin/floor.gld", output="1\n1"),
+    GladosFile("okay/builtin/head.gld", output="0"),
+    GladosFile("okay/builtin/int.gld", output="2"),
+    GladosFile("okay/builtin/join.gld", output="Hello World"),
+    GladosFile("okay/builtin/len.gld", output="10"),
+    GladosFile("okay/builtin/log.gld", output="1.0"),
+    GladosFile("okay/builtin/map.gld", output="[0, 1, 4, 9, 16]"),
+    GladosFile("okay/builtin/nils.gld", output="[nil, nil, nil]"),
+    GladosFile("okay/builtin/prepend.gld", output="[-1, 0, 1, 2]"),
+    GladosFile("okay/builtin/rand.gld", output="5"),
+    GladosFile("okay/builtin/randrange.gld", output="5"),
+    GladosFile("okay/builtin/range.gld", output="[0, 1, 2]"),
+    GladosFile("okay/builtin/reverse.gld", output="dlrow olleH"),
+    GladosFile("okay/builtin/round.gld", output="1\n2"),
+    GladosFile("okay/builtin/sin.gld", output="0.0"),
+    GladosFile("okay/builtin/split.gld", output="[\"Hello,\", \"world!\"]"),
+    GladosFile("okay/builtin/sqrt.gld", output="4.0"),
+    GladosFile("okay/builtin/string.gld", output="11"),
+    GladosFile("okay/builtin/tail.gld", output="[1, 2, 3, 4]"),
+    GladosFile("okay/builtin/tan.gld", output="0.0"),
+    GladosFile("okay/builtin/throw.gld", output="", expected_in_error=["Throw test"], expected_code = 1),
+    GladosFile("okay/builtin/typeof.gld", output=typeof_res),
+    GladosFile("okay/builtin/uniform.gld", output="5"),
+    GladosFile("okay/builtin/vargs.gld", output="[]"),
 
 ] + lispFileList
 

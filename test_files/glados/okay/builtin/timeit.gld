@@ -1,0 +1,23 @@
+function prepend_zeros(l, n) {
+    while (len(l) < n) {
+        l = l.prepend('0');
+    }
+    return l;
+}
+
+function time_call(f) {
+    start = timeit();
+    f();
+    end = timeit();
+
+    seconds = end[0] - start[0];
+    nano_seconds = end[1] - start[1];
+    time_str = str(seconds) + "." + prepend_zeros(str(nano_seconds), 9);
+    print(time_str);
+}
+
+function x() {
+    sleep(1.2);
+}
+
+time_call(x);
