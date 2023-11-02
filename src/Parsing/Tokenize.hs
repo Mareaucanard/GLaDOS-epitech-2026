@@ -48,11 +48,11 @@ parseCharToken = Constant . Char
 
 flattenString :: String -> String
 flattenString [] = []
-flattenString ('\\':'\\':xs) = '\\' : flattenString xs
-flattenString ('\\':'n':xs) = '\n' : flattenString xs
-flattenString ('\\':'t':xs) = '\t' : flattenString xs
-flattenString ('\\':'r':xs) = '\r' : flattenString xs
-flattenString (x:xs) = x : flattenString xs
+flattenString ('\\':'\\':xs) = '\\':flattenString xs
+flattenString ('\\':'n':xs) = '\n':flattenString xs
+flattenString ('\\':'t':xs) = '\t':flattenString xs
+flattenString ('\\':'r':xs) = '\r':flattenString xs
+flattenString (x:xs) = x:flattenString xs
 
 allowedChars :: [Char]
 allowedChars = [' ', '!', '\n', '\t'] ++ ['#' .. '~']
@@ -64,11 +64,17 @@ parseStringToken = Constant . Str . flattenString
     (parseChar '"')
     (many (parseSomeChar allowedChars))
 
--- parseNil :: Parser Token
--- parseNil = Constant Nil <$ parseString "nil"
+parseUntil :: Char -> Parser Token
+parseUntil c = Parser $ \str -> Just (Blank, dropWhile (/= c) str)
+
+parseComment :: Parser Token
+parseComment = f <$> parseString "//" <*> parseUntil '\n'
+  where
+    f _ _ = Blank
 
 parseConst :: Parser Token
-parseConst = parseFloat
+parseConst = parseComment
+  <|> parseFloat
   <|> parseInteger
   <|> parseBoolean
   <|> parseCharToken
