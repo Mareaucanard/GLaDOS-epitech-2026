@@ -1,0 +1,30 @@
+function is_prime(x) {
+    if (typeOf(x) != "integer" or x <= 1) {
+        return False;
+    }
+    end = int(sqrt(x)) + 1;
+
+    for (n = 2; n < end; n = n + 1) {
+        if (x % n == 0) {
+            return False;
+        }
+    }
+    return True;
+}
+
+n = 200;
+x = [];
+
+for (i = 1; i < n; i = i + 1) {
+    x = x.append(i);
+}
+
+are_primes = x.map(is_prime);
+
+for (i = 0; i < x.len() and i < are_primes.len(); i = i + 1) {
+    if (are_primes[i]) {
+        print(str(x[i]) + " is prime");
+    } else {
+        print(str(x[i]) + " is not prime");
+    }
+}

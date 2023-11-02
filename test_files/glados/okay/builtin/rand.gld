@@ -1,0 +1,16 @@
+function mean(l) {
+    sum = 0;
+    size = l.len();
+    if (size == 0) {
+        return nil;
+    }
+    for (i = 0; i < size; i = i + 1) {
+        sum = sum + l[i];
+    }
+    return round(10 * sum / float(size));
+}
+
+
+x = nils(5000);
+x = x.map(rand);
+print(mean(x));

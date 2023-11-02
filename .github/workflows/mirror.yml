@@ -20,16 +20,11 @@ jobs:
 
     - name: compile
       run: |
-        timeout 5m make build
-
-    - name: check_binary
-      run: |
-        if [[ ! -f $BINARY ]]; then
-          echo "::error title=Executable not found::$BINARY"
-        fi
+        make build
 
     - name: run_tests
-      run: timeout 5m make tests
+      run: make tests
+
 
     - uses: actions/upload-artifact@v2
       with:

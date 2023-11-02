@@ -1,8 +1,7 @@
 module Instructions.AstToInstructions (astListToInstructions) where
 
 import           Types (Ast(..), UnaryOperator(..), BinaryOperator(..)
-                      , Instruction(..), TernaryOperator(TernaryGate), IfType
-                      , Value(Boolean))
+                      , Instruction(..), IfType, Value(Boolean))
 import qualified Types as T (Instruction(..))
 import           Basement.Compat.Base (Int64)
 import qualified Data.Bifunctor
@@ -26,9 +25,6 @@ binaryToInst GreaterEq = GET
 binaryToInst NotEq = NEQ
 binaryToInst BoolAnd = AND
 binaryToInst BoolOr = OR
-
-ternaryToInst :: TernaryOperator -> Instruction
-ternaryToInst TernaryGate = TERNARY
 
 fi :: Int -> Int64
 fi = fromIntegral
@@ -79,12 +75,12 @@ ifsToInst ifs (Just block) =
 astToInst :: Ast -> [Instruction]
 astToInst (Symbol s) = [PushSymbol s]
 astToInst (Const c) = [Push c]
-astToInst (List x) = listToInst x
+astToInst (List x) = listToInst (reverse x)
 astToInst (UnaryOp op eval) = astToInst eval ++ [unaryToInst op]
 astToInst (BinaryOp op n1 n2) =
   astToInst n2 ++ astToInst n1 ++ [binaryToInst op]
-astToInst (TernaryOp op n1 n2 n3) =
-  astToInst n3 ++ astToInst n2 ++ astToInst n1 ++ [ternaryToInst op]
+astToInst (TernaryOp _ n1 n2 n3) = astToInst
+  (IfBlock (n1, [n2]) [] (Just [n3]))
 astToInst (Block block) = astListToInstructions block
 astToInst (FunctionCall name args) =
   concatMap astToInst (reverse args) ++ [PushSymbol name] ++ [Call]

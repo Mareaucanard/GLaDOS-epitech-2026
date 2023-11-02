@@ -1,0 +1,8 @@
+function is_prime(x) {
+    if (x % 2 == 0) {
+
+    }
+    return True;
+}
+
+print(is_prime(x) + 1);

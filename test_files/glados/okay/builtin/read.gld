@@ -1,0 +1,4 @@
+f = open("test_files/glados/okay/builtin", 'r');
+
+line = f.read();
+print(line);
