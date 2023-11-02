@@ -1,5 +1,6 @@
 from LISP.Functional import TestFile, lispFileList
 from sys import argv
+from multiprocessing import Pool
 try:
     from termcolor import colored
 except ModuleNotFoundError:
@@ -99,7 +100,8 @@ fileList = [
     GladosFile("okay/builtin/string.gld", output="11"),
     GladosFile("okay/builtin/tail.gld", output="[1, 2, 3, 4]"),
     GladosFile("okay/builtin/tan.gld", output="0.0"),
-    GladosFile("okay/builtin/throw.gld", output="", expected_in_error=["Throw test"], expected_code = 1),
+    GladosFile("okay/builtin/throw.gld",
+               expected_in_error=["Throw test"], expected_code=1),
     GladosFile("okay/builtin/typeof.gld", output=typeof_res),
     GladosFile("okay/builtin/uniform.gld", output="5"),
     GladosFile("okay/builtin/vargs.gld", output="[]"),
@@ -107,13 +109,16 @@ fileList = [
 ] + lispFileList
 
 
+skipGood = "--skip-good" in argv
+
+
+def handle_file(file):
+    file.run()
+    return file.checkResult(skipGood)
+
 def main():
-    skipGood = "--skip-good" in argv
-    success_count = 0
-    for file in fileList:
-        file.run()
-        if (file.checkResult(skipGood)):
-            success_count += 1
+    with Pool() as p:
+        success_count = sum(p.map(handle_file, fileList))
     if (success_count == len(fileList)):
         print(
             colored(f"{success_count}/{success_count} test passed", "light_green"))
