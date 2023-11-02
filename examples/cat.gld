@@ -1,0 +1,24 @@
+function echo_stdin() {
+    line = input();
+    while (line != nil) {
+        print(line);
+        line = input();
+    }
+}
+
+function echo_file(filename) {
+    f = open(filename, 'r');
+    line = f.read();
+    while (line != nil) {
+        print(line);
+        line = f.read();
+    }
+}
+
+if (len(vargs) == 0) {
+    echo_stdin();
+} else {
+    for (i = 0; i < vargs.len(); i = i + 1) {
+        echo_file(vargs[i]);
+    }
+}

@@ -1,0 +1,10 @@
+function f(x) {
+    print(typeOf(x));
+}
+f("Hello");
+f('h');
+f([]);
+f(1);
+f(1.2);
+f(nil);
+

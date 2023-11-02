@@ -1,6 +1,6 @@
 # GLaDOS
 ## Epitech Project GLaDOS for promo 2026
-<img src="./assets/glados.png" width="200" height="200" align="right"/>
+<img src="./docs/assets/img/glados.png" width="200" height="200" align="right"/>
 
 ### Made by:
 * Adélaïde CHANTEUX

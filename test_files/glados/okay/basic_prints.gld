@@ -1,0 +1,17 @@
+print(0);
+print(1);
+print(-1);
+
+print(1.0);
+print(-1.0);
+print(0.0);
+
+print(True);
+print(False);
+
+print(nil);
+
+print('h');
+print("Hello, world!");
+
+print(["This", "is", "a", "string", "list"]);

@@ -1,0 +1,3 @@
+f = open("write_test.txt", 'w');
+f.write("Hello, world!\n");
+f.close();

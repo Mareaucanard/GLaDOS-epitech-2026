@@ -1,0 +1,19 @@
+function mean(l) {
+    sum = 0;
+    size = l.len();
+    if (size == 0) {
+        return nil;
+    }
+    for (i = 0; i < size; i = i + 1) {
+        sum = sum + l[i];
+    }
+    return round(sum / size);
+}
+
+function get_uniform() {
+    return uniform(0, 10);
+}
+
+x = nils(1000);
+x = x.map(get_uniform);
+print(mean(x));

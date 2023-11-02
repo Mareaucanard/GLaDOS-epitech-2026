@@ -7,8 +7,8 @@ import           Data.ByteString.Unsafe (unsafeIndex)
 import           Data.ByteString (ByteString)
 import           Data.Word (Word8, Word64)
 import           Basement.Floating (wordToDouble)
-import           Data.IntCast
-import           Data.Bits
+import           Data.IntCast (intCastIso)
+import           Data.Bits (Bits((.|.), unsafeShiftL))
 
 getN :: ByteString -> Int -> Maybe (ByteString, ByteString)
 getN l 0 = Just (l, BS.empty)
@@ -26,7 +26,7 @@ toWord64Le s = (fromIntegral (s `unsafeIndex` 7) `unsafeShiftL` 56)
   .|. (fromIntegral (s `unsafeIndex` 3) `unsafeShiftL` 24)
   .|. (fromIntegral (s `unsafeIndex` 2) `unsafeShiftL` 16)
   .|. (fromIntegral (s `unsafeIndex` 1) `unsafeShiftL` 8)
-  .|. (fromIntegral (s `unsafeIndex` 0))
+  .|. fromIntegral (s `unsafeIndex` 0)
 
 getWord64Le :: ByteString -> Maybe (ByteString, Word64)
 getWord64Le bs = case getN bs 8 of
@@ -152,7 +152,6 @@ analyzeByte 19 bs = Just (OR, bs)
 analyzeByte 20 bs = Just (NOT, bs)
 analyzeByte 21 bs = handleList bs
 analyzeByte 22 bs = Just (RET, bs)
-analyzeByte 23 bs = Just (TERNARY, bs)
 analyzeByte 24 bs = handleIndex bs
 analyzeByte 25 bs = Just (NEGATIVE, bs)
 analyzeByte _ _ = Nothing

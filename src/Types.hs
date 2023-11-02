@@ -108,7 +108,6 @@ data Instruction =
   | GT
   | GET
   | NEGATIVE
-  | TERNARY
   | RET
   | LIST Int64
   | INDEX String
