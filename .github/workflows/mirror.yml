@@ -8,7 +8,7 @@ env:
 
 jobs:
   compile:
-    runs-on: ubuntu-latestubuntu:20.04
+    runs-on: ubuntu-20.04
     container: someone2love/glados_build_env:latest
 
     steps:
