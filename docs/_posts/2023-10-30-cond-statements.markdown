@@ -4,7 +4,7 @@ title:  "Conditional statements"
 date:   2023-10-23 15:22:07 +0200
 categories: syntax
 ---
-In the GLaDOS language, you can express a conditional statement in the following way:
+### In the GLaDOS language, you can express a conditional statement in the following way:
 {% highlight BackusNaur %}
 <if-statement> ::= 'if' (<expression>) { <statement> }
 {% endhighlight %}
@@ -19,4 +19,18 @@ The `else` clause is executed if the expression evaluates to `False`.
 Finaly, the `if` statement can be expressed with an `else if` clause:
 {% highlight BackusNaur %}
 <if-statement> ::= 'if' (<expression>) { <statement> } 'else if' (<expression>) { <statement> }
+{% endhighlight %}
+
+#### An expression must evaluate to a boolean value (True or False), if not, it will systematically evaluate to False.
+
+#### Example:
+{% highlight GLaDOS %}
+if (1 == 1) {
+    print("1 is equal to 1");
+}
+{% endhighlight %}
+
+#### Output:
+{% highlight bash %}
+1 is equal to 1
 {% endhighlight %}

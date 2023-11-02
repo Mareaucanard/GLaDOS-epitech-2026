@@ -12,3 +12,5 @@ categories: syntax
 - Loops
 - Functions
 - Comments
+
+#### You will notice that our implementation of the GLaDOS language looks quite similar to the C programming language. Our language borrows part of the C programming language separators, keywords, etc... There is still some elements of it that display a clear difference to the C programming language, like the fact that variables are not typed, or that a lot of C's standard library are builtin functions in GLaDOS.
