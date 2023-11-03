@@ -11,6 +11,7 @@ To start of, this project is to be run on a `Linux` system.
 
 The list of requirement for this project is :
 - docker
+- make
 
 Use the command `make` to build the project.
 You should get a binary called `glados`
