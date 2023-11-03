@@ -1,4 +1,4 @@
-FROM fedora:latest
+FROM fedora:37
 
 RUN dnf install -y stack
 RUN dnf install -y make
@@ -7,6 +7,8 @@ RUN dnf install -y g++
 RUN dnf install -y gcc-c++
 RUN dnf install -y gcc-gfortran
 RUN dnf install -y nodejs
+RUN dnf install -y glibc-devel
+RUN dnf install -y gcc
 
 RUN stack setup --resolver lts-21.12
 
