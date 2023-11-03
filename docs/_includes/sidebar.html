@@ -1,9 +1,4 @@
 <sidebar class="site-sidebar h-card">
-    <categories>Intro:</categories>
-        {%- for post in site.categories.intro -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
     <categories>Setup and usage:</categories>
         {%- for post in site.categories.setupUsage -%}
             <a class="post-link" href="{{ post.url | relative_url }}">
