@@ -13,4 +13,4 @@ Our developpement team is constituted of 5 students:
 
 This documentation was entirely made with Jekyll (and with love)!
 
-Dont hesitate to visit our repo [HERE](https://github.com/EpitechPromo2026/B-FUN-500-TLS-5-1-glados-matthieu.fraiz)!
+Dont hesitate to visit our repo [HERE](https://github.com/Mareaucanard/GLaDOS-epitech-2026)!

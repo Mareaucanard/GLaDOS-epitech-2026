@@ -13,5 +13,5 @@ The list of requirement for this project is :
 - docker
 - make
 
-Use the command `make` to build the project.
+Use the command `make` to build the project with docker, use `make build` to build outside docker *(this may require aditional dependencies)*.
 You should get a binary called `glados`

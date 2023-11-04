@@ -20,10 +20,11 @@
 
 title: GLaDOS Epitech 2023 Documentation
 email: matthieu.fraiz@epitech.eu
+github: https://github.com/Mareaucanard/GLaDOS-epitech-2026
 description: |
   This web documentation contains info and basic tutorials on
   how to use our coding language for EPITECH's GLaDOS project.
-  Don't hesitate to visit our [about] page to get more info about
+  Don't hesitate to visit our about page to get more info about
   our developpement team!
 
 # Build settings
