@@ -19,9 +19,13 @@ categories: syntax
 {% highlight BackusNaur %}
 <char> ::= 'An ascii character'
 {% endhighlight %}
-* `string` - A string of characters terminated by a null character
+* `string` - A string of characters
 {% highlight BackusNaur %}
-<string> ::= 'An array of ascii characters' 'Null character'
+<string> ::= 'An array of ascii characters between double quotes'
+{% endhighlight %}
+* `array` - An array of values regardless of type
+{% highlight BackusNaur %}
+<array> ::= { <value> ',' <value> }
 {% endhighlight %}
 * `bool` - A boolean value
 {% highlight BackusNaur %}
