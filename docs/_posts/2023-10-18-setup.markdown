@@ -8,6 +8,7 @@ This is the `Setup` page of the glados documentation.
 
 To start of, this project is to be run on a `Linux` system.
 
+First of, go on our [Releases](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases), and download the `glados-bin`
 
 The list of requirement for this project is :
 - docker
