@@ -1,9 +1,11 @@
 ---
 layout: post
-title:  "lists"
+title:  "lists and strings"
 date:   2023-10-23 15:22:07 +0200
 categories: builtin
 ---
+
+### Lists
 
 - `concat` - takes a list of strings or a list of lists and concatenates them into a single string or list.
 {% highlight GLaDOS %}
@@ -58,4 +60,21 @@ nils(integer);
 - `append` - takes a list and a value, returns a list with the value appended.
 {% highlight GLaDOS %}
 append(list, value);
+{% endhighlight %}
+
+### Strings
+
+- `reverse` - takes a string and returns a string with the characters in reverse order.
+{% highlight GLaDOS %}
+reverse(string);
+{% endhighlight %}
+
+- `split` - takes a string and a separator, returns a list of strings.
+{% highlight GLaDOS %}
+split(separator, string);
+{% endhighlight %}
+
+- `join` - takes a list of strings and a separator, returns a string.
+{% highlight GLaDOS %}
+join(separator, list);
 {% endhighlight %}
