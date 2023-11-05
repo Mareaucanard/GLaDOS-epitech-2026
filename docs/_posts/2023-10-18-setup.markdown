@@ -4,15 +4,22 @@ title:  "Setup GLaDOS"
 date:   2023-10-23 15:22:07 +0200
 categories: setupUsage
 ---
-This is the `Setup` page of the glados documentation.
+<!-- ### This is the `Setup` page of the glados documentation. -->
 
-To start of, this project is to be run on a `Linux` system.
+#### To start of, this project is to be run on a `Linux` system.
 
-First of, go on our [Releases](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases), and download the `glados-bin`
+#### You can either choose to download the binary, or build it yourself.
+
+Here is our [Releases](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases) github page, you can find the latest build of `glados-bin`, download and run it.
+
+#### If you want to build it yourself, you can follow the instructions below.
 
 The list of requirement for this project is :
 - docker
 - make
 
-Use the command `make` to build the project with docker, use `make build` to build outside docker *(this may require aditional dependencies)*.
-You should get a binary called `glados`
+First, you should download or clone the repo with the command `git clone` followed by the repo url.
+
+Use the command `make` at the root of the cloned repo to build the project with docker, use `make build` to build outside docker *(this may require aditional dependencies)*.
+
+You should get a binary called `glados`!
