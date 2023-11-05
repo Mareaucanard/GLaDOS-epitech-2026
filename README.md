@@ -13,7 +13,7 @@
 
 ### You can read our extensive documentation [HERE](https://mareaucanard.github.io/GLaDOS-epitech-2026/) 
 
-### [Release](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases)
+### You can also go to out release page [HERE](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases)
 
 #
 
