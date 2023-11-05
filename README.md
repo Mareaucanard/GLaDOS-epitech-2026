@@ -21,8 +21,7 @@
 
 ### This project is part of the 3rd year epitech bachelor's curriculum.
 
-### The project aims to create a LISP language interpreter in the haskell coding language.
-
+### The project aims to create a coding language and a virtual machine to execute it's compiled programs.
 <!-- Have more vertical space here for readability -->
 
 # Build guide:
