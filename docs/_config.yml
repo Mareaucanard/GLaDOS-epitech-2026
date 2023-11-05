@@ -33,7 +33,7 @@ plugins:
   - jekyll-feed
 
 # This is to prevent the date to be shown in the url as it is not actually used.
-permalink: GLaDOS-epitech-2026/posts/:title
+permalink: /posts/:title
 
 url: https://github.com/Mareaucanard/GLaDOS-epitech-2026
 baseurl: /GLaDOS-epitech-2026/
