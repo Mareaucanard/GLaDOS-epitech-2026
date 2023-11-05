@@ -1,22 +1,20 @@
 <sidebar class="site-sidebar h-card">
     <categories>Setup and usage:</categories>
-        {%- for post in site.categories.setupUsage -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
+        <a class="post-link" href="{% post_url 2023-10-18-setup %}">Setup GLaDOS</a>
+        <a class="post-link" href="{% post_url 2023-10-30-usage %}">Usage GLaDOS</a>
     <categories>Language syntax:</categories>
-        {%- for post in site.categories.syntax -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
+        <a class="post-link" href="{% post_url 2023-10-30-general-syntax %}">Syntax introduction</a>
+        <a class="post-link" href="{% post_url 2023-10-18-arithmetical-operators %}">Arithmetical operators</a>
+        <a class="post-link" href="{% post_url 2023-10-18-logical-operators %}">Logical operators</a>
+        <a class="post-link" href="{% post_url 2023-10-18-types %}">Data types</a>
+        <a class="post-link" href="{% post_url 2023-10-30-cond-statements %}">Conditional statements</a>
+        <a class="post-link" href="{% post_url 2023-10-30-functions %}">Functions definitions and expression</a>
+        <a class="post-link" href="{% post_url 2023-10-30-loops %}">Loops</a>
     <categories>Builtin functions:</categories>
         {%- for post in site.categories.builtin -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
+        <a class="post-link" href="{{ post.url | relative_url }}">
+        {{ post.title | escape }}</a>
         {%- endfor -%}
     <categories>Bytecode and instructions:</categories>
-        {%- for post in site.categories.bytecode -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
+        <a class="post-link" href="{% post_url 2023-10-18-instructions %}">HowTo Bytetcode</a>
 </sidebar>
