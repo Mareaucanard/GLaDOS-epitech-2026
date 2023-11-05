@@ -11,6 +11,8 @@
 
 #
 
+### You can read our extensive documentation [HERE](https://mareaucanard.github.io/GLaDOS-epitech-2026/) 
+
 ### [Release](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases)
 
 #
@@ -38,6 +40,5 @@ make
 That's it!
 You can now run the program with `./glados`
 
-## On Windows:
-// Todo //
-
+<!-- ## On Windows:
+// Todo // -->
