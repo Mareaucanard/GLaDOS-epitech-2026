@@ -1,22 +1,20 @@
 <sidebar class="site-sidebar h-card">
-    <categories>Intro:</categories>
-        {%- for post in site.categories.intro -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
     <categories>Setup and usage:</categories>
-        {%- for post in site.categories.setupUsage -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
+        <a class="post-link" href="{{ site.baseurl }}posts/setup">Setup GLaDOS</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/usage">Usage GLaDOS</a>
     <categories>Language syntax:</categories>
-        {%- for post in site.categories.syntax -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/general-syntax">Syntax introduction</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/arithmetical-operators">Arithmetical operators</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/logical-operators">Logical operators</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/types">Data types</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/cond-statements">Conditional statements</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/functions">Functions definitions and expression</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/loops">Loops</a>
+    <categories>Builtin functions:</categories>
+        {%- for post in site.categories.builtin -%}
+        <a class="post-link" href="{{ post.url | relative_url }}">
+        {{ post.title | escape }}</a>
         {%- endfor -%}
-    <categories>Bytecode and instructions:</categories>
-        {%- for post in site.categories.bytecode -%}
-            <a class="post-link" href="{{ post.url | relative_url }}">
-            {{ post.title | escape }}</a>
-        {%- endfor -%}
+    <!-- <categories>Bytecode and instructions:</categories>
+        <a class="post-link" href="{% post_url 2023-10-18-instructions %}">HowTo Bytetcode</a> -->
 </sidebar>

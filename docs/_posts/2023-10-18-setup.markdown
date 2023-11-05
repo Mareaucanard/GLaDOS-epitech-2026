@@ -4,23 +4,22 @@ title:  "Setup GLaDOS"
 date:   2023-10-23 15:22:07 +0200
 categories: setupUsage
 ---
-This is a test `post`.
-I will not be using posts as actual posts but rather a way to write documentation for the project regardless of time/date/etc...
+<!-- ### This is the `Setup` page of the glados documentation. -->
 
-`YEAR-MONTH-DAY-title.MARKUP` is consequently quite a stupid naming system considering I dont really care about the date of the documentation.
+#### To start of, this project is to be run on a `Linux` system.
 
-This is a jekyll snippet that i am keeping for reference:
+#### You can either choose to download the binary, or build it yourself.
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
-{% endhighlight %}
+Here is our [Releases](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases) github page, you can find the latest build of `glados-bin`, download and run it.
 
-[jekyll-docs]: https://jekyllrb.com/docs/home
-[jekyll-gh]:   https://github.com/jekyll/jekyll
-[jekyll-talk]: https://talk.jekyllrb.com/
+#### If you want to build it yourself, you can follow the instructions below.
 
-(theses are reference too)
+The list of requirement for this project is :
+- docker
+- make
+
+First, you should download or clone the repo with the command `git clone` followed by the repo url.
+
+Use the command `make` at the root of the cloned repo to build the project with docker, use `make build` to build outside docker *(this may require aditional dependencies)*.
+
+You should get a binary called `glados`!

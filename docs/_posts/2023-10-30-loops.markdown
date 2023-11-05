@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "Loops"
+date:   2023-10-23 15:22:07 +0200
+categories: syntax
+---
+In the GLaDOS language, you can express a loop in the following way:
+{% highlight BackusNaur %}
+<while> ::= 'while' (<expression>) { <statement> }
+{% endhighlight %}
+The `while` keyword is followed by an expression, which is then followed by a block of statements. The block of statements is executed while the expression evaluates to `True`. If the expression evaluates to `False`, the block of statements is skipped.
+
+You can also express a loop with the `for` keyword:
+{% highlight BackusNaur %}
+<for> ::= 'for' (<range>) { <statement> }
+{% endhighlight %}
+The `for` keyword is followed by a range, which is then followed by a block of statements. The block of statements is executed for each value in the range.

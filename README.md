@@ -11,7 +11,9 @@
 
 #
 
-### [Release](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases)
+### You can read our extensive documentation [HERE](https://mareaucanard.github.io/GLaDOS-epitech-2026/) 
+
+### You can also go to out release page [HERE](https://github.com/Mareaucanard/GLaDOS-epitech-2026/releases)
 
 #
 
@@ -19,8 +21,7 @@
 
 ### This project is part of the 3rd year epitech bachelor's curriculum.
 
-### The project aims to create a LISP language interpreter in the haskell coding language.
-
+### The project aims to create a coding language and a virtual machine to execute it's compiled programs.
 <!-- Have more vertical space here for readability -->
 
 # Build guide:
@@ -38,6 +39,5 @@ make
 That's it!
 You can now run the program with `./glados`
 
-## On Windows:
-// Todo //
-
+<!-- ## On Windows:
+// Todo // -->
