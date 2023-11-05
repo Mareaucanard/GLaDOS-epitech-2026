@@ -1,15 +1,15 @@
 <sidebar class="site-sidebar h-card">
     <categories>Setup and usage:</categories>
         <a class="post-link" href="{{ site.baseurl }}posts/setup">Setup GLaDOS</a>
-        <a class="post-link" href="{% post_url 2023-10-30-usage %}">Usage GLaDOS</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/usage">Usage GLaDOS</a>
     <categories>Language syntax:</categories>
-        <a class="post-link" href="{% post_url 2023-10-30-general-syntax %}">Syntax introduction</a>
-        <a class="post-link" href="{% post_url 2023-10-18-arithmetical-operators %}">Arithmetical operators</a>
-        <a class="post-link" href="{% post_url 2023-10-18-logical-operators %}">Logical operators</a>
-        <a class="post-link" href="{% post_url 2023-10-18-types %}">Data types</a>
-        <a class="post-link" href="{% post_url 2023-10-30-cond-statements %}">Conditional statements</a>
-        <a class="post-link" href="{% post_url 2023-10-30-functions %}">Functions definitions and expression</a>
-        <a class="post-link" href="{% post_url 2023-10-30-loops %}">Loops</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/general-syntax">Syntax introduction</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/arithmetical-operators">Arithmetical operators</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/logical-operators">Logical operators</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/types">Data types</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/cond-statements">Conditional statements</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/functions">Functions definitions and expression</a>
+        <a class="post-link" href="{{ site.baseurl }}posts/loops">Loops</a>
     <categories>Builtin functions:</categories>
         {%- for post in site.categories.builtin -%}
         <a class="post-link" href="{{ post.url | relative_url }}">
