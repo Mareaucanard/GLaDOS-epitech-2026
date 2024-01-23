@@ -26,17 +26,17 @@ categories: syntax
 <if-tree> ::= <if-statement> <elif-statement> <else-statement>
 <while-statement> ::= "while" <condition> <code-block>
 <for-statement> ::= "for" "(" <item> ";" <item> ";" <item> ")" <code-block>
-<function-definition> ::= "unction" <symbol> "(" <comma-separated-symbol-list> ")" "{" () "}"
+<function-definition> ::= "function" <symbol> "(" <comma-separated-symbol-list> ")" "{" <function-statement> "}"
 
-<code-block> = "{" <syntax> "}"
-<condition> = <condition>
+<code-block> ::= "{" <syntax> "}"
+<condition> ::= "(" <item> ")"
 
 <if-statement> ::= "if" <condition> <code-block>
-<elif-statement> ::= "" | "elif" <condition> <code-block>
+<elif-statement> ::= "" | "elif" <condition> <code-block> <elif-statement>
 <else-statement> ::= "" | "else" <code-block>
 
 <function-statement> ::= "" | <syntax> | "return" <item> ";"
-<comma-separated-symbol-list> ::= "" | <symbol> <comma-separated-symbol-list>
+<comma-separated-symbol-list> ::= "" | <symbol> "," <comma-separated-symbol-list> | <symbol>
 
 <ternary> ::= <item> "?" <item> ":" <item>
 
