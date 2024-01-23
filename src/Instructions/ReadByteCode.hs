@@ -156,14 +156,14 @@ analyzeByte 24 bs = handleIndex bs
 analyzeByte 25 bs = Just (NEGATIVE, bs)
 analyzeByte _ _ = Nothing
 
-readByteLogic :: ByteString -> Maybe [Instruction]
+readByteLogic :: ByteString -> Either [Instruction] String
 readByteLogic bytes = case BS.uncons bytes of
-  Nothing -> Just []
+  Nothing -> Left []
   Just (byte, leftovers1) -> case analyzeByte byte leftovers1 of
-    Nothing -> Nothing
+    Nothing -> Right "Invalid instruction code"
     Just (x, leftovers2) -> case readByteLogic leftovers2 of
-      Nothing -> Nothing
-      Just xs -> Just (x:xs)
+      Right err -> Right err
+      Left xs   -> Left (x:xs)
 
 parseNString :: ByteString -> Int -> Maybe (String, ByteString)
 parseNString bs 0 = Just ([], bs)
@@ -175,7 +175,5 @@ parseNString bs n = case BS.uncons bs of
 
 readByteCode :: ByteString -> Either [Instruction] String
 readByteCode bytes = case parseNString bytes 4 of
-  Just ("GLDB", bytes_2) -> case readByteLogic bytes_2 of
-    Nothing -> Right "Weird parsing error in VM file !!"
-    Just x  -> Left x
+  Just ("GLDB", bytes_2) -> readByteLogic bytes_2
   _ -> Right "Invalid vm file (wrong magic number)"

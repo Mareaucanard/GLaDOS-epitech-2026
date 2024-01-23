@@ -1,5 +1,0 @@
-./Makefile:20: MAJOR:C-F3
-./Makefile:43: MAJOR:C-F3
-./app/Main.hs contains forbidden extensions
-./src/DefaultSymbol.hs:230: MINOR:H-F4 # too long function
-./src/Types.hs contains forbidden extensions

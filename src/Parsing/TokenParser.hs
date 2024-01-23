@@ -349,5 +349,4 @@ tokensToAst tokens = case tokenRunParser parseAst tokens of
   Just (tokenHead, leftovers) -> case tokensToAst leftovers of
     Left tokenTail -> Left (tokenHead:tokenTail)
     Right err      -> Right err
-  Nothing -> Right "failed to parse file"
-
+  Nothing -> Right "Invalid syntax"

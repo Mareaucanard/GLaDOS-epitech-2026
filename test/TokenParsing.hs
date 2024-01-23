@@ -51,7 +51,7 @@ testParsing = hspec
       $ do
         it "no semicolon"
           $ tokensToAst [SemiColon, Sym "a"]
-          `shouldBe` Right "failed to parse file"
+          `shouldBe` Right "Invalid syntax"
     parseIt "symbol" [Sym "a", SemiColon] $ Left [Symbol "a"]
     parseIt
       "function"

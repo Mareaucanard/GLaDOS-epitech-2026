@@ -28,6 +28,9 @@ import           Vm.Builtin.BuiltinMap (builtInMap)
 import qualified Data.Map.Lazy as Map
 import           Vm.VmTypes
 
+exitError :: String -> IO ()
+exitError s = hPutStrLn stderr s >> exitWith (ExitFailure 84)
+
 addMain :: [Ast] -> [Ast]
 addMain x = case extractFunctions x of
   (a, b) -> a ++ [FunctionDefinition "main" [] b]
@@ -36,16 +39,16 @@ compileFile :: Either [Token] String
             -> Handle
             -> (Handle -> [Instruction] -> IO ())
             -> IO ()
-compileFile (Right err) _ _ = putStrLn "Tokenization failed" >> putStrLn err
+compileFile (Right _) _ _ = exitError "Tokenization failed"
 compileFile (Left tokens) outFile f = case tokensToAst
   (applyPreProcessing tokens) of
-  Right x  -> putStrLn x
+  Right x  -> exitError x
   Left ast -> case verifyParsing ast of
     Nothing
       -> f outFile (astListToInstructions $ addMain (simplifyParsing ast))
       >> hFlush outFile
       >> hClose outFile
-    Just err -> putStrLn err
+    Just err -> exitError err
 
 handleSource :: String -> String -> (Handle -> [Instruction] -> IO ()) -> IO ()
 handleSource fileInputName fileOutputName f = do
@@ -59,7 +62,7 @@ handleVmFile args filename output decode = do
   byte_code <- BS.readFile filename
   outFile <- streamOpenFile output WriteMode
   case readByteCode byte_code of
-    Right err -> putStrLn err
+    Right err -> exitError err
     Left inst -> if decode
                  then writeHumanReadable outFile inst
                  else applyRun args outFile inst
@@ -107,7 +110,7 @@ main :: IO ()
 main = do
   args_in <- getArgs
   case parseArguments args_in of
-    Right err -> hPutStrLn stderr err >> exitWith (ExitFailure 84)
+    Right err -> exitError err
     Left args -> do
       let inFile = fromJust $ inputFile args
       let outFile = fromJust $ outputFile args
