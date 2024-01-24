@@ -8,6 +8,7 @@ import           Vm.Utils
 import           Network.HTTP.Conduit (simpleHttp)
 import qualified Data.ByteString.Lazy.Char8 as L
 import           System.Time.Extra (sleep)
+import Control.Exception (catch, SomeException)
 
 
 ioMap :: [(String, Symbol)]
@@ -84,12 +85,20 @@ throwCall s m = case popN s m 1 of
   Right _        -> die "Throw: Wrong number of arguments"
   Left e         -> die e
 
+fetchPage :: String -> IO StackValue
+fetchPage url = catch (simpleHttp url >>= toString) handler
+  where
+    toString s = return (Flat (V (Str (readByteString s))))
+    handler :: SomeException -> IO StackValue
+    handler _ = return $ Flat (V Nil)
+
+
 fetch :: BuiltInFunc
 fetch s m = case popN s m 1 of
-  Right (f_stack, [V (Str url)]) -> simpleHttp url
-    >>= \x -> return (Flat (V (Str (readByteString x))), f_stack)
+  Right (f_stack, [V (Str url)]) -> fetchPage url
+    >>= \x -> return (x, f_stack)
   Right (_, [x]) -> die $ "Fetch: expected string but got " ++ typeOfVal x
-  _ -> die "Fetch: Die"
+  _ -> die "Fetch: No args"
 
 readByteString :: L.ByteString -> String
 readByteString bs = case L.uncons bs of

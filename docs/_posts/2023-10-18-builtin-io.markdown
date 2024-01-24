@@ -15,12 +15,12 @@ write(fd, data);
 print(data);
 {% endhighlight %}
 
-- `read` - Read from `fd` passed as argument untill a newline is read.
+- `read` - Read from `fd` passed as argument until a newline is read.
 {% highlight GLaDOS %}
 read(fd);
 {% endhighlight %}
 
-- `input` - Read from the standard input untill a newline is read.
+- `input` - Read from the standard input until a newline is read.
 {% highlight GLaDOS %}
 input();
 {% endhighlight %}
@@ -35,7 +35,7 @@ open(path, flags);
 close(fd);
 {% endhighlight %}
 
-- `fetch` - Does a get on an `url` passed as argument.
+- `fetch` - Does a get on an `url` passed as argument. On success returns the webpage as a string, otherwise returns nil
 {% highlight GLaDOS %}
 fetch(url);
 {% endhighlight %}
