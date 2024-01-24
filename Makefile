@@ -42,7 +42,7 @@ functional_test:
 
 unit_test:
 			@stack test --coverage
-			@ln -sf "$(stack path --local-install-root)/hpc/index.html" report.html
+			@ln -sf "$(shell stack path --local-install-root)/hpc/index.html" report.html
 			@echo -e "\e[0;32mhtml report created at report.html\e[0m"
 
 
