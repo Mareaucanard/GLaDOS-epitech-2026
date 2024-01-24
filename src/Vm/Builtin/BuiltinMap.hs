@@ -4,6 +4,7 @@
 -- File description:
 -- Vm
 -}
+{-# LANGUAGE DataKinds #-}
 module Vm.Builtin.BuiltinMap (builtInMap) where
 
 import qualified Data.Map.Lazy as Map
@@ -16,8 +17,10 @@ import           Text.Read (readMaybe)
 import           Vm.Builtin.Math (mathMap)
 import           Vm.Builtin.Lists (listMap)
 import           Vm.Builtin.IO (ioMap)
-import           System.Clock
+import System.Clock
+    ( getTime, Clock(Realtime), TimeSpec(sec, nsec) )
 import System.Process.Extra (callProcess)
+import Control.Exception (catch, SomeException)
 
 -- BUILTINS
 builtInMap :: VarMap
@@ -118,12 +121,18 @@ extractStrings (V (Str x):xs) = case extractStrings xs of
 extractStrings _ = Nothing
 
 
+execProcess :: String -> [String] -> Stack -> IO (StackValue, Stack)
+execProcess command args s = catch (callProcess command args >> return (Flat (V (Integer 0)), s)) handler
+  where
+    handler ::  SomeException -> IO (StackValue, Stack)
+    handler _ = return (Flat (V (Integer 1)), s)
+
 subprocess :: BuiltInFunc
 subprocess s m = case popN s m 1 of
   Right (s', [Tab t]) -> case extractStrings t of
     Nothing -> die "subprocess only takes strings"
     Just [] -> die "subprocess no command to execute"
-    Just (x:xs) -> callProcess x xs >> none s'
+    Just (x:xs) -> execProcess x xs s'
   Right (_, [_]) -> die "subprocess takes string tab"
   Right (_', _) -> die "subprocess takes one argument"
   Left e -> die e

@@ -103,3 +103,13 @@ typeof("hello"); => "string"
 typeof(nil); => "Nil"
 typeof([]); => "list"
 {% endhighlight %}
+
+- `subprocess`: takes a list of string, executes the program. Returns 0 on success and 1 on failure. Doesn't support pipes, conditions.
+{% highlight GLaDOS %}
+subprocess([command, arg1, arg2, ...]);
+{% endhighlight %}
+{% highlight GLaDOS %}
+subprocess(["true"]); => 0
+subprocess(["false"]); => 1
+subprocess(["echo", "Hello, world!"]); => 0 (and prints 'Hello, world!')
+{% endhighlight %}
