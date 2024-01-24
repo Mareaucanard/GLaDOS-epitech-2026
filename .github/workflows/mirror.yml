@@ -22,30 +22,17 @@ jobs:
       run: |
         make build
 
+    - name: run_tests
+      run: make tests
+
+
     - uses: actions/upload-artifact@v2
       with:
         name: glados-bin
         path: glados
 
-
-  run_tests:
-    needs: compile
-    runs-on: ubuntu-latest
-    container: someone2love/glados_build_env:latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - uses: actions/download-artifact@v2
-      with:
-        name: glados-bin
-
-    - name: run_tests
-      run: make tests
-
-
-
   publish:
-    needs: run_tests
+    needs: compile
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
 
@@ -62,7 +49,7 @@ jobs:
           ${{ secrets.KEY_GIT_PUSH }}
 
   deploy:
-    needs: run_tests
+    needs: compile
     runs-on: ubuntu-latest
     permissions: write-all
     if: github.ref == 'refs/heads/main'
